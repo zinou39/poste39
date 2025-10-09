@@ -4,16 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سجل تسليم البريد</title>
+
+    <!-- PWA Meta Tags for App-like experience -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="سجل البريد">
+    <meta name="theme-color" content="#0b66ff">
+
+    <!-- PWA Icon and Manifest (inlined) -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 24 24' fill='none' stroke='%230b66ff' stroke-width='1.5'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2' fill='%23ffffff'%3E%3C/rect%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'%3E%3C/path%3E%3Cpolyline points='14 2 14 8 20 8'%3E%3C/polyline%3E%3Cline x1='16' y1='13' x2='8' y2='13'%3E%3C/line%3E%3Cline x1='16' y1='17' x2='8' y2='17'%3E%3C/line%3E%3Cpolyline points='10 9 9 9 8 9'%3E%3C/polyline%3E%3C/svg%3E">
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D8%B3%D8%AC%D9%84%20%D8%AA%D8%B3%D9%84%D9%8A%D9%85%20%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%D8%AF%22%2C%22short_name%22%3A%22%D8%B3%D8%AC%D9%84%20%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%D8%AF%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f6f7fb%22%2C%22theme_color%22%3A%22%230b66ff%22%2C%22description%22%3A%22%D9%86%D8%B8%D8%A7%D9%85%20%D9%84%D8%AA%D8%B3%D8%AC%D9%8A%D9%84%20%D8%B9%D9%85%D9%84%D9%8A%D8%A7%D8%AA%20%D8%AA%D8%B3%D9%84%D9%8A%D9%85%20%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%D8%AF.%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage/svg%2Bxml%2C%253Csvg%2520xmlns%3D%27http%3A//www.w3.org/2000/svg%27%2520width%3D%27192%27%2520height%3D%27192%27%2520viewBox%3D%270%25200%252024%252024%27%2520fill%3D%27none%27%2520stroke%3D%27%2523ffffff%27%2520stroke-width%3D%272%27%2520stroke-linecap%3D%27round%27%2520stroke-linejoin%3D%27round%27%253E%253Cpath%2520d%3D%27M14%25202H6a2%25202%25200%25200%25200-2%25202v16a2%25202%25200%25200%25200%25202%25202h12a2%25202%25200%25200%25200%25202-2V8z%27%2520fill%3D%27%25230b66ff%27%253E%253C/path%253E%253Cpolyline%2520points%3D%2714%25202%252014%25208%252020%25208%27%253E%253C/polyline%253E%253Cline%2520x1%3D%2716%27%2520y1%3D%2713%27%2520x2%3D%278%27%2520y2%3D%2713%27%253E%253C/line%253E%253Cline%2520x1%3D%2716%27%2520y1%3D%2717%27%2520x2%3D%278%27%2520y2%3D%2717%27%253E%253C/line%253E%253Cpolyline%2520points%3D%2710%25209%25209%25209%25208%25209%27%253E%253C/polyline%253E%253C/svg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image/svg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%2C%7B%22src%22%3A%22data%3Aimage/svg%2Bxml%2C%253Csvg%2520xmlns%3D%27http%3A//www.w3.org/2000/svg%27%2520width%3D%27512%27%2520height%3D%27512%27%2520viewBox%3D%270%25200%252024%252024%27%2520fill%3D%27none%27%2520stroke%3D%27%2523ffffff%27%2520stroke-width%3D%272%27%2520stroke-linecap%3D%27round%27%2520stroke-linejoin%3D%27round%27%253E%253Cpath%2520d%3D%27M14%25202H6a2%25202%25200%25200%25200-2%25202v16a2%25202%25200%25200%25200%25202%25202h12a2%25202%25200%25200%25200%25202-2V8z%27%2520fill%3D%27%25230b66ff%27%253E%253C/path%253E%253Cpolyline%2520points%3D%2714%25202%252014%25208%252020%25208%27%253E%253C/polyline%253E%253Cline%2520x1%3D%2716%27%2520y1%3D%2713%27%2520x2%3D%278%27%2520y2%3D%2713%27%253E%253C/line%253E%253Cline%2520x1%3D%2716%27%2520y1%3D%2717%27%2520x2%3D%278%27%2520y2%3D%2717%27%253E%253C/line%253E%253Cpolyline%2520points%3D%2710%25209%25209%25209%25208%25209%27%253E%253C/polyline%253E%253C/svg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image/svg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Libraries for Excel and PDF export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Final PDF Solution: jsPDF and jsPDF-AutoTable -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-
-
+    
     <style>
         :root {
             font-family: 'Cairo', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -58,6 +64,10 @@
             font-weight: 500;
         }
 
+        .input-wrapper {
+            position: relative;
+        }
+
         input,
         select,
         textarea {
@@ -76,6 +86,35 @@
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px var(--light-primary-color);
+        }
+        
+        .mic-btn {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(2px);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mic-btn:hover {
+            background-color: #f0f0f0;
+        }
+        .mic-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--muted-text-color);
+        }
+        .mic-btn.listening svg {
+            fill: var(--primary-color);
+        }
+        body.no-speech-recognition .mic-btn {
+            display: none;
         }
 
         .row {
@@ -105,6 +144,39 @@
         .btn:disabled {
             cursor: not-allowed;
             opacity: 0.7;
+        }
+
+        .btn.loading {
+            position: relative;
+            color: transparent !important;
+            pointer-events: none;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            border: 2px solid rgba(255, 255, 255, 0.5); /* White spinner on primary button */
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spinner 0.6s linear infinite;
+        }
+        
+        .btn-ghost.loading::after {
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-top-color: var(--primary-color);
+        }
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .btn-primary {
@@ -243,6 +315,7 @@
         }
         .modal-body {
             margin-bottom: 20px;
+            white-space: pre-wrap;
         }
         .modal-footer {
             display: flex;
@@ -250,6 +323,23 @@
             gap: 8px;
         }
         
+        #user-management-list {
+            list-style: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        #user-management-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #user-management-list li:last-child {
+            border-bottom: none;
+        }
+
         /* Stats Page Styles */
         .stats-container {
             padding-top: 20px;
@@ -277,8 +367,23 @@
             max-width: 400px;
             margin: 8vh auto 0 auto;
         }
+        
+        .developer-credit {
+            font-weight: 600;
+            font-size: 1rem;
+            background: linear-gradient(45deg, #0b66ff, #ffc107);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
         @media (max-width: 760px) {
+            body {
+                padding: 12px;
+            }
+            .container {
+                padding: 16px;
+            }
             .row {
                 flex-direction: column;
                 gap: 0;
@@ -372,17 +477,23 @@
             <h1>نظام تسجيل تسليم البريد</h1>
             <button id="logoutBtn" class="btn btn-danger">خروج</button>
         </div>
-        <div class="small muted" style="text-align:center; margin-bottom: 16px;">يعمل محلياً ويحفظ البيانات في جهازك فقط</div>
+        <div class="developer-credit" style="text-align:center; margin-bottom: 16px;">تم تطويره من قبل زهير عيه</div>
 
         <form id="deliveryForm" autocomplete="off">
             <div class="row">
                 <div class="col">
-                    <label for="name">اسم الزبون</label>
-                    <input id="name" required />
+                    <div class="input-wrapper">
+                        <label for="name">اسم الزبون</label>
+                        <input id="name" required />
+                        <button type="button" class="btn mic-btn" data-target-id="name" aria-label="تسجيل صوتي"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+                    </div>
                 </div>
                 <div class="col">
-                    <label for="idnum">رقم الهوية / الرقم الوطني</label>
-                    <input id="idnum" />
+                    <div class="input-wrapper">
+                        <label for="idnum">رقم الهوية / الرقم الوطني</label>
+                        <input id="idnum" />
+                        <button type="button" class="btn mic-btn" data-target-id="idnum" aria-label="تسجيل صوتي"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -426,12 +537,18 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <label for="address">العنوان (شارع، رقم، حي)</label>
-                    <input id="address" />
+                     <div class="input-wrapper">
+                        <label for="address">العنوان (شارع، رقم، حي)</label>
+                        <input id="address" />
+                        <button type="button" class="btn mic-btn" data-target-id="address" aria-label="تسجيل صوتي"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+                    </div>
                 </div>
                 <div class="col">
-                    <label for="phone">هاتف للتواصل</label>
-                    <input id="phone" />
+                    <div class="input-wrapper">
+                        <label for="phone">هاتف للتواصل</label>
+                        <input id="phone" />
+                        <button type="button" class="btn mic-btn" data-target-id="phone" aria-label="تسجيل صوتي"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -451,22 +568,30 @@
                 </div>
             </div>
 
-            <label for="notes">تفاصيل إضافية / ملاحظات</label>
-            <textarea id="notes" rows="2"></textarea>
+            <div class="input-wrapper">
+                <label for="notes">تفاصيل إضافية / ملاحظات</label>
+                <textarea id="notes" rows="2"></textarea>
+                <button type="button" class="btn mic-btn" data-target-id="notes" aria-label="تسجيل صوتي" style="transform: translateY(-8px);"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+            </div>
             
-            <label for="communicationLog">سجل الاتصال (تم الاتصال / إرسال إشعار بتاريخ...)</label>
-            <textarea id="communicationLog" rows="2"></textarea>
+            <div class="input-wrapper">
+                <label for="communicationLog">سجل الاتصال (تم الاتصال / إرسال إشعار بتاريخ...)</label>
+                <textarea id="communicationLog" rows="2"></textarea>
+                <button type="button" class="btn mic-btn" data-target-id="communicationLog" aria-label="تسجيل صوتي" style="transform: translateY(-8px);"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+            </div>
 
-            <label for="nonReceiptReason">سبب عدم الاستلام</label>
-            <textarea id="nonReceiptReason" rows="2"></textarea>
+            <div class="input-wrapper">
+                <label for="nonReceiptReason">سبب عدم الاستلام</label>
+                <textarea id="nonReceiptReason" rows="2"></textarea>
+                <button type="button" class="btn mic-btn" data-target-id="nonReceiptReason" aria-label="تسجيل صوتي" style="transform: translateY(-8px);"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+            </div>
 
             <div class="form-actions">
                 <button class="btn btn-primary" type="submit">حفظ السجل</button>
                 <button id="resetBtn" class="btn btn-ghost" type="button">تفريغ الحقول</button>
                 <div class="right-actions">
                     <button id="showStatsBtn" class="btn btn-ghost" type="button">عرض الإحصائيات</button>
-                    <button id="exportExcelBtn" class="btn btn-ghost" type="button">تحميل Excel</button>
-                    <button id="exportPdfBtn" class="btn btn-ghost" type="button">تحميل PDF</button>
+                    <button id="manageUsersBtn" class="btn btn-ghost" type="button" style="display: none;">إدارة المستخدمين</button>
                 </div>
             </div>
         </form>
@@ -501,7 +626,7 @@
             <tbody></tbody>
         </table>
 
-        <div class="small muted" style="margin-top:10px; text-align:center;">ملاحظة: التطبيق يعمل محليًا ويحفظ السجلات في متصفحك فقط (localStorage). لحفظ دائم، قم بتصدير الملفات.</div>
+        <div class="small muted" style="margin-top:10px; text-align:center;">تطوير عيه زهير zinou</div>
     </div>
     
     <div id="statsView" class="container" style="display: none;">
@@ -513,7 +638,7 @@
         </div>
     </div>
 
-    <!-- Modal Structure -->
+    <!-- Generic Modal Structure -->
     <div id="customModal" class="modal-overlay">
         <div class="modal-content">
             <div id="modalHeader" class="modal-header"></div>
@@ -521,14 +646,62 @@
             <div id="modalFooter" class="modal-footer"></div>
         </div>
     </div>
+
+    <!-- User Management Modal -->
+    <div id="userManagementModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">إدارة المستخدمين</div>
+            <div class="modal-body">
+                <h4>إضافة مستخدم جديد</h4>
+                <form id="addUserForm" autocomplete="off">
+                    <div class="row">
+                        <div class="col">
+                            <label for="newUsername">اسم المستخدم</label>
+                            <input id="newUsername" type="text" required>
+                        </div>
+                        <div class="col">
+                            <label for="newPassword">كلمة المرور</label>
+                            <input id="newPassword" type="password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إنشاء مستخدم</button>
+                </form>
+                <hr style="margin: 20px 0;">
+                <h4>المستخدمون الحاليون</h4>
+                <ul id="user-management-list">
+                    <!-- User list will be populated here -->
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button id="closeUserManagementModal" class="btn btn-ghost">إغلاق</button>
+            </div>
+        </div>
+    </div>
     
-    <script>
-        // --- FINAL, CORRECT, VALIDATED Embedded Amiri Font Data (Base64 Encoded) for jsPDF ---
-        const AmiriRegular = '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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-Regular';
-    </script>
-    <script>
-        ;(function() {
-            const LS_KEY = 'postal_deliveries_v15_final_solution';
+    <script type="module">
+        // Import Firebase services
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+
+        // Use environment variables provided by the Canvas environment
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : { apiKey: "DEMO_KEY_THIS_WILL_FAIL" }; // Fallback for local dev, will show error
+        
+        // Initialize Firebase
+        let db, auth;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (e) {
+            console.error("Firebase initialization failed. Please check your firebaseConfig.", e);
+            alert("فشل تهيئة Firebase. يرجى التأكد من صحة إعداداتك في الكود.");
+        }
+
+        (function() {
+            const DRAFT_KEY = 'postal_delivery_draft_v1';
             
             // View Elements
             const loginView = document.getElementById('loginView');
@@ -570,10 +743,95 @@
             const modalHeader = document.getElementById('modalHeader');
             const modalBody = document.getElementById('modalBody');
             const modalFooter = document.getElementById('modalFooter');
+
+            // User Management Elements
+            const manageUsersBtn = document.getElementById('manageUsersBtn');
+            const userManagementModal = document.getElementById('userManagementModal');
+            const closeUserManagementModalBtn = document.getElementById('closeUserManagementModal');
+            const addUserForm = document.getElementById('addUserForm');
+            const newUsernameEl = document.getElementById('newUsername');
+            const newPasswordEl = document.getElementById('newPassword');
+            const userManagementList = document.getElementById('user-management-list');
             
             let records = [];
             let editId = null;
+            let activeInputForSpeech = null;
+            let deliveriesCol;
+            let credentialsCol;
+            let appId; // Defined in IIFE scope to be accessible everywhere
+            let unsubscribe = () => {};
             
+            // --- Speech Recognition Setup ---
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            let recognition;
+
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.lang = 'ar-DZ';
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+
+                recognition.onstart = function() {
+                    const activeBtn = document.querySelector(`.mic-btn[data-target-id="${activeInputForSpeech.id}"]`);
+                    if (activeBtn) activeBtn.classList.add('listening');
+                };
+
+                recognition.onend = function() {
+                    const activeBtn = document.querySelector(`.mic-btn[data-target-id="${activeInputForSpeech.id}"]`);
+                    if (activeBtn) activeBtn.classList.remove('listening');
+                    activeInputForSpeech = null;
+                };
+
+                recognition.onresult = function(event) {
+                    const speechResult = event.results[0][0].transcript;
+                    if (activeInputForSpeech) {
+                        activeInputForSpeech.value = speechResult;
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error', event.error);
+                    showAlert('حدث خطأ أثناء التعرف على الصوت: ' + event.error);
+                };
+
+            } else {
+                console.log("Speech Recognition not supported in this browser.");
+                document.body.classList.add('no-speech-recognition');
+            }
+
+            // --- Draft Management Functions ---
+            const formInputs = [nameEl, idEl, idIssueDateEl, idIssuerEl, addrEl, phoneEl, typeEl, dateEl, notesEl, communicationLogEl, nonReceiptReasonEl];
+
+            function saveDraft() {
+                const draftData = {};
+                formInputs.forEach(el => {
+                    draftData[el.id] = el.value;
+                });
+                sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+            }
+
+            function loadDraft() {
+                const raw = sessionStorage.getItem(DRAFT_KEY);
+                if (!raw) return;
+                try {
+                    const draftData = JSON.parse(raw);
+                    formInputs.forEach(el => {
+                        if (draftData[el.id] !== undefined) {
+                            el.value = draftData[el.id];
+                        }
+                    });
+                } catch (e) {
+                    console.error("Failed to load draft", e);
+                    sessionStorage.removeItem(DRAFT_KEY);
+                }
+            }
+
+            function clearDraft() {
+                sessionStorage.removeItem(DRAFT_KEY);
+            }
+
+
             // --- View Management ---
             function showLoginView() {
                 loginView.style.display = 'block';
@@ -597,7 +855,11 @@
             // --- Modal Functions ---
             function showModal(header, body, buttons) {
                 modalHeader.textContent = header;
-                modalBody.textContent = body;
+                modalBody.innerHTML = ''; // Clear previous body
+                const p = document.createElement('p');
+                p.textContent = body;
+                modalBody.appendChild(p);
+
                 modalFooter.innerHTML = '';
                 buttons.forEach(btnInfo => {
                     const button = document.createElement('button');
@@ -616,6 +878,7 @@
 
             function closeModal() {
                 modal.classList.remove('visible');
+                userManagementModal.classList.remove('visible');
             }
 
             function showAlert(message, title = 'تنبيه') {
@@ -636,21 +899,7 @@
             });
 
 
-            // --- Core App Functions ---
-            function load() {
-                try {
-                    const raw = localStorage.getItem(LS_KEY);
-                    records = raw ? JSON.parse(raw) : [];
-                } catch (e) {
-                    console.error("Failed to load records from localStorage", e);
-                    records = [];
-                }
-            }
-
-            function save() {
-                localStorage.setItem(LS_KEY, JSON.stringify(records));
-            }
-
+            // --- Core App Functions (with Firebase) ---
             function render() {
                 const q = (searchEl.value || '').trim().toLowerCase();
                 const typeFilter = filterType.value;
@@ -711,33 +960,41 @@
             }
 
             function clearForm() {
+                clearDraft();
                 form.reset();
                 editId = null;
                 dateEl.value = new Date().toISOString().slice(0, 10);
                 form.querySelector('button[type="submit"]').textContent = 'حفظ السجل';
             }
 
-            function addRecord(obj) {
-                obj.id = 'r_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
-                records.unshift(obj);
-                save();
-                render();
+            async function addRecord(obj) {
+                try {
+                    await addDoc(deliveriesCol, obj);
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                    showAlert("حدث خطأ أثناء حفظ السجل.");
+                }
             }
 
-            function updateRecord(id, obj) {
-                const i = records.findIndex(x => x.id === id);
-                if (i >= 0) {
-                    records[i] = { ...records[i], ...obj };
-                    save();
-                    render();
+            async function updateRecord(id, obj) {
+                try {
+                    const docRef = doc(db, deliveriesCol.path, id);
+                    await updateDoc(docRef, obj);
+                } catch (e) {
+                    console.error("Error updating document: ", e);
+                    showAlert("حدث خطأ أثناء تحديث السجل.");
                 }
             }
 
             function deleteRecord(id) {
-                showConfirm('هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.', () => {
-                    records = records.filter(x => x.id !== id);
-                    save();
-                    render();
+                showConfirm('هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
+                     try {
+                        const docRef = doc(db, deliveriesCol.path, id);
+                        await deleteDoc(docRef);
+                    } catch (e) {
+                        console.error("Error deleting document: ", e);
+                        showAlert("حدث خطأ أثناء حذف السجل.");
+                    }
                 });
             }
             
@@ -767,5 +1024,359 @@
 
                 // Render Daily Stats
                 let dailyHtml = `<h3>إحصائيات اليوم (${todayStr})</h3>`;
-                dailyHtml +=
+                dailyHtml += '<table><thead><tr><th>النوع</th><th>العدد</th></tr></thead><tbody>';
+                let dailyTotal = 0;
+                for (const type in dailyCounts) {
+                    dailyHtml += `<tr><td>${escapeHtml(type)}</td><td>${dailyCounts[type]}</td></tr>`;
+                    dailyTotal += dailyCounts[type];
+                }
+                dailyHtml += `<tr style="font-weight: bold;"><td>الإجمالي</td><td>${dailyTotal}</td></tr>`;
+                dailyHtml += '</tbody></table>';
+                dailyStatsContainer.innerHTML = dailyHtml;
+
+                // Render Monthly Stats
+                const monthName = now.toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
+                let monthlyHtml = `<h3>إحصائيات الشهر (${monthName})</h3>`;
+                monthlyHtml += '<table><thead><tr><th>النوع</th><th>العدد</th></tr></thead><tbody>';
+                let monthlyTotal = 0;
+                for (const type in monthlyCounts) {
+                    monthlyHtml += `<tr><td>${escapeHtml(type)}</td><td>${monthlyCounts[type]}</td></tr>`;
+                    monthlyTotal += monthlyCounts[type];
+                }
+                monthlyHtml += `<tr style="font-weight: bold;"><td>الإجمالي</td><td>${monthlyTotal}</td></tr>`;
+                monthlyHtml += '</tbody></table>';
+                monthlyStatsContainer.innerHTML = monthlyHtml;
+            }
+
+
+            // --- Event Listeners ---
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const user = usernameInput.value.trim();
+                const pass = passwordInput.value.trim();
+                
+                if (!user || !pass) return;
+
+                const userDocRef = doc(credentialsCol, user);
+                const userDoc = await getDoc(userDocRef);
+
+                if (userDoc.exists() && userDoc.data().password === pass) {
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('loggedInUser', user);
+                    showMainView();
+                    initializeAppData(user);
+                } else {
+                    showAlert('اسم المستخدم أو كلمة المرور غير صحيحة.');
+                }
+            });
+
+            logoutBtn.addEventListener('click', () => {
+                if (typeof unsubscribe === 'function') {
+                    unsubscribe(); // Detach listener
+                }
+                sessionStorage.removeItem('isLoggedIn');
+                sessionStorage.removeItem('loggedInUser');
+                usernameInput.value = '';
+                passwordInput.value = '';
+                manageUsersBtn.style.display = 'none'; // Hide admin button
+                showLoginView();
+            });
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const payload = {
+                    name: nameEl.value.trim(),
+                    idnum: idEl.value.trim(),
+                    idIssueDate: idIssueDateEl.value.trim(),
+                    idIssuer: idIssuerEl.value.trim(),
+                    address: addrEl.value.trim(),
+                    phone: phoneEl.value.trim(),
+                    itemType: typeEl.value,
+                    date: dateEl.value || new Date().toISOString().slice(0, 10),
+                    notes: notesEl.value.trim(),
+                    communicationLog: communicationLogEl.value.trim(),
+                    nonReceiptReason: nonReceiptReasonEl.value.trim()
+                };
+
+                if (!payload.name) {
+                    showAlert('الرجاء إدخال اسم الزبون.');
+                    nameEl.focus();
+                    return;
+                }
+
+                if (editId) {
+                    await updateRecord(editId, payload);
+                } else {
+                    await addRecord(payload);
+                }
+                clearForm();
+            });
+            
+            form.addEventListener('click', (e) => {
+                const micBtn = e.target.closest('.mic-btn');
+                if (!micBtn || !recognition) return;
+
+                if (micBtn.classList.contains('listening')) {
+                    recognition.stop();
+                    return;
+                }
+                
+                const targetId = micBtn.dataset.targetId;
+                activeInputForSpeech = document.getElementById(targetId);
+
+                if (activeInputForSpeech) {
+                    try {
+                        recognition.start();
+                    } catch(err) {
+                        console.error("Could not start recognition", err);
+                        showAlert('لا يمكن بدء التعرف على الصوت الآن.');
+                    }
+                }
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', clearForm);
+
+            tbody.addEventListener('click', function(e) {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                const id = btn.dataset.id;
+                if (btn.classList.contains('btn-edit')) {
+                    const rec = records.find(x => x.id === id);
+                    if (!rec) return;
+                    nameEl.value = rec.name;
+                    idEl.value = rec.idnum;
+                    idIssueDateEl.value = rec.idIssueDate;
+                    idIssuerEl.value = rec.idIssuer;
+                    addrEl.value = rec.address;
+                    phoneEl.value = rec.phone;
+                    typeEl.value = rec.itemType;
+                    dateEl.value = rec.date;
+                    notesEl.value = rec.notes;
+                    communicationLogEl.value = rec.communicationLog;
+                    nonReceiptReasonEl.value = rec.nonReceiptReason;
+                    editId = id;
+                    form.querySelector('button[type="submit"]').textContent = 'تحديث السجل';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else if (btn.classList.contains('btn-del')) {
+                    deleteRecord(id);
+                }
+            });
+
+            searchEl.addEventListener('input', render);
+            filterType.addEventListener('change', render);
+
+            // Navigation Listeners
+            showStatsBtn.addEventListener('click', () => {
+                showStatsView();
+                renderStatistics();
+            });
+
+            backToMainBtn.addEventListener('click', () => {
+                showMainView();
+            });
+            
+            // --- User Management Listeners ---
+            manageUsersBtn.addEventListener('click', async () => {
+                await renderUserList();
+                userManagementModal.classList.add('visible');
+            });
+
+            closeUserManagementModalBtn.addEventListener('click', () => {
+                userManagementModal.classList.remove('visible');
+            });
+            
+            userManagementModal.addEventListener('click', (e) => {
+                if(e.target === userManagementModal) {
+                    userManagementModal.classList.remove('visible');
+                }
+            });
+
+            addUserForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newUsername = newUsernameEl.value.trim();
+                const newPassword = newPasswordEl.value.trim();
+
+                if (!newUsername || !newPassword) {
+                    showAlert("الرجاء تعبئة جميع الحقول.");
+                    return;
+                }
+                
+                const userDocRef = doc(credentialsCol, newUsername);
+                const userDoc = await getDoc(userDocRef);
+
+                if (userDoc.exists()) {
+                    showAlert("اسم المستخدم هذا موجود بالفعل.");
+                    return;
+                }
+
+                try {
+                    await setDoc(userDocRef, { password: newPassword });
+                    showAlert("تمت إضافة المستخدم بنجاح.", "نجاح");
+                    addUserForm.reset();
+                    await renderUserList();
+                } catch(err) {
+                    console.error("Error adding user: ", err);
+                    showAlert("حدث خطأ أثناء إضافة المستخدم.");
+                }
+            });
+
+            userManagementList.addEventListener('click', (e) => {
+                const delBtn = e.target.closest('.delete-user-btn');
+                if (!delBtn) return;
+                
+                const usernameToDelete = delBtn.dataset.username;
+                if (usernameToDelete === 'zinou') {
+                    showAlert("لا يمكن حذف حساب المدير الرئيسي.");
+                    return;
+                }
+
+                showConfirm(`هل أنت متأكد من حذف المستخدم "${usernameToDelete}"؟ سيتم حذف جميع بياناته.`, async () => {
+                    try {
+                        await deleteDoc(doc(credentialsCol, usernameToDelete));
+                        showAlert("تم حذف المستخدم بنجاح.");
+                        await renderUserList();
+                    } catch (err) {
+                        console.error("Error deleting user: ", err);
+                        showAlert("حدث خطأ أثناء حذف المستخدم.");
+                    }
+                });
+            });
+
+            async function renderUserList() {
+                const usersSnapshot = await getDocs(credentialsCol);
+                userManagementList.innerHTML = '';
+                usersSnapshot.forEach(doc => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span>${escapeHtml(doc.id)}</span>
+                        <button class="btn btn-danger delete-user-btn" data-username="${escapeHtml(doc.id)}" style="padding: 4px 8px; font-size: 0.8rem;">حذف</button>
+                    `;
+                    userManagementList.appendChild(li);
+                });
+            }
+
+
+            // --- Initialization ---
+            async function bootstrapAdminUser() {
+                const zinouDocRef = doc(credentialsCol, 'zinou');
+                const zinouDoc = await getDoc(zinouDocRef);
+                if (!zinouDoc.exists()) {
+                    await setDoc(zinouDocRef, { password: 'zinou' });
+                    console.log("Admin user 'zinou' created/verified.");
+                }
+            }
+            
+            async function initializeAppData(loggedInAppUser) {
+                if(loggedInAppUser === 'zinou'){
+                    manageUsersBtn.style.display = 'inline-block';
+                }
+                
+                const firebaseUser = auth.currentUser;
+                // appId is now available from the outer scope
+                
+                // Path for user-specific data
+                deliveriesCol = collection(db, `artifacts/${appId}/users/${firebaseUser.uid}/app_users/${loggedInAppUser}/deliveries`);
+
+                // Set up real-time listener
+                unsubscribe = onSnapshot(query(deliveriesCol), (snapshot) => {
+                    records = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    records.sort((a,b) => (b.name || '').localeCompare(a.name || '')); // Sort for consistency
+                    render();
+                });
+
+                if (!dateEl.value) {
+                    dateEl.value = new Date().toISOString().slice(0, 10);
+                }
+                loadDraft();
+                
+                form.querySelectorAll('input, select, textarea').forEach(el => {
+                    el.addEventListener('input', saveDraft);
+                });
+            }
+
+            function initializePWA() {
+                if ('serviceWorker' in navigator) {
+                    const serviceWorkerScript = `
+                        const CACHE_NAME = 'mail-delivery-log-v2';
+                        const urlsToCache = [
+                            location.href, // Cache the current page
+                            'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap',
+                            'https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js',
+                            'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js',
+                            'https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js'
+                        ];
+
+                        self.addEventListener('install', event => {
+                            event.waitUntil(
+                                caches.open(CACHE_NAME)
+                                    .then(cache => {
+                                        console.log('Opened cache');
+                                        const requests = urlsToCache.map(url => new Request(url, {cache: 'reload'}));
+                                        return cache.addAll(requests);
+                                    })
+                            );
+                        });
+
+                        self.addEventListener('fetch', event => {
+                            event.respondWith(
+                                caches.match(event.request)
+                                    .then(response => {
+                                        return response || fetch(event.request);
+                                    })
+                            );
+                        });
+                    `;
+                    
+                    const blob = new Blob([serviceWorkerScript], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(blob);
+
+                    navigator.serviceWorker.register(swUrl)
+                        .then(registration => {
+                            console.log('ServiceWorker registration successful: ', registration);
+                        })
+                        .catch(error => {
+                            console.log('ServiceWorker registration failed: ', error);
+                        });
+                }
+            }
+
+            async function main() {
+                try {
+                    // This is the main entry point. First, AUTHENTICATE with Firebase.
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    console.log("Firebase Auth successful.");
+
+                    // Now that we are authenticated, we can safely access Firestore.
+                    // Assign to the IIFE-scoped variable
+                    appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                    credentialsCol = collection(db, `artifacts/${appId}/public/data/credentials`);
+
+                    // Ensure the admin user exists. This is safe to call now.
+                    await bootstrapAdminUser();
+                    
+                    // Now, check if the user is logged into our APP (via sessionStorage)
+                    const loggedInUser = sessionStorage.getItem('loggedInUser');
+                    if (sessionStorage.getItem('isLoggedIn') === 'true' && loggedInUser) {
+                        showMainView();
+                        initializeAppData(loggedInUser);
+                    } else {
+                        showLoginView();
+                    }
+                } catch (e) {
+                    console.error("Critical initialization failed:", e);
+                    showAlert("حدث خطأ فادح أثناء بدء تشغيل التطبيق. لا يمكن الاتصال بالخدمة.");
+                }
+            }
+
+            main(); // Start the application.
+            initializePWA(); // Initialize the PWA features.
+
+        })();
+    </script>
+</body>
+</html>
 
