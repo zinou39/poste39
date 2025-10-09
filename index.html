@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل تسليم البريد</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Libraries for Excel and PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Final PDF Solution: jsPDF and jsPDF-AutoTable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+
+    <style>
+        :root {
+            font-family: 'Cairo', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --primary-color: #0b66ff;
+            --light-primary-color: #eef2ff;
+            --border-color: #d7dbe6;
+            --text-color: #0b1220;
+            --muted-text-color: #6b7280;
+            --background-color: #f6f7fb;
+            --surface-color: #fff;
+            --shadow-color: rgba(11, 18, 32, 0.07);
+        }
+
+        body {
+            background: var(--background-color);
+            color: var(--text-color);
+            padding: 18px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px var(--shadow-color);
+        }
+
+        h1 {
+            margin: 0 0 16px 0;
+            font-size: 1.6rem;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 6px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--light-primary-color);
+        }
+
+        .row {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: background-color 0.2s, transform 0.1s;
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #0a58e0;
+        }
+
+        .btn-ghost {
+            background: var(--light-primary-color);
+            color: var(--primary-color);
+            border: 1px solid #dbe7ff;
+        }
+        .btn-ghost:hover {
+            background: #e0e7ff;
+        }
+        
+        .btn-danger {
+            background: #fce8e8;
+            color: #d93025;
+            border: 1px solid #f9d0d0;
+        }
+        .btn-danger:hover {
+            background: #f8d7d7;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            table-layout: fixed;
+        }
+        
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eef0f6;
+            text-align: right;
+            word-wrap: break-word;
+        }
+
+        th {
+            background: #fbfcff;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        tbody tr:hover {
+            background-color: #f9fafc;
+        }
+
+        .highlight-row {
+            background-color: var(--light-primary-color);
+        }
+        tbody tr.highlight-row:hover {
+             background-color: #e0e7ff;
+        }
+
+        .small {
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .muted {
+            color: var(--muted-text-color);
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 24px;
+            padding: 12px;
+            background: #f8f9fc;
+            border-radius: 8px;
+        }
+        
+        .form-actions {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .form-actions .right-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: var(--surface-color);
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        
+        /* Stats Page Styles */
+        .stats-container {
+            padding-top: 20px;
+        }
+        .stats-container h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 24px;
+        }
+        .stats-section {
+            margin-bottom: 30px;
+            background: #fdfdff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #f0f2f5;
+        }
+        .stats-section h3 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        #loginView {
+            max-width: 400px;
+            margin: 8vh auto 0 auto;
+        }
+
+        @media (max-width: 760px) {
+            .row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .form-actions .right-actions {
+                margin-left: 0;
+                margin-top: 10px;
+                justify-content: space-between;
+            }
+             .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            /* Responsive Table Styles */
+            table {
+                table-layout: auto;
+                border: 0;
+            }
+            table thead {
+                display: none;
+            }
+            table tr {
+                display: block;
+                margin-bottom: 16px;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 12px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            }
+            table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                text-align: left;
+                padding: 10px 4px;
+                border-bottom: 1px solid #f0f2f5;
+            }
+            table td:last-child {
+                border-bottom: none;
+            }
+            table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                padding-left: 12px;
+                text-align: right;
+                color: var(--primary-color);
+                flex-basis: 50%;
+            }
+             .actions {
+                justify-content: center;
+                padding-top: 10px;
+            }
+            .actions::before {
+                display: none;
+            }
+            .actions .btn {
+                width: auto;
+                flex-grow: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loginView" class="container">
+        <h1>تسجيل الدخول</h1>
+        <form id="loginForm" autocomplete="off">
+            <div>
+                <label for="username">اسم المستخدم</label>
+                <input id="username" type="text" required>
+            </div>
+            <div style="margin-top: 12px;">
+                <label for="password">كلمة المرور</label>
+                <input id="password" type="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">دخول</button>
+        </form>
+    </div>
+
+    <div id="mainView" class="container" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>نظام تسجيل تسليم البريد</h1>
+            <button id="logoutBtn" class="btn btn-danger">خروج</button>
+        </div>
+        <div class="small muted" style="text-align:center; margin-bottom: 16px;">يعمل محلياً ويحفظ البيانات في جهازك فقط</div>
+
+        <form id="deliveryForm" autocomplete="off">
+            <div class="row">
+                <div class="col">
+                    <label for="name">اسم الزبون</label>
+                    <input id="name" required />
+                </div>
+                <div class="col">
+                    <label for="idnum">رقم الهوية / الرقم الوطني</label>
+                    <input id="idnum" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="idIssueDate">تاريخ إصدار الهوية</label>
+                    <input id="idIssueDate" type="text" placeholder="YYYY-MM-DD" />
+                </div>
+                <div class="col">
+                    <label for="idIssuer">صادرة عن بلدية</label>
+                    <select id="idIssuer">
+                        <option value="">-- اختر البلدية --</option>
+                        <option value="أميه ونسة">أميه ونسة</option>
+                        <option value="البياضة">البياضة</option>
+                        <option value="الحمادين">الحمادين</option>
+                        <option value="الحمراية">الحمراية</option>
+                        <option value="الدبيلة">الدبيلة</option>
+                        <option value="الرباح">الرباح</option>
+                        <option value="الرقيبة">الرقيبة</option>
+                        <option value="الطريفاوي">الطريفاوي</option>
+                        <option value="العقلة">العقلة</option>
+                        <option value="المرزاقة">المرزاقة</option>
+                        <option value="المقرن">المقرن</option>
+                        <option value="النخلة">النخلة</option>
+                        <option value="الوادي">الوادي</option>
+                        <option value="بن قشة">بن قشة</option>
+                        <option value="تغزوت">تغزوت</option>
+                        <option value="تندلة">تندلة</option>
+                        <option value="حاسي خليفة">حاسي خليفة</option>
+                        <option value="حساني عبد الكريم">حساني عبد الكريم</option>
+                        <option value="دوار الماء">دوار الماء</option>
+                        <option value="سيدي عون">سيدي عون</option>
+                        <option value="طالب العربي">طالب العربي</option>
+                        <option value="عين الشوشة">عين الشوشة</option>
+                        <option value="قمار">قمار</option>
+                        <option value="كوينين">كوينين</option>
+                        <option value="وادي العلندة">وادي العلندة</option>
+                        <option value="ورماس">ورماس</option>
+                        <option value="وغلانة">وغلانة</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="address">العنوان (شارع، رقم، حي)</label>
+                    <input id="address" />
+                </div>
+                <div class="col">
+                    <label for="phone">هاتف للتواصل</label>
+                    <input id="phone" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="itemType">نوع المستلم</label>
+                    <select id="itemType">
+                        <option value="دفتر صكوك">دفتر صكوك</option>
+                        <option value="بطاقة ذهبية">بطاقة ذهبية</option>
+                        <option value="حوالة بريدية">حوالة بريدية</option>
+                        <option value="رسالة">رسالة</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="date">تاريخ التسليم</label>
+                    <input id="date" type="text" placeholder="YYYY-MM-DD" />
+                </div>
+            </div>
+
+            <label for="notes">تفاصيل إضافية / ملاحظات</label>
+            <textarea id="notes" rows="2"></textarea>
+            
+            <label for="communicationLog">سجل الاتصال (تم الاتصال / إرسال إشعار بتاريخ...)</label>
+            <textarea id="communicationLog" rows="2"></textarea>
+
+            <label for="nonReceiptReason">سبب عدم الاستلام</label>
+            <textarea id="nonReceiptReason" rows="2"></textarea>
+
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit">حفظ السجل</button>
+                <button id="resetBtn" class="btn btn-ghost" type="button">تفريغ الحقول</button>
+                <div class="right-actions">
+                    <button id="showStatsBtn" class="btn btn-ghost" type="button">عرض الإحصائيات</button>
+                    <button id="exportExcelBtn" class="btn btn-ghost" type="button">تحميل Excel</button>
+                    <button id="exportPdfBtn" class="btn btn-ghost" type="button">تحميل PDF</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="controls">
+            <input id="search" placeholder="بحث بالاسم أو الهاتف أو نوع الطرد..." style="flex:1;" />
+            <select id="filterType">
+                <option value="all">كل الأنواع</option>
+                <option value="دفتر صكوك">دفتر صكوك</option>
+                <option value="بطاقة ذهبية">بطاقة ذهبية</option>
+                <option value="حوالة بريدية">حوالة بريدية</option>
+                <option value="رسالة">رسالة</option>
+                <option value="أخرى">أخرى</option>
+            </select>
+            <div class="small muted">إجمالي السجلات: <span id="count">0</span></div>
+        </div>
+
+        <table id="recordsTable">
+            <thead>
+                <tr>
+                    <th>الاسم</th>
+                    <th>الهوية</th>
+                    <th>الهاتف</th>
+                    <th>النوع</th>
+                    <th>التاريخ</th>
+                    <th>سجل الاتصال</th>
+                    <th>سبب عدم الاستلام</th>
+                    <th>ملاحظات</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div class="small muted" style="margin-top:10px; text-align:center;">ملاحظة: التطبيق يعمل محليًا ويحفظ السجلات في متصفحك فقط (localStorage). لحفظ دائم، قم بتصدير الملفات.</div>
+    </div>
+    
+    <div id="statsView" class="container" style="display: none;">
+        <div class="stats-container">
+            <h2>إحصائيات التسليم</h2>
+            <div id="dailyStats" class="stats-section"></div>
+            <div id="monthlyStats" class="stats-section"></div>
+            <button id="backToMainBtn" class="btn btn-primary" style="width: 100%; margin-top: 20px;">عودة للقائمة الرئيسية</button>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modalHeader" class="modal-header"></div>
+            <div id="modalBody" class="modal-body"></div>
+            <div id="modalFooter" class="modal-footer"></div>
+        </div>
+    </div>
+    
+    <script>
+        // --- FINAL, CORRECT, VALIDATED Embedded Amiri Font Data (Base64 Encoded) for jsPDF ---
+        const AmiriRegular = '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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-Regular';
+    </script>
+    <script>
+        ;(function() {
+            const LS_KEY = 'postal_deliveries_v15_final_solution';
+            
+            // View Elements
+            const loginView = document.getElementById('loginView');
+            const mainView = document.getElementById('mainView');
+            const statsView = document.getElementById('statsView');
+            
+            // Login Elements
+            const loginForm = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            // Main View Elements
+            const form = document.getElementById('deliveryForm');
+            const nameEl = document.getElementById('name');
+            const idEl = document.getElementById('idnum');
+            const idIssueDateEl = document.getElementById('idIssueDate');
+            const idIssuerEl = document.getElementById('idIssuer');
+            const addrEl = document.getElementById('address');
+            const phoneEl = document.getElementById('phone');
+            const typeEl = document.getElementById('itemType');
+            const dateEl = document.getElementById('date');
+            const notesEl = document.getElementById('notes');
+            const communicationLogEl = document.getElementById('communicationLog');
+            const nonReceiptReasonEl = document.getElementById('nonReceiptReason');
+            const tbody = document.querySelector('#recordsTable tbody');
+            const searchEl = document.getElementById('search');
+            const filterType = document.getElementById('filterType');
+            const countEl = document.getElementById('count');
+            
+            // Stats View Elements
+            const showStatsBtn = document.getElementById('showStatsBtn');
+            const backToMainBtn = document.getElementById('backToMainBtn');
+            const dailyStatsContainer = document.getElementById('dailyStats');
+            const monthlyStatsContainer = document.getElementById('monthlyStats');
+
+            // Modal elements
+            const modal = document.getElementById('customModal');
+            const modalHeader = document.getElementById('modalHeader');
+            const modalBody = document.getElementById('modalBody');
+            const modalFooter = document.getElementById('modalFooter');
+            
+            let records = [];
+            let editId = null;
+            
+            // --- View Management ---
+            function showLoginView() {
+                loginView.style.display = 'block';
+                mainView.style.display = 'none';
+                statsView.style.display = 'none';
+            }
+
+            function showMainView() {
+                loginView.style.display = 'none';
+                mainView.style.display = 'block';
+                statsView.style.display = 'none';
+            }
+
+            function showStatsView() {
+                loginView.style.display = 'none';
+                mainView.style.display = 'none';
+                statsView.style.display = 'block';
+            }
+
+
+            // --- Modal Functions ---
+            function showModal(header, body, buttons) {
+                modalHeader.textContent = header;
+                modalBody.textContent = body;
+                modalFooter.innerHTML = '';
+                buttons.forEach(btnInfo => {
+                    const button = document.createElement('button');
+                    button.textContent = btnInfo.text;
+                    button.className = btnInfo.class;
+                    button.addEventListener('click', () => {
+                        closeModal();
+                        if (btnInfo.onClick) {
+                            btnInfo.onClick();
+                        }
+                    });
+                    modalFooter.appendChild(button);
+                });
+                modal.classList.add('visible');
+            }
+
+            function closeModal() {
+                modal.classList.remove('visible');
+            }
+
+            function showAlert(message, title = 'تنبيه') {
+                showModal(title, message, [{ text: 'موافق', class: 'btn btn-primary' }]);
+            }
+
+            function showConfirm(message, onConfirm, title = 'تأكيد الإجراء') {
+                showModal(title, message, [
+                    { text: 'إلغاء', class: 'btn btn-ghost' },
+                    { text: 'تأكيد', class: 'btn btn-danger', onClick: onConfirm }
+                ]);
+            }
+            
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) {
+                    closeModal();
+                }
+            });
+
+
+            // --- Core App Functions ---
+            function load() {
+                try {
+                    const raw = localStorage.getItem(LS_KEY);
+                    records = raw ? JSON.parse(raw) : [];
+                } catch (e) {
+                    console.error("Failed to load records from localStorage", e);
+                    records = [];
+                }
+            }
+
+            function save() {
+                localStorage.setItem(LS_KEY, JSON.stringify(records));
+            }
+
+            function render() {
+                const q = (searchEl.value || '').trim().toLowerCase();
+                const typeFilter = filterType.value;
+                tbody.innerHTML = '';
+
+                const nameCounts = records.reduce((acc, record) => {
+                    const name = (record.name || '').trim().toLowerCase();
+                    if (name) {
+                        acc[name] = (acc[name] || 0) + 1;
+                    }
+                    return acc;
+                }, {});
+
+                const filtered = records.filter(r => {
+                    if (typeFilter !== 'all' && r.itemType !== typeFilter) return false;
+                    if (!q) return true;
+                    return (r.name || '').toLowerCase().includes(q) ||
+                           (r.phone || '').toLowerCase().includes(q) ||
+                           (r.itemType || '').toLowerCase().includes(q);
+                });
+                
+                filtered.forEach(r => {
+                    const tr = document.createElement('tr');
+                    
+                    const recordName = (r.name || '').trim().toLowerCase();
+                    if (nameCounts[recordName] >= 2) {
+                        tr.classList.add('highlight-row');
+                    }
+
+                    tr.innerHTML = `
+                        <td data-label="الاسم">${escapeHtml(r.name)}</td>
+                        <td data-label="الهوية">${escapeHtml(r.idnum || '')}</td>
+                        <td data-label="الهاتف">${escapeHtml(r.phone || '')}</td>
+                        <td data-label="النوع">${escapeHtml(r.itemType)}</td>
+                        <td data-label="التاريخ">${escapeHtml(r.date || '')}</td>
+                        <td data-label="سجل الاتصال" class="small">${escapeHtml(r.communicationLog || '')}</td>
+                        <td data-label="سبب عدم الاستلام" class="small">${escapeHtml(r.nonReceiptReason || '')}</td>
+                        <td data-label="ملاحظات" class="small">${escapeHtml(r.notes || '')}</td>
+                        <td data-label="إجراءات" class="actions">
+                            <button data-id="${r.id}" class="btn btn-ghost btn-edit">تعديل</button>
+                            <button data-id="${r.id}" class="btn btn-danger btn-del">حذف</button>
+                        </td>`;
+                    tbody.appendChild(tr);
+                });
+
+                countEl.textContent = records.length;
+            }
+
+            function escapeHtml(s) {
+                if (!s) return '';
+                return String(s).replace(/[&<>"']/g, m => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[m]));
+            }
+
+            function clearForm() {
+                form.reset();
+                editId = null;
+                dateEl.value = new Date().toISOString().slice(0, 10);
+                form.querySelector('button[type="submit"]').textContent = 'حفظ السجل';
+            }
+
+            function addRecord(obj) {
+                obj.id = 'r_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
+                records.unshift(obj);
+                save();
+                render();
+            }
+
+            function updateRecord(id, obj) {
+                const i = records.findIndex(x => x.id === id);
+                if (i >= 0) {
+                    records[i] = { ...records[i], ...obj };
+                    save();
+                    render();
+                }
+            }
+
+            function deleteRecord(id) {
+                showConfirm('هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.', () => {
+                    records = records.filter(x => x.id !== id);
+                    save();
+                    render();
+                });
+            }
+            
+            // --- Stats Functions ---
+            function renderStatistics() {
+                const now = new Date();
+                const todayStr = now.toISOString().slice(0, 10);
+                const currentMonthStr = now.toISOString().slice(0, 7);
+
+                const dailyCounts = {};
+                const monthlyCounts = {};
+                
+                const itemTypes = ["دفتر صكوك", "بطاقة ذهبية", "حوالة بريدية", "رسالة", "أخرى"];
+                itemTypes.forEach(type => {
+                    dailyCounts[type] = 0;
+                    monthlyCounts[type] = 0;
+                });
+
+                for (const record of records) {
+                    if (record.date === todayStr) {
+                        dailyCounts[record.itemType] = (dailyCounts[record.itemType] || 0) + 1;
+                    }
+                    if (record.date && record.date.startsWith(currentMonthStr)) {
+                        monthlyCounts[record.itemType] = (monthlyCounts[record.itemType] || 0) + 1;
+                    }
+                }
+
+                // Render Daily Stats
+                let dailyHtml = `<h3>إحصائيات اليوم (${todayStr})</h3>`;
+                dailyHtml +=
+
