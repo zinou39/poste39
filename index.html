@@ -686,6 +686,20 @@
 
         // Declare db, auth at the module level so all functions can access them
         let db, auth;
+        
+        // --- الخطوة 1: أضف إعدادات Firebase الخاصة بك هنا ---
+        // هذا المتغير سيتم استخدامه عند نشر الموقع على Vercel أو أي استضافة أخرى
+        const vercelFirebaseConfig = {
+            apiKey: "AIzaSyDIESGl6TXDRtzbP7NZtOHGJa9pRY83_oY",
+            authDomain: "poste-b276e.firebaseapp.com",
+            projectId: "poste-b276e",
+            // تم استخدام .appspot.com بدلاً من .firebasestorage.app لأنها الصيغة المطلوبة لتهيئة SDK
+            storageBucket: "poste-b276e.appspot.com", 
+            messagingSenderId: "855137728375",
+            appId: "1:855137728375:web:1428c3132f9ba79375d372",
+            measurementId: "G-H07GT7NJ7E"
+        };
+
 
         (function() {
             const DRAFT_KEY = 'postal_delivery_draft_v1';
@@ -1329,15 +1343,27 @@
 
             async function main() {
                 try {
-                    // Initialize Firebase FIRST
-                    const firebaseConfig = typeof __firebase_config !== 'undefined' 
-                        ? JSON.parse(__firebase_config) 
-                        : { apiKey: "DEMO_KEY_THIS_WILL_FAIL" };
-                    const app = initializeApp(firebaseConfig);
+                    let finalFirebaseConfig;
+                    
+                    // --- Logic to select the correct Firebase config ---
+                    if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                        // Priority 1: Use the injected config from the development environment
+                        finalFirebaseConfig = JSON.parse(__firebase_config);
+                    } else if (vercelFirebaseConfig && vercelFirebaseConfig.apiKey) {
+                        // Priority 2: Use the hardcoded config for Vercel/production
+                        finalFirebaseConfig = vercelFirebaseConfig;
+                    } else {
+                        // If no config is found, stop execution and alert the user.
+                        console.error("Firebase configuration is missing.");
+                        alert("فشل تهيئة Firebase. يرجى التأكد من صحة إعداداتك في الكود.");
+                        return;
+                    }
+                    
+                    const app = initializeApp(finalFirebaseConfig);
                     db = getFirestore(app); // Assign to the module-scoped variables
                     auth = getAuth(app);
 
-                    // This is the main entry point. First, AUTHENTICATE with Firebase.
+                    // AUTHENTICATE with Firebase. Use custom token if available (dev env), otherwise sign in anonymously (Vercel)
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                         await signInWithCustomToken(auth, __initial_auth_token);
                     } else {
@@ -1346,8 +1372,7 @@
                     console.log("Firebase Auth successful.");
 
                     // Now that we are authenticated, we can safely access Firestore.
-                    // Assign to the IIFE-scoped variable
-                    appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                    appId = (typeof __app_id !== 'undefined' && __app_id) ? __app_id : 'standalone'; // Use 'standalone' for Vercel
                     credentialsCol = collection(db, `artifacts/${appId}/public/data/credentials`);
 
                     // Ensure the admin user exists. This is safe to call now.
@@ -1363,7 +1388,14 @@
                     }
                 } catch (e) {
                     console.error("Critical initialization failed:", e);
-                    alert("فشل تهيئة Firebase. يرجى التأكد من صحة إعداداتك في الكود أو الاتصال بالدعم الفني.");
+                    let userMessage = "فشل تهيئة Firebase. يرجى التأكد من صحة إعداداتك في الكود.";
+                    // Provide more specific feedback to the user
+                    if (e && e.code === 'auth/operation-not-allowed') {
+                        userMessage += "\n\nتلميح: يبدو أن تسجيل الدخول المجهول (Anonymous) غير مفعّل. يرجى تفعيله من لوحة تحكم Firebase > قسم Authentication > Sign-in method.";
+                    } else {
+                        userMessage += "\n\nتلميح: تأكد من نسخ إعدادات Firebase بشكل صحيح، ومن أن قواعد الأمان في Firestore تسمح بالوصول.";
+                    }
+                    alert(userMessage);
                 }
             }
 
