@@ -768,6 +768,23 @@
         let unsubscribe = () => {};
         let currentSmsTarget = null;
         
+        /**
+         * Formats an Algerian phone number to the international E.164 standard.
+         * @param {string} phone The phone number to format.
+         * @returns {string} The formatted phone number.
+         */
+        function formatPhoneNumber(phone) {
+            if (!phone) return '';
+            let cleaned = phone.replace(/[\s-]/g, ''); // Remove spaces and dashes
+            if (cleaned.startsWith('0')) {
+                return '213' + cleaned.substring(1);
+            }
+            if (cleaned.startsWith('+213')) {
+                return cleaned.substring(1);
+            }
+            return cleaned; // Assume it's already in the correct format if it doesn't start with 0
+        }
+        
         // --- Speech Recognition Setup ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
@@ -1188,7 +1205,8 @@
                 return;
             }
             currentSmsTarget = record;
-            smsRecipientInfo.innerHTML = `إلى: <strong>${escapeHtml(record.name)}</strong> (${escapeHtml(record.phone)})`;
+            const formattedPhone = formatPhoneNumber(record.phone);
+            smsRecipientInfo.innerHTML = `إلى: <strong>${escapeHtml(record.name)}</strong> (${escapeHtml(formattedPhone)})`;
             smsMessageEl.value = `مرحبًا ${record.name}، لديك طرد (${record.itemType}) جاهز للاستلام. يرجى التواصل معنا.`;
             smsModal.classList.add('visible');
         }
@@ -1341,10 +1359,8 @@
                 manageUsersBtn.style.display = 'inline-block';
             }
             
-            const firebaseUser = auth.currentUser;
-            
-            // CORRECTED PATH: A valid path with an odd number of segments.
-            deliveriesCol = collection(db, `user_deliveries/${loggedInAppUser}/records`);
+            // This path is now valid and structured for multi-user data isolation.
+            deliveriesCol = collection(db, `user_data/${loggedInAppUser}/deliveries`);
 
             // Set up real-time listener
             unsubscribe = onSnapshot(query(deliveriesCol), (snapshot) => {
@@ -1373,7 +1389,7 @@
                   storageBucket: "poste-b276e.appspot.com", // Corrected to .appspot.com
                   messagingSenderId: "855137728375",
                   appId: "1:855137728375:web:1428c3132f9ba79375d372",
-                  measurementId: "G-H07GT7NJ7E"
+                  measurementId: "G-H-H07GT7NJ7E"
                 };
 
                 const app = initializeApp(firebaseConfig);
@@ -1383,7 +1399,7 @@
                 await signInAnonymously(auth);
                 console.log("Firebase Auth successful as anonymous user.");
                 
-                // CORRECTED PATH: A valid path with an odd number of segments.
+                // This is a valid top-level collection reference.
                 credentialsCol = collection(db, 'credentials');
 
                 await bootstrapAdminUser();
