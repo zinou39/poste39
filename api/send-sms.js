@@ -1,4 +1,23 @@
-// Vercel Serverless Function to send SMS via Infobip
+// Vercel Serverless Function to send SMS via Infobip (Secure Version with Phone Formatting)
+
+/**
+ * Formats an Algerian phone number to the international E.164 standard.
+ * Example: 0712345678 -> 213712345678
+ * @param {string} phone The phone number to format.
+ * @returns {string} The formatted phone number.
+ */
+function formatPhoneNumber(phone) {
+    if (!phone) return '';
+    let cleaned = phone.replace(/[\s-]/g, ''); // Remove spaces and dashes
+    if (cleaned.startsWith('0')) {
+        return '213' + cleaned.substring(1);
+    }
+    if (cleaned.startsWith('+213')) {
+        return cleaned.substring(1);
+    }
+    return cleaned; // Assume it's already in the correct format if it doesn't start with 0
+}
+
 
 export default async function handler(request, response) {
     // We only accept POST requests to this endpoint
@@ -13,24 +32,25 @@ export default async function handler(request, response) {
         return response.status(400).json({ message: 'Missing required fields: to, text, sender' });
     }
 
-    // --- DANGER: Hardcoded secret keys ---
-    // This is not secure. It's better to use Environment Variables.
-    const apiKey = "a92653d3c0999e1e8534179a660e4137-de0ee46d-52e1-43af-8020-1acabc11278e";
-    
-    // Using the correct global API endpoint that was tested and works.
-    const baseUrl = "api.infobip.com";
+    // Securely read API key and URL from Vercel Environment Variables
+    const apiKey = process.env.INFOBIP_API_KEY;
+    const baseUrl = process.env.INFOBIP_BASE_URL;
 
     if (!apiKey || !baseUrl) {
         console.error('Server configuration error: Missing Infobip environment variables.');
+        // Do not expose detailed errors to the client
         return response.status(500).json({ message: 'Server configuration error.' });
     }
 
     const infobipUrl = `https://${baseUrl}/sms/2/text/advanced`;
+    
+    // Format the phone number before sending
+    const formattedPhoneNumber = formatPhoneNumber(to);
 
     const payload = {
         messages: [
             {
-                destinations: [{ to: to }],
+                destinations: [{ to: formattedPhoneNumber }],
                 from: sender,
                 text: text,
             },
