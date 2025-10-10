@@ -4,15 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سجل تسليم البريد</title>
+
+    <!-- PWA Meta Tags for App-like experience -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="سجل البريد">
+    <meta name="theme-color" content="#0b66ff">
+
+    <!-- PWA Icon and Manifest (inlined) -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 24 24' fill='none' stroke='%230b66ff' stroke-width='1.5'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2' fill='%23ffffff'%3E%3C/rect%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'%3E%3C/path%3E%3Cpolyline points='14 2 14 8 20 8'%3E%3C/polyline%3E%3Cline x1='16' y1='13' x2='8' y2='13'%3E%3C/line%3E%3Cline x1='16' y1='17' x2='8' y2='17'%3E%3C/line%3E%3Cpolyline points='10 9 9 9 8 9'%3E%3C/polyline%3E%3C/svg%3E">
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D8%B3%D8%AC%D9%84%20%D8%AA%D8%B3%D9%84%D9%8A%D9%85%20%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%D8%AF%22%2C%22short_name%22%3A%22%D8%B3%D8%AC%D9%84%20%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%D8%AF%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f6f7fb%22%2C%22theme_color%22%3A%22%230b66ff%22%2C%22description%22%3A%22%D9%86%D8%B8%D8%A7%D9%85%20%D9%84%D8%AA%D8%B3%D8%AC%D9%8A%D9%84%20%D8%B9%D9%85%D9%84%D9%8A%D8%A7%D8%AA%20%D8%AA%D8%B3%D9%84%D9%8A%D9%85%20%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%D8%AF.%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage/svg%2Bxml%2C%253Csvg%2520xmlns%3D%27http%3A//www.w3.org/2000/svg%27%2520width%3D%27192%27%2520height%3D%27192%27%2520viewBox%3D%270%25200%252024%252024%27%2520fill%3D%27none%27%2520stroke%3D%27%2523ffffff%27%2520stroke-width%3D%272%27%2520stroke-linecap%3D%27round%27%2520stroke-linejoin%3D%27round%27%253E%253Cpath%2520d%3D%27M14%25202H6a2%25202%25200%25200%25200-2%25202v16a2%25202%25200%25200%25200%25202%25202h12a2%25202%25200%25200%25200%25202-2V8z%27%2520fill%3D%27%25230b66ff%27%253E%253C/path%253E%253Cpolyline%2520points%3D%2714%25202%252014%25208%252020%25208%27%253E%253C/polyline%253E%253Cline%2520x1%3D%2716%27%2520y1%3D%2713%27%2520x2%3D%278%27%2520y2%3D%2713%27%253E%253C/line%253E%253Cline%2520x1%3D%2716%27%2520y1%3D%2717%27%2520x2%3D%278%27%2520y2%3D%2717%27%253E%253C/line%253E%253Cpolyline%2520points%3D%2710%25209%25209%25209%25208%25209%27%253E%253C/polyline%253E%253C/svg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image/svg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%2C%7B%22src%22%3A%22data%3Aimage/svg%2Bxml%2C%253Csvg%2520xmlns%3D%27http%3A//www.w3.org/2000/svg%27%2520width%3D%27512%27%2520height%3D%27512%27%2520viewBox%3D%270%25200%252024%252024%27%2520fill%3D%27none%27%2520stroke%3D%27%2523ffffff%27%2520stroke-width%3D%272%27%2520stroke-linecap%3D%27round%27%2520stroke-linejoin%3D%27round%27%253E%253Cpath%2520d%3D%27M14%25202H6a2%25202%25200%25200%25200-2%25202v16a2%25202%25200%25200%25200%25202%25202h12a2%25202%25200%25200%25200%25202-2V8z%27%2520fill%3D%27%25230b66ff%27%253E%253C/path%253E%253Cpolyline%2520points%3D%2714%25202%252014%25208%252020%25208%27%253E%253C/polyline%253E%253Cline%2520x1%3D%2716%27%2520y1%3D%2713%27%2520x2%3D%278%27%2520y2%3D%2713%27%253E%253C/line%253E%253Cline%2520x1%3D%2716%27%2520y1%3D%2717%27%2520x2%3D%278%27%2520y2%3D%2717%27%253E%253C/line%253E%253Cpolyline%2520points%3D%2710%25209%25209%25209%25208%25209%27%253E%253C/polyline%253E%253C/svg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image/svg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- PWA Manifest & Theme -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0b66ff">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-
     <style>
         :root {
             font-family: 'Cairo', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -110,7 +117,6 @@
             display: none;
         }
 
-
         .row {
             display: flex;
             gap: 16px;
@@ -140,6 +146,39 @@
             opacity: 0.7;
         }
 
+        .btn.loading {
+            position: relative;
+            color: transparent !important;
+            pointer-events: none;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            border: 2px solid rgba(255, 255, 255, 0.5); /* White spinner on primary button */
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spinner 0.6s linear infinite;
+        }
+        
+        .btn-ghost.loading::after {
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-top-color: var(--primary-color);
+        }
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .btn-primary {
             background: var(--primary-color);
             color: #fff;
@@ -165,23 +204,10 @@
         .btn-danger:hover {
             background: #f8d7d7;
         }
-        
-        .btn-sms {
-            background: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
-            padding: 4px 8px;
-            font-size: 0.8rem;
-        }
-        .btn-sms:hover {
-             background: #dcedc8;
-        }
-
 
         .actions {
             display: flex;
             gap: 8px;
-            align-items: center;
         }
 
         table {
@@ -274,7 +300,7 @@
             padding: 24px;
             border-radius: 12px;
             width: 90%;
-            max-width: 450px;
+            max-width: 400px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             transform: scale(0.9);
             transition: transform 0.3s;
@@ -286,12 +312,10 @@
             font-size: 1.2rem;
             font-weight: 600;
             margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         .modal-body {
             margin-bottom: 20px;
+            white-space: pre-wrap;
         }
         .modal-footer {
             display: flex;
@@ -352,18 +376,10 @@
             background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
-        #sms-recipient-info {
-            background: #f8f9fc;
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 0.9rem;
-        }
 
         @media (max-width: 760px) {
             body {
-                padding: 8px;
+                padding: 12px;
             }
             .container {
                 padding: 16px;
@@ -428,7 +444,6 @@
              .actions {
                 justify-content: center;
                 padding-top: 10px;
-                flex-wrap: wrap;
             }
             .actions::before {
                 display: none;
@@ -455,7 +470,6 @@
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">دخول</button>
         </form>
-        <div id="init-error-container" style="display:none; margin-top: 15px; padding: 10px; background-color: #fce8e8; color: #d93025; border-radius: 8px; text-align: center;"></div>
     </div>
 
     <div id="mainView" class="container" style="display: none;">
@@ -599,11 +613,13 @@
             <thead>
                 <tr>
                     <th>الاسم</th>
+                    <th>الهوية</th>
                     <th>الهاتف</th>
                     <th>النوع</th>
                     <th>التاريخ</th>
                     <th>سجل الاتصال</th>
                     <th>سبب عدم الاستلام</th>
+                    <th>ملاحظات</th>
                     <th>إجراءات</th>
                 </tr>
             </thead>
@@ -630,34 +646,6 @@
             <div id="modalFooter" class="modal-footer"></div>
         </div>
     </div>
-    
-    <!-- SMS Modal -->
-    <div id="smsModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>إرسال رسالة SMS</span>
-                <button id="closeSmsModal" class="btn btn-ghost" style="width:auto; padding: 4px 8px;">X</button>
-            </div>
-            <div class="modal-body">
-                <div id="sms-recipient-info"></div>
-                <form id="smsForm">
-                    <div>
-                        <label for="sms-sender">اسم المرسل</label>
-                        <input id="sms-sender" type="text" placeholder="مثال: PosteDZ" required>
-                    </div>
-                    <div style="margin-top: 12px;">
-                        <label for="sms-message">نص الرسالة</label>
-                        <textarea id="sms-message" rows="4" required></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button id="cancelSmsBtn" class="btn btn-ghost">إلغاء</button>
-                <button id="sendSmsBtn" class="btn btn-primary">إرسال</button>
-            </div>
-        </div>
-    </div>
-
 
     <!-- User Management Modal -->
     <div id="userManagementModal" class="modal-overlay">
@@ -694,381 +682,382 @@
         // Import Firebase services
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+
+        // Declare db, auth at the module level so all functions can access them
         let db, auth;
-        const DRAFT_KEY = 'postal_delivery_draft_v2';
         
-        // --- View Elements ---
-        const loginView = document.getElementById('loginView');
-        const mainView = document.getElementById('mainView');
-        const statsView = document.getElementById('statsView');
-        const initErrorContainer = document.getElementById('init-error-container');
-        
-        // --- Login Elements ---
-        const loginForm = document.getElementById('loginForm');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const logoutBtn = document.getElementById('logoutBtn');
+        // --- الخطوة 1: أضف إعدادات Firebase الخاصة بك هنا ---
+        // هذا المتغير سيتم استخدامه عند نشر الموقع على Vercel أو أي استضافة أخرى
+        const vercelFirebaseConfig = {
+            apiKey: "AIzaSyDIESGl6TXDRtzbP7NZtOHGJa9pRY83_oY",
+            authDomain: "poste-b276e.firebaseapp.com",
+            projectId: "poste-b276e",
+            // تم استخدام .appspot.com بدلاً من .firebasestorage.app لأنها الصيغة المطلوبة لتهيئة SDK
+            storageBucket: "poste-b276e.appspot.com", 
+            messagingSenderId: "855137728375",
+            appId: "1:855137728375:web:1428c3132f9ba79375d372",
+            measurementId: "G-H07GT7NJ7E"
+        };
 
-        // --- Main View Elements ---
-        const form = document.getElementById('deliveryForm');
-        const nameEl = document.getElementById('name');
-        const idEl = document.getElementById('idnum');
-        const idIssueDateEl = document.getElementById('idIssueDate');
-        const idIssuerEl = document.getElementById('idIssuer');
-        const addrEl = document.getElementById('address');
-        const phoneEl = document.getElementById('phone');
-        const typeEl = document.getElementById('itemType');
-        const dateEl = document.getElementById('date');
-        const notesEl = document.getElementById('notes');
-        const communicationLogEl = document.getElementById('communicationLog');
-        const nonReceiptReasonEl = document.getElementById('nonReceiptReason');
-        const tbody = document.querySelector('#recordsTable tbody');
-        const searchEl = document.getElementById('search');
-        const filterType = document.getElementById('filterType');
-        const countEl = document.getElementById('count');
-        
-        // --- Stats View Elements ---
-        const showStatsBtn = document.getElementById('showStatsBtn');
-        const backToMainBtn = document.getElementById('backToMainBtn');
-        const dailyStatsContainer = document.getElementById('dailyStats');
-        const monthlyStatsContainer = document.getElementById('monthlyStats');
 
-        // --- Modal elements ---
-        const modal = document.getElementById('customModal');
-        const modalHeader = document.getElementById('modalHeader');
-        const modalBody = document.getElementById('modalBody');
-        const modalFooter = document.getElementById('modalFooter');
-        
-        // --- SMS Modal Elements ---
-        const smsModal = document.getElementById('smsModal');
-        const closeSmsModalBtn = document.getElementById('closeSmsModal');
-        const cancelSmsBtn = document.getElementById('cancelSmsBtn');
-        const sendSmsBtn = document.getElementById('sendSmsBtn');
-        const smsForm = document.getElementById('smsForm');
-        const smsRecipientInfo = document.getElementById('sms-recipient-info');
-        const smsMessageEl = document.getElementById('sms-message');
-        const smsSenderEl = document.getElementById('sms-sender');
+        (function() {
+            const DRAFT_KEY = 'postal_delivery_draft_v1';
+            
+            // View Elements
+            const loginView = document.getElementById('loginView');
+            const mainView = document.getElementById('mainView');
+            const statsView = document.getElementById('statsView');
+            
+            // Login Elements
+            const loginForm = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const logoutBtn = document.getElementById('logoutBtn');
 
-        // --- User Management Elements ---
-        const manageUsersBtn = document.getElementById('manageUsersBtn');
-        const userManagementModal = document.getElementById('userManagementModal');
-        const closeUserManagementModalBtn = document.getElementById('closeUserManagementModal');
-        const addUserForm = document.getElementById('addUserForm');
-        const newUsernameEl = document.getElementById('newUsername');
-        const newPasswordEl = document.getElementById('newPassword');
-        const userManagementList = document.getElementById('user-management-list');
-        
-        let records = [];
-        let editId = null;
-        let activeInputForSpeech = null;
-        let deliveriesCol;
-        let credentialsCol;
-        let unsubscribe = () => {};
-        let currentSmsTarget = null;
-        
-        // --- Speech Recognition Setup ---
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition;
+            // Main View Elements
+            const form = document.getElementById('deliveryForm');
+            const nameEl = document.getElementById('name');
+            const idEl = document.getElementById('idnum');
+            const idIssueDateEl = document.getElementById('idIssueDate');
+            const idIssuerEl = document.getElementById('idIssuer');
+            const addrEl = document.getElementById('address');
+            const phoneEl = document.getElementById('phone');
+            const typeEl = document.getElementById('itemType');
+            const dateEl = document.getElementById('date');
+            const notesEl = document.getElementById('notes');
+            const communicationLogEl = document.getElementById('communicationLog');
+            const nonReceiptReasonEl = document.getElementById('nonReceiptReason');
+            const tbody = document.querySelector('#recordsTable tbody');
+            const searchEl = document.getElementById('search');
+            const filterType = document.getElementById('filterType');
+            const countEl = document.getElementById('count');
+            
+            // Stats View Elements
+            const showStatsBtn = document.getElementById('showStatsBtn');
+            const backToMainBtn = document.getElementById('backToMainBtn');
+            const dailyStatsContainer = document.getElementById('dailyStats');
+            const monthlyStatsContainer = document.getElementById('monthlyStats');
 
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.lang = 'ar-DZ';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
+            // Modal elements
+            const modal = document.getElementById('customModal');
+            const modalHeader = document.getElementById('modalHeader');
+            const modalBody = document.getElementById('modalBody');
+            const modalFooter = document.getElementById('modalFooter');
 
-            recognition.onstart = function() {
-                const activeBtn = document.querySelector(`.mic-btn[data-target-id="${activeInputForSpeech.id}"]`);
-                if (activeBtn) activeBtn.classList.add('listening');
-            };
+            // User Management Elements
+            const manageUsersBtn = document.getElementById('manageUsersBtn');
+            const userManagementModal = document.getElementById('userManagementModal');
+            const closeUserManagementModalBtn = document.getElementById('closeUserManagementModal');
+            const addUserForm = document.getElementById('addUserForm');
+            const newUsernameEl = document.getElementById('newUsername');
+            const newPasswordEl = document.getElementById('newPassword');
+            const userManagementList = document.getElementById('user-management-list');
+            
+            let records = [];
+            let editId = null;
+            let activeInputForSpeech = null;
+            let deliveriesCol;
+            let credentialsCol;
+            let appId; // Defined in IIFE scope to be accessible everywhere
+            let unsubscribe = () => {};
+            
+            // --- Speech Recognition Setup ---
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            let recognition;
 
-            recognition.onend = function() {
-                const activeBtn = document.querySelector(`.mic-btn[data-target-id="${activeInputForSpeech.id}"]`);
-                if (activeBtn) activeBtn.classList.remove('listening');
-                activeInputForSpeech = null;
-            };
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.lang = 'ar-DZ';
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
 
-            recognition.onresult = function(event) {
-                const speechResult = event.results[0][0].transcript;
-                if (activeInputForSpeech) {
-                    activeInputForSpeech.value = speechResult;
-                }
-            };
+                recognition.onstart = function() {
+                    const activeBtn = document.querySelector(`.mic-btn[data-target-id="${activeInputForSpeech.id}"]`);
+                    if (activeBtn) activeBtn.classList.add('listening');
+                };
 
-            recognition.onerror = function(event) {
-                console.error('Speech recognition error', event.error);
-                showAlert('حدث خطأ أثناء التعرف على الصوت: ' + event.error);
-            };
+                recognition.onend = function() {
+                    const activeBtn = document.querySelector(`.mic-btn[data-target-id="${activeInputForSpeech.id}"]`);
+                    if (activeBtn) activeBtn.classList.remove('listening');
+                    activeInputForSpeech = null;
+                };
 
-        } else {
-            console.log("Speech Recognition not supported in this browser.");
-            document.body.classList.add('no-speech-recognition');
-        }
-
-        // --- Draft Management Functions ---
-        const formInputs = [nameEl, idEl, idIssueDateEl, idIssuerEl, addrEl, phoneEl, typeEl, dateEl, notesEl, communicationLogEl, nonReceiptReasonEl];
-
-        function saveDraft() {
-            const draftData = {};
-            formInputs.forEach(el => {
-                draftData[el.id] = el.value;
-            });
-            sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
-        }
-
-        function loadDraft() {
-            const raw = sessionStorage.getItem(DRAFT_KEY);
-            if (!raw) return;
-            try {
-                const draftData = JSON.parse(raw);
-                formInputs.forEach(el => {
-                    if (draftData[el.id] !== undefined) {
-                        el.value = draftData[el.id];
+                recognition.onresult = function(event) {
+                    const speechResult = event.results[0][0].transcript;
+                    if (activeInputForSpeech) {
+                        activeInputForSpeech.value = speechResult;
                     }
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error', event.error);
+                    showAlert('حدث خطأ أثناء التعرف على الصوت: ' + event.error);
+                };
+
+            } else {
+                console.log("Speech Recognition not supported in this browser.");
+                document.body.classList.add('no-speech-recognition');
+            }
+
+            // --- Draft Management Functions ---
+            const formInputs = [nameEl, idEl, idIssueDateEl, idIssuerEl, addrEl, phoneEl, typeEl, dateEl, notesEl, communicationLogEl, nonReceiptReasonEl];
+
+            function saveDraft() {
+                const draftData = {};
+                formInputs.forEach(el => {
+                    draftData[el.id] = el.value;
                 });
-            } catch (e) {
-                console.error("Failed to load draft", e);
+                sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+            }
+
+            function loadDraft() {
+                const raw = sessionStorage.getItem(DRAFT_KEY);
+                if (!raw) return;
+                try {
+                    const draftData = JSON.parse(raw);
+                    formInputs.forEach(el => {
+                        if (draftData[el.id] !== undefined) {
+                            el.value = draftData[el.id];
+                        }
+                    });
+                } catch (e) {
+                    console.error("Failed to load draft", e);
+                    sessionStorage.removeItem(DRAFT_KEY);
+                }
+            }
+
+            function clearDraft() {
                 sessionStorage.removeItem(DRAFT_KEY);
             }
-        }
-
-        function clearDraft() {
-            sessionStorage.removeItem(DRAFT_KEY);
-        }
 
 
-        // --- View Management ---
-        function showLoginView() {
-            loginView.style.display = 'block';
-            mainView.style.display = 'none';
-            statsView.style.display = 'none';
-        }
+            // --- View Management ---
+            function showLoginView() {
+                loginView.style.display = 'block';
+                mainView.style.display = 'none';
+                statsView.style.display = 'none';
+            }
 
-        function showMainView() {
-            loginView.style.display = 'none';
-            mainView.style.display = 'block';
-            statsView.style.display = 'none';
-        }
+            function showMainView() {
+                loginView.style.display = 'none';
+                mainView.style.display = 'block';
+                statsView.style.display = 'none';
+            }
 
-        function showStatsView() {
-            loginView.style.display = 'none';
-            mainView.style.display = 'none';
-            statsView.style.display = 'block';
-        }
+            function showStatsView() {
+                loginView.style.display = 'none';
+                mainView.style.display = 'none';
+                statsView.style.display = 'block';
+            }
 
 
-        // --- Modal Functions ---
-        function showModal(header, body, buttons) {
-            modalHeader.textContent = header;
-            modalBody.innerHTML = ''; // Clear previous body
-            const p = document.createElement('p');
-            p.textContent = body;
-            modalBody.appendChild(p);
+            // --- Modal Functions ---
+            function showModal(header, body, buttons) {
+                modalHeader.textContent = header;
+                modalBody.innerHTML = ''; // Clear previous body
+                const p = document.createElement('p');
+                p.textContent = body;
+                modalBody.appendChild(p);
 
-            modalFooter.innerHTML = '';
-            buttons.forEach(btnInfo => {
-                const button = document.createElement('button');
-                button.textContent = btnInfo.text;
-                button.className = btnInfo.class;
-                button.addEventListener('click', () => {
+                modalFooter.innerHTML = '';
+                buttons.forEach(btnInfo => {
+                    const button = document.createElement('button');
+                    button.textContent = btnInfo.text;
+                    button.className = btnInfo.class;
+                    button.addEventListener('click', () => {
+                        closeModal();
+                        if (btnInfo.onClick) {
+                            btnInfo.onClick();
+                        }
+                    });
+                    modalFooter.appendChild(button);
+                });
+                modal.classList.add('visible');
+            }
+
+            function closeModal() {
+                modal.classList.remove('visible');
+                userManagementModal.classList.remove('visible');
+            }
+
+            function showAlert(message, title = 'تنبيه') {
+                showModal(title, message, [{ text: 'موافق', class: 'btn btn-primary' }]);
+            }
+
+            function showConfirm(message, onConfirm, title = 'تأكيد الإجراء') {
+                showModal(title, message, [
+                    { text: 'إلغاء', class: 'btn btn-ghost' },
+                    { text: 'تأكيد', class: 'btn btn-danger', onClick: onConfirm }
+                ]);
+            }
+            
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) {
                     closeModal();
-                    if (btnInfo.onClick) {
-                        btnInfo.onClick();
+                }
+            });
+
+
+            // --- Core App Functions (with Firebase) ---
+            function render() {
+                const q = (searchEl.value || '').trim().toLowerCase();
+                const typeFilter = filterType.value;
+                tbody.innerHTML = '';
+
+                const nameCounts = records.reduce((acc, record) => {
+                    const name = (record.name || '').trim().toLowerCase();
+                    if (name) {
+                        acc[name] = (acc[name] || 0) + 1;
+                    }
+                    return acc;
+                }, {});
+
+                const filtered = records.filter(r => {
+                    if (typeFilter !== 'all' && r.itemType !== typeFilter) return false;
+                    if (!q) return true;
+                    return (r.name || '').toLowerCase().includes(q) ||
+                           (r.phone || '').toLowerCase().includes(q) ||
+                           (r.itemType || '').toLowerCase().includes(q);
+                });
+                
+                filtered.forEach(r => {
+                    const tr = document.createElement('tr');
+                    
+                    const recordName = (r.name || '').trim().toLowerCase();
+                    if (nameCounts[recordName] >= 2) {
+                        tr.classList.add('highlight-row');
+                    }
+
+                    tr.innerHTML = `
+                        <td data-label="الاسم">${escapeHtml(r.name)}</td>
+                        <td data-label="الهوية">${escapeHtml(r.idnum || '')}</td>
+                        <td data-label="الهاتف">${escapeHtml(r.phone || '')}</td>
+                        <td data-label="النوع">${escapeHtml(r.itemType)}</td>
+                        <td data-label="التاريخ">${escapeHtml(r.date || '')}</td>
+                        <td data-label="سجل الاتصال" class="small">${escapeHtml(r.communicationLog || '')}</td>
+                        <td data-label="سبب عدم الاستلام" class="small">${escapeHtml(r.nonReceiptReason || '')}</td>
+                        <td data-label="ملاحظات" class="small">${escapeHtml(r.notes || '')}</td>
+                        <td data-label="إجراءات" class="actions">
+                            <button data-id="${r.id}" class="btn btn-ghost btn-edit">تعديل</button>
+                            <button data-id="${r.id}" class="btn btn-danger btn-del">حذف</button>
+                        </td>`;
+                    tbody.appendChild(tr);
+                });
+
+                countEl.textContent = records.length;
+            }
+
+            function escapeHtml(s) {
+                if (!s) return '';
+                return String(s).replace(/[&<>"']/g, m => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[m]));
+            }
+
+            function clearForm() {
+                clearDraft();
+                form.reset();
+                editId = null;
+                dateEl.value = new Date().toISOString().slice(0, 10);
+                form.querySelector('button[type="submit"]').textContent = 'حفظ السجل';
+            }
+
+            async function addRecord(obj) {
+                try {
+                    await addDoc(deliveriesCol, obj);
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                    showAlert("حدث خطأ أثناء حفظ السجل.");
+                }
+            }
+
+            async function updateRecord(id, obj) {
+                try {
+                    const docRef = doc(db, deliveriesCol.path, id);
+                    await updateDoc(docRef, obj);
+                } catch (e) {
+                    console.error("Error updating document: ", e);
+                    showAlert("حدث خطأ أثناء تحديث السجل.");
+                }
+            }
+
+            function deleteRecord(id) {
+                showConfirm('هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
+                     try {
+                        const docRef = doc(db, deliveriesCol.path, id);
+                        await deleteDoc(docRef);
+                    } catch (e) {
+                        console.error("Error deleting document: ", e);
+                        showAlert("حدث خطأ أثناء حذف السجل.");
                     }
                 });
-                modalFooter.appendChild(button);
-            });
-            modal.classList.add('visible');
-        }
-
-        function closeModal() {
-            modal.classList.remove('visible');
-            userManagementModal.classList.remove('visible');
-            smsModal.classList.remove('visible');
-        }
-
-        function showAlert(message, title = 'تنبيه') {
-            showModal(title, message, [{ text: 'موافق', class: 'btn btn-primary' }]);
-        }
-
-        function showConfirm(message, onConfirm, title = 'تأكيد الإجراء') {
-            showModal(title, message, [
-                { text: 'إلغاء', class: 'btn btn-ghost' },
-                { text: 'تأكيد', class: 'btn btn-danger', onClick: onConfirm }
-            ]);
-        }
-        
-        [modal, userManagementModal, smsModal].forEach(m => {
-             m.addEventListener('click', (e) => {
-                if(e.target === m) {
-                    closeModal();
-                }
-            });
-        });
-
-
-        // --- Core App Functions (with Firebase) ---
-        function render() {
-            const q = (searchEl.value || '').trim().toLowerCase();
-            const typeFilter = filterType.value;
-            tbody.innerHTML = '';
-
-            const nameCounts = records.reduce((acc, record) => {
-                const name = (record.name || '').trim().toLowerCase();
-                if (name) {
-                    acc[name] = (acc[name] || 0) + 1;
-                }
-                return acc;
-            }, {});
-
-            const filtered = records.filter(r => {
-                if (typeFilter !== 'all' && r.itemType !== typeFilter) return false;
-                if (!q) return true;
-                return (r.name || '').toLowerCase().includes(q) ||
-                       (r.phone || '').toLowerCase().includes(q) ||
-                       (r.itemType || '').toLowerCase().includes(q);
-            });
+            }
             
-            filtered.forEach(r => {
-                const tr = document.createElement('tr');
+            // --- Stats Functions ---
+            function renderStatistics() {
+                const now = new Date();
+                const todayStr = now.toISOString().slice(0, 10);
+                const currentMonthStr = now.toISOString().slice(0, 7);
+
+                const dailyCounts = {};
+                const monthlyCounts = {};
                 
-                const recordName = (r.name || '').trim().toLowerCase();
-                if (nameCounts[recordName] >= 2) {
-                    tr.classList.add('highlight-row');
+                const itemTypes = ["دفتر صكوك", "بطاقة ذهبية", "حوالة بريدية", "رسالة", "أخرى"];
+                itemTypes.forEach(type => {
+                    dailyCounts[type] = 0;
+                    monthlyCounts[type] = 0;
+                });
+
+                for (const record of records) {
+                    if (record.date === todayStr) {
+                        dailyCounts[record.itemType] = (dailyCounts[record.itemType] || 0) + 1;
+                    }
+                    if (record.date && record.date.startsWith(currentMonthStr)) {
+                        monthlyCounts[record.itemType] = (monthlyCounts[record.itemType] || 0) + 1;
+                    }
                 }
 
-                tr.innerHTML = `
-                    <td data-label="الاسم">${escapeHtml(r.name)}</td>
-                    <td data-label="الهاتف">${escapeHtml(r.phone || '')}</td>
-                    <td data-label="النوع">${escapeHtml(r.itemType)}</td>
-                    <td data-label="التاريخ">${escapeHtml(r.date || '')}</td>
-                    <td data-label="سجل الاتصال" class="small">${escapeHtml(r.communicationLog || '')}</td>
-                    <td data-label="سبب عدم الاستلام" class="small">${escapeHtml(r.nonReceiptReason || '')}</td>
-                    <td data-label="إجراءات" class="actions">
-                        <button data-id="${r.id}" class="btn btn-sms">
-                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22 4H2.01L2 20h20V4zm-2 14H4V8l8 5 8-5v10zM12 11L4 6h16l-8 5z"/></svg>
-                        </button>
-                        <button data-id="${r.id}" class="btn btn-ghost btn-edit">تعديل</button>
-                        <button data-id="${r.id}" class="btn btn-danger btn-del">حذف</button>
-                    </td>`;
-                tbody.appendChild(tr);
-            });
-
-            countEl.textContent = records.length;
-        }
-
-        function escapeHtml(s) {
-            if (!s) return '';
-            return String(s).replace(/[&<>"']/g, m => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            }[m]));
-        }
-
-        function clearForm() {
-            clearDraft();
-            form.reset();
-            editId = null;
-            dateEl.value = new Date().toISOString().slice(0, 10);
-            form.querySelector('button[type="submit"]').textContent = 'حفظ السجل';
-        }
-
-        async function addRecord(obj) {
-            try {
-                await addDoc(deliveriesCol, obj);
-            } catch (e) {
-                console.error("Error adding document: ", e);
-                showAlert("حدث خطأ أثناء حفظ السجل.");
-            }
-        }
-
-        async function updateRecord(id, obj) {
-            try {
-                const docRef = doc(db, deliveriesCol.path, id);
-                await updateDoc(docRef, obj);
-            } catch (e) {
-                console.error("Error updating document: ", e);
-                showAlert("حدث خطأ أثناء تحديث السجل.");
-            }
-        }
-
-        function deleteRecord(id) {
-            showConfirm('هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
-                 try {
-                    const docRef = doc(db, deliveriesCol.path, id);
-                    await deleteDoc(docRef);
-                } catch (e) {
-                    console.error("Error deleting document: ", e);
-                    showAlert("حدث خطأ أثناء حذف السجل.");
+                // Render Daily Stats
+                let dailyHtml = `<h3>إحصائيات اليوم (${todayStr})</h3>`;
+                dailyHtml += '<table><thead><tr><th>النوع</th><th>العدد</th></tr></thead><tbody>';
+                let dailyTotal = 0;
+                for (const type in dailyCounts) {
+                    dailyHtml += `<tr><td>${escapeHtml(type)}</td><td>${dailyCounts[type]}</td></tr>`;
+                    dailyTotal += dailyCounts[type];
                 }
-            });
-        }
-        
-        // --- Stats Functions ---
-        function renderStatistics() {
-            const now = new Date();
-            const todayStr = now.toISOString().slice(0, 10);
-            const currentMonthStr = now.toISOString().slice(0, 7);
+                dailyHtml += `<tr style="font-weight: bold;"><td>الإجمالي</td><td>${dailyTotal}</td></tr>`;
+                dailyHtml += '</tbody></table>';
+                dailyStatsContainer.innerHTML = dailyHtml;
 
-            const dailyCounts = {};
-            const monthlyCounts = {};
-            
-            const itemTypes = ["دفتر صكوك", "بطاقة ذهبية", "حوالة بريدية", "رسالة", "أخرى"];
-            itemTypes.forEach(type => {
-                dailyCounts[type] = 0;
-                monthlyCounts[type] = 0;
-            });
-
-            for (const record of records) {
-                if (record.date === todayStr) {
-                    dailyCounts[record.itemType] = (dailyCounts[record.itemType] || 0) + 1;
+                // Render Monthly Stats
+                const monthName = now.toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
+                let monthlyHtml = `<h3>إحصائيات الشهر (${monthName})</h3>`;
+                monthlyHtml += '<table><thead><tr><th>النوع</th><th>العدد</th></tr></thead><tbody>';
+                let monthlyTotal = 0;
+                for (const type in monthlyCounts) {
+                    monthlyHtml += `<tr><td>${escapeHtml(type)}</td><td>${monthlyCounts[type]}</td></tr>`;
+                    monthlyTotal += monthlyCounts[type];
                 }
-                if (record.date && record.date.startsWith(currentMonthStr)) {
-                    monthlyCounts[record.itemType] = (monthlyCounts[record.itemType] || 0) + 1;
-                }
+                monthlyHtml += `<tr style="font-weight: bold;"><td>الإجمالي</td><td>${monthlyTotal}</td></tr>`;
+                monthlyHtml += '</tbody></table>';
+                monthlyStatsContainer.innerHTML = monthlyHtml;
             }
 
-            // Render Daily Stats
-            let dailyHtml = `<h3>إحصائيات اليوم (${todayStr})</h3>`;
-            dailyHtml += '<table><thead><tr><th>النوع</th><th>العدد</th></tr></thead><tbody>';
-            let dailyTotal = 0;
-            for (const type in dailyCounts) {
-                dailyHtml += `<tr><td>${escapeHtml(type)}</td><td>${dailyCounts[type]}</td></tr>`;
-                dailyTotal += dailyCounts[type];
-            }
-            dailyHtml += `<tr style="font-weight: bold;"><td>الإجمالي</td><td>${dailyTotal}</td></tr>`;
-            dailyHtml += '</tbody></table>';
-            dailyStatsContainer.innerHTML = dailyHtml;
 
-            // Render Monthly Stats
-            const monthName = now.toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
-            let monthlyHtml = `<h3>إحصائيات الشهر (${monthName})</h3>`;
-            monthlyHtml += '<table><thead><tr><th>النوع</th><th>العدد</th></tr></thead><tbody>';
-            let monthlyTotal = 0;
-            for (const type in monthlyCounts) {
-                monthlyHtml += `<tr><td>${escapeHtml(type)}</td><td>${monthlyCounts[type]}</td></tr>`;
-                monthlyTotal += monthlyCounts[type];
-            }
-            monthlyHtml += `<tr style="font-weight: bold;"><td>الإجمالي</td><td>${monthlyTotal}</td></tr>`;
-            monthlyHtml += '</tbody></table>';
-            monthlyStatsContainer.innerHTML = monthlyHtml;
-        }
+            // --- Event Listeners ---
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const user = usernameInput.value.trim();
+                const pass = passwordInput.value.trim();
+                
+                if (!user || !pass) return;
 
-
-        // --- Event Listeners ---
-        loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const user = usernameInput.value.trim();
-            const pass = passwordInput.value.trim();
-            
-            if (!user || !pass) return;
-
-            try {
                 const userDocRef = doc(credentialsCol, user);
                 const userDoc = await getDoc(userDocRef);
 
@@ -1080,343 +1069,342 @@
                 } else {
                     showAlert('اسم المستخدم أو كلمة المرور غير صحيحة.');
                 }
-            } catch (error) {
-                console.error("Login failed:", error);
-                showAlert("فشل تسجيل الدخول. يرجى التحقق من اتصالك بالإنترنت.");
-            }
-        });
+            });
 
-        logoutBtn.addEventListener('click', () => {
-            if (typeof unsubscribe === 'function') {
-                unsubscribe(); // Detach listener
-            }
-            sessionStorage.removeItem('isLoggedIn');
-            sessionStorage.removeItem('loggedInUser');
-            usernameInput.value = '';
-            passwordInput.value = '';
-            manageUsersBtn.style.display = 'none'; // Hide admin button
-            showLoginView();
-        });
-
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const payload = {
-                name: nameEl.value.trim(),
-                idnum: idEl.value.trim(),
-                idIssueDate: idIssueDateEl.value.trim(),
-                idIssuer: idIssuerEl.value.trim(),
-                address: addrEl.value.trim(),
-                phone: phoneEl.value.trim(),
-                itemType: typeEl.value,
-                date: dateEl.value || new Date().toISOString().slice(0, 10),
-                notes: notesEl.value.trim(),
-                communicationLog: communicationLogEl.value.trim(),
-                nonReceiptReason: nonReceiptReasonEl.value.trim()
-            };
-
-            if (!payload.name) {
-                showAlert('الرجاء إدخال اسم الزبون.');
-                nameEl.focus();
-                return;
-            }
-
-            if (editId) {
-                await updateRecord(editId, payload);
-            } else {
-                await addRecord(payload);
-            }
-            clearForm();
-        });
-        
-        form.addEventListener('click', (e) => {
-            const micBtn = e.target.closest('.mic-btn');
-            if (!micBtn || !recognition) return;
-
-            if (micBtn.classList.contains('listening')) {
-                recognition.stop();
-                return;
-            }
-            
-            const targetId = micBtn.dataset.targetId;
-            activeInputForSpeech = document.getElementById(targetId);
-
-            if (activeInputForSpeech) {
-                try {
-                    recognition.start();
-                } catch(err) {
-                    console.error("Could not start recognition", err);
-                    showAlert('لا يمكن بدء التعرف على الصوت الآن.');
+            logoutBtn.addEventListener('click', () => {
+                if (typeof unsubscribe === 'function') {
+                    unsubscribe(); // Detach listener
                 }
-            }
-        });
-
-        document.getElementById('resetBtn').addEventListener('click', clearForm);
-
-        tbody.addEventListener('click', function(e) {
-            const btn = e.target.closest('button');
-            if (!btn) return;
-            const id = btn.dataset.id;
-            const rec = records.find(x => x.id === id);
-            if (!rec) return;
-
-            if (btn.classList.contains('btn-edit')) {
-                nameEl.value = rec.name;
-                idEl.value = rec.idnum;
-                idIssueDateEl.value = rec.idIssueDate;
-                idIssuerEl.value = rec.idIssuer;
-                addrEl.value = rec.address;
-                phoneEl.value = rec.phone;
-                typeEl.value = rec.itemType;
-                dateEl.value = rec.date;
-                notesEl.value = rec.notes;
-                communicationLogEl.value = rec.communicationLog;
-                nonReceiptReasonEl.value = rec.nonReceiptReason;
-                editId = id;
-                form.querySelector('button[type="submit"]').textContent = 'تحديث السجل';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else if (btn.classList.contains('btn-del')) {
-                deleteRecord(id);
-            } else if (btn.classList.contains('btn-sms')) {
-                openSmsModal(rec);
-            }
-        });
-        
-        // --- SMS Modal Listeners ---
-        function openSmsModal(record) {
-            if (!record.phone || record.phone.trim() === '') {
-                showAlert('لا يوجد رقم هاتف مسجل لهذا الزبون.');
-                return;
-            }
-            currentSmsTarget = record;
-            smsRecipientInfo.innerHTML = `إلى: <strong>${escapeHtml(record.name)}</strong> (${escapeHtml(record.phone)})`;
-            smsMessageEl.value = `مرحبًا ${record.name}، لديك طرد (${record.itemType}) جاهز للاستلام. يرجى التواصل معنا.`;
-            smsModal.classList.add('visible');
-        }
-
-        [closeSmsModalBtn, cancelSmsBtn].forEach(btn => {
-            btn.addEventListener('click', () => {
-                smsModal.classList.remove('visible');
-                currentSmsTarget = null;
-            });
-        });
-
-        sendSmsBtn.addEventListener('click', async () => {
-            const text = smsMessageEl.value.trim();
-            const sender = smsSenderEl.value.trim();
-            const to = currentSmsTarget.phone.trim();
-            
-            if (!text || !sender) {
-                showAlert('يرجى تعبئة اسم المرسل ونص الرسالة.');
-                return;
-            }
-            
-            sendSmsBtn.disabled = true;
-            sendSmsBtn.textContent = 'جاري الإرسال...';
-
-            try {
-                const response = await fetch('/api/send-sms', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ to, text, sender })
-                });
-
-                if (response.ok) {
-                    showAlert('تم إرسال الرسالة بنجاح!', 'نجاح');
-                    closeModal();
-                } else {
-                    const errorData = await response.json();
-                    console.error('SMS API Error:', errorData);
-                    showAlert(`فشل إرسال الرسالة: ${errorData.error?.requestError?.serviceException?.text || 'خطأ غير معروف'}`);
-                }
-            } catch (error) {
-                console.error('Network or fetch error:', error);
-                showAlert('فشل الاتصال بخادم الإرسال. يرجى التحقق من اتصالك بالإنترنت.');
-            } finally {
-                sendSmsBtn.disabled = false;
-                sendSmsBtn.textContent = 'إرسال';
-            }
-        });
-
-
-        searchEl.addEventListener('input', render);
-        filterType.addEventListener('change', render);
-
-        // Navigation Listeners
-        showStatsBtn.addEventListener('click', () => {
-            showStatsView();
-            renderStatistics();
-        });
-
-        backToMainBtn.addEventListener('click', () => {
-            showMainView();
-        });
-        
-        // --- User Management Listeners ---
-        manageUsersBtn.addEventListener('click', async () => {
-            await renderUserList();
-            userManagementModal.classList.add('visible');
-        });
-
-        closeUserManagementModalBtn.addEventListener('click', () => {
-            userManagementModal.classList.remove('visible');
-        });
-
-        addUserForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newUsername = newUsernameEl.value.trim();
-            const newPassword = newPasswordEl.value.trim();
-
-            if (!newUsername || !newPassword) {
-                showAlert("الرجاء تعبئة جميع الحقول.");
-                return;
-            }
-            
-            const userDocRef = doc(credentialsCol, newUsername);
-            const userDoc = await getDoc(userDocRef);
-
-            if (userDoc.exists()) {
-                showAlert("اسم المستخدم هذا موجود بالفعل.");
-                return;
-            }
-
-            try {
-                await setDoc(userDocRef, { password: newPassword });
-                showAlert("تمت إضافة المستخدم بنجاح.", "نجاح");
-                addUserForm.reset();
-                await renderUserList();
-            } catch(err) {
-                console.error("Error adding user: ", err);
-                showAlert("حدث خطأ أثناء إضافة المستخدم.");
-            }
-        });
-
-        userManagementList.addEventListener('click', (e) => {
-            const delBtn = e.target.closest('.delete-user-btn');
-            if (!delBtn) return;
-            
-            const usernameToDelete = delBtn.dataset.username;
-            if (usernameToDelete === 'zinou') {
-                showAlert("لا يمكن حذف حساب المدير الرئيسي.");
-                return;
-            }
-
-            showConfirm(`هل أنت متأكد من حذف المستخدم "${usernameToDelete}"؟ سيتم حذف جميع بياناته.`, async () => {
-                try {
-                    await deleteDoc(doc(credentialsCol, usernameToDelete));
-                    showAlert("تم حذف المستخدم بنجاح.");
-                    await renderUserList();
-                } catch (err) {
-                    console.error("Error deleting user: ", err);
-                    showAlert("حدث خطأ أثناء حذف المستخدم.");
-                }
-            });
-        });
-
-        async function renderUserList() {
-            const usersSnapshot = await getDocs(credentialsCol);
-            userManagementList.innerHTML = '';
-            usersSnapshot.forEach(doc => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${escapeHtml(doc.id)}</span>
-                    <button class="btn btn-danger delete-user-btn" data-username="${escapeHtml(doc.id)}" style="padding: 4px 8px; font-size: 0.8rem;">حذف</button>
-                `;
-                userManagementList.appendChild(li);
-            });
-        }
-
-
-        // --- Initialization ---
-        async function bootstrapAdminUser() {
-            const zinouDocRef = doc(credentialsCol, 'zinou');
-            const zinouDoc = await getDoc(zinouDocRef);
-            if (!zinouDoc.exists()) {
-                await setDoc(zinouDocRef, { password: 'zinou' });
-                console.log("Admin user 'zinou' created/verified.");
-            }
-        }
-        
-        function initializeAppData(loggedInAppUser) {
-            if(loggedInAppUser === 'zinou'){
-                manageUsersBtn.style.display = 'inline-block';
-            }
-            
-            const firebaseUser = auth.currentUser;
-            
-            // Path for user-specific data
-            deliveriesCol = collection(db, `users/${firebaseUser.uid}/app_users/${loggedInAppUser}/deliveries`);
-
-            // Set up real-time listener
-            unsubscribe = onSnapshot(query(deliveriesCol), (snapshot) => {
-                records = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                records.sort((a,b) => (b.date || '').localeCompare(a.date || '')); // Sort by date
-                render();
+                sessionStorage.removeItem('isLoggedIn');
+                sessionStorage.removeItem('loggedInUser');
+                usernameInput.value = '';
+                passwordInput.value = '';
+                manageUsersBtn.style.display = 'none'; // Hide admin button
+                showLoginView();
             });
 
-            if (!dateEl.value) {
-                dateEl.value = new Date().toISOString().slice(0, 10);
-            }
-            loadDraft();
-            
-            form.querySelectorAll('input, select, textarea').forEach(el => {
-                el.addEventListener('input', saveDraft);
-            });
-        }
-        
-        async function main() {
-            try {
-                // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-                const firebaseConfig = {
-                  apiKey: "AIzaSyDIESGl6TXDRtzbP7NZtOHGJa9pRY83_oY",
-                  authDomain: "poste-b276e.firebaseapp.com",
-                  projectId: "poste-b276e",
-                  storageBucket: "poste-b276e.appspot.com", // Corrected to .appspot.com
-                  messagingSenderId: "855137728375",
-                  appId: "1:855137728375:web:1428c3132f9ba79375d372",
-                  measurementId: "G-H07GT7NJ7E"
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const payload = {
+                    name: nameEl.value.trim(),
+                    idnum: idEl.value.trim(),
+                    idIssueDate: idIssueDateEl.value.trim(),
+                    idIssuer: idIssuerEl.value.trim(),
+                    address: addrEl.value.trim(),
+                    phone: phoneEl.value.trim(),
+                    itemType: typeEl.value,
+                    date: dateEl.value || new Date().toISOString().slice(0, 10),
+                    notes: notesEl.value.trim(),
+                    communicationLog: communicationLogEl.value.trim(),
+                    nonReceiptReason: nonReceiptReasonEl.value.trim()
                 };
 
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                await signInAnonymously(auth);
-                console.log("Firebase Auth successful as anonymous user.");
-
-                credentialsCol = collection(db, `public_data/credentials`);
-
-                await bootstrapAdminUser();
-                
-                const loggedInUser = sessionStorage.getItem('loggedInUser');
-                if (sessionStorage.getItem('isLoggedIn') === 'true' && loggedInUser) {
-                    showMainView();
-                    initializeAppData(loggedInUser);
-                } else {
-                    showLoginView();
+                if (!payload.name) {
+                    showAlert('الرجاء إدخال اسم الزبون.');
+                    nameEl.focus();
+                    return;
                 }
-            } catch (e) {
-                console.error("Critical initialization failed:", e);
-                initErrorContainer.textContent = `فشل تهيئة Firebase. يرجى التأكد من صحة إعداداتك في الكود أو الاتصال بالدعم الفني. تلميح: تأكد من أن قواعد الأمان في Firestore تسمح بالوصول.`;
-                initErrorContainer.style.display = 'block';
-            }
-        }
-        
-        // --- PWA Service Worker ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration failed: ', error);
-                    });
+
+                if (editId) {
+                    await updateRecord(editId, payload);
+                } else {
+                    await addRecord(payload);
+                }
+                clearForm();
             });
-        }
+            
+            form.addEventListener('click', (e) => {
+                const micBtn = e.target.closest('.mic-btn');
+                if (!micBtn || !recognition) return;
 
-        main(); // Start the application.
+                if (micBtn.classList.contains('listening')) {
+                    recognition.stop();
+                    return;
+                }
+                
+                const targetId = micBtn.dataset.targetId;
+                activeInputForSpeech = document.getElementById(targetId);
 
+                if (activeInputForSpeech) {
+                    try {
+                        recognition.start();
+                    } catch(err) {
+                        console.error("Could not start recognition", err);
+                        showAlert('لا يمكن بدء التعرف على الصوت الآن.');
+                    }
+                }
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', clearForm);
+
+            tbody.addEventListener('click', function(e) {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                const id = btn.dataset.id;
+                if (btn.classList.contains('btn-edit')) {
+                    const rec = records.find(x => x.id === id);
+                    if (!rec) return;
+                    nameEl.value = rec.name;
+                    idEl.value = rec.idnum;
+                    idIssueDateEl.value = rec.idIssueDate;
+                    idIssuerEl.value = rec.idIssuer;
+                    addrEl.value = rec.address;
+                    phoneEl.value = rec.phone;
+                    typeEl.value = rec.itemType;
+                    dateEl.value = rec.date;
+                    notesEl.value = rec.notes;
+                    communicationLogEl.value = rec.communicationLog;
+                    nonReceiptReasonEl.value = rec.nonReceiptReason;
+                    editId = id;
+                    form.querySelector('button[type="submit"]').textContent = 'تحديث السجل';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else if (btn.classList.contains('btn-del')) {
+                    deleteRecord(id);
+                }
+            });
+
+            searchEl.addEventListener('input', render);
+            filterType.addEventListener('change', render);
+
+            // Navigation Listeners
+            showStatsBtn.addEventListener('click', () => {
+                showStatsView();
+                renderStatistics();
+            });
+
+            backToMainBtn.addEventListener('click', () => {
+                showMainView();
+            });
+            
+            // --- User Management Listeners ---
+            manageUsersBtn.addEventListener('click', async () => {
+                await renderUserList();
+                userManagementModal.classList.add('visible');
+            });
+
+            closeUserManagementModalBtn.addEventListener('click', () => {
+                userManagementModal.classList.remove('visible');
+            });
+            
+            userManagementModal.addEventListener('click', (e) => {
+                if(e.target === userManagementModal) {
+                    userManagementModal.classList.remove('visible');
+                }
+            });
+
+            addUserForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newUsername = newUsernameEl.value.trim();
+                const newPassword = newPasswordEl.value.trim();
+
+                if (!newUsername || !newPassword) {
+                    showAlert("الرجاء تعبئة جميع الحقول.");
+                    return;
+                }
+                
+                const userDocRef = doc(credentialsCol, newUsername);
+                const userDoc = await getDoc(userDocRef);
+
+                if (userDoc.exists()) {
+                    showAlert("اسم المستخدم هذا موجود بالفعل.");
+                    return;
+                }
+
+                try {
+                    await setDoc(userDocRef, { password: newPassword });
+                    showAlert("تمت إضافة المستخدم بنجاح.", "نجاح");
+                    addUserForm.reset();
+                    await renderUserList();
+                } catch(err) {
+                    console.error("Error adding user: ", err);
+                    showAlert("حدث خطأ أثناء إضافة المستخدم.");
+                }
+            });
+
+            userManagementList.addEventListener('click', (e) => {
+                const delBtn = e.target.closest('.delete-user-btn');
+                if (!delBtn) return;
+                
+                const usernameToDelete = delBtn.dataset.username;
+                if (usernameToDelete === 'zinou') {
+                    showAlert("لا يمكن حذف حساب المدير الرئيسي.");
+                    return;
+                }
+
+                showConfirm(`هل أنت متأكد من حذف المستخدم "${usernameToDelete}"؟ سيتم حذف جميع بياناته.`, async () => {
+                    try {
+                        await deleteDoc(doc(credentialsCol, usernameToDelete));
+                        showAlert("تم حذف المستخدم بنجاح.");
+                        await renderUserList();
+                    } catch (err) {
+                        console.error("Error deleting user: ", err);
+                        showAlert("حدث خطأ أثناء حذف المستخدم.");
+                    }
+                });
+            });
+
+            async function renderUserList() {
+                const usersSnapshot = await getDocs(credentialsCol);
+                userManagementList.innerHTML = '';
+                usersSnapshot.forEach(doc => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span>${escapeHtml(doc.id)}</span>
+                        <button class="btn btn-danger delete-user-btn" data-username="${escapeHtml(doc.id)}" style="padding: 4px 8px; font-size: 0.8rem;">حذف</button>
+                    `;
+                    userManagementList.appendChild(li);
+                });
+            }
+
+
+            // --- Initialization ---
+            async function bootstrapAdminUser() {
+                const zinouDocRef = doc(credentialsCol, 'zinou');
+                const zinouDoc = await getDoc(zinouDocRef);
+                if (!zinouDoc.exists()) {
+                    await setDoc(zinouDocRef, { password: 'zinou' });
+                    console.log("Admin user 'zinou' created/verified.");
+                }
+            }
+            
+            async function initializeAppData(loggedInAppUser) {
+                if(loggedInAppUser === 'zinou'){
+                    manageUsersBtn.style.display = 'inline-block';
+                }
+                
+                const firebaseUser = auth.currentUser;
+                // appId is now available from the outer scope
+                
+                // Path for user-specific data
+                deliveriesCol = collection(db, `artifacts/${appId}/users/${firebaseUser.uid}/app_users/${loggedInAppUser}/deliveries`);
+
+                // Set up real-time listener
+                unsubscribe = onSnapshot(query(deliveriesCol), (snapshot) => {
+                    records = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    records.sort((a,b) => (b.name || '').localeCompare(a.name || '')); // Sort for consistency
+                    render();
+                });
+
+                if (!dateEl.value) {
+                    dateEl.value = new Date().toISOString().slice(0, 10);
+                }
+                loadDraft();
+                
+                form.querySelectorAll('input, select, textarea').forEach(el => {
+                    el.addEventListener('input', saveDraft);
+                });
+            }
+
+            function initializePWA() {
+                if ('serviceWorker' in navigator) {
+                    const serviceWorkerScript = `
+                        const CACHE_NAME = 'mail-delivery-log-v2';
+                        const urlsToCache = [
+                            location.href, // Cache the current page
+                            'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap',
+                            'https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js',
+                            'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js',
+                            'https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js'
+                        ];
+
+                        self.addEventListener('install', event => {
+                            event.waitUntil(
+                                caches.open(CACHE_NAME)
+                                    .then(cache => {
+                                        console.log('Opened cache');
+                                        const requests = urlsToCache.map(url => new Request(url, {cache: 'reload'}));
+                                        return cache.addAll(requests);
+                                    })
+                            );
+                        });
+
+                        self.addEventListener('fetch', event => {
+                            event.respondWith(
+                                caches.match(event.request)
+                                    .then(response => {
+                                        return response || fetch(event.request);
+                                    })
+                            );
+                        });
+                    `;
+                    
+                    const blob = new Blob([serviceWorkerScript], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(blob);
+
+                    navigator.serviceWorker.register(swUrl)
+                        .then(registration => {
+                            console.log('ServiceWorker registration successful: ', registration);
+                        })
+                        .catch(error => {
+                            console.log('ServiceWorker registration failed: ', error);
+                        });
+                }
+            }
+
+            async function main() {
+                try {
+                    let finalFirebaseConfig;
+                    
+                    // --- Logic to select the correct Firebase config ---
+                    if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                        // Priority 1: Use the injected config from the development environment
+                        finalFirebaseConfig = JSON.parse(__firebase_config);
+                    } else if (vercelFirebaseConfig && vercelFirebaseConfig.apiKey) {
+                        // Priority 2: Use the hardcoded config for Vercel/production
+                        finalFirebaseConfig = vercelFirebaseConfig;
+                    } else {
+                        // If no config is found, stop execution and alert the user.
+                        console.error("Firebase configuration is missing.");
+                        alert("فشل تهيئة Firebase. يرجى التأكد من صحة إعداداتك في الكود.");
+                        return;
+                    }
+                    
+                    const app = initializeApp(finalFirebaseConfig);
+                    db = getFirestore(app); // Assign to the module-scoped variables
+                    auth = getAuth(app);
+
+                    // AUTHENTICATE with Firebase. Use custom token if available (dev env), otherwise sign in anonymously (Vercel)
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    console.log("Firebase Auth successful.");
+
+                    // Now that we are authenticated, we can safely access Firestore.
+                    appId = (typeof __app_id !== 'undefined' && __app_id) ? __app_id : 'standalone'; // Use 'standalone' for Vercel
+                    credentialsCol = collection(db, `artifacts/${appId}/public/data/credentials`);
+
+                    // Ensure the admin user exists. This is safe to call now.
+                    await bootstrapAdminUser();
+                    
+                    // Now, check if the user is logged into our APP (via sessionStorage)
+                    const loggedInUser = sessionStorage.getItem('loggedInUser');
+                    if (sessionStorage.getItem('isLoggedIn') === 'true' && loggedInUser) {
+                        showMainView();
+                        initializeAppData(loggedInUser);
+                    } else {
+                        showLoginView();
+                    }
+                } catch (e) {
+                    console.error("Critical initialization failed:", e);
+                    let userMessage = "فشل تهيئة Firebase. يرجى التأكد من صحة إعداداتك في الكود.";
+                    // Provide more specific feedback to the user
+                    if (e && e.code === 'auth/operation-not-allowed') {
+                        userMessage += "\n\nتلميح: يبدو أن تسجيل الدخول المجهول (Anonymous) غير مفعّل. يرجى تفعيله من لوحة تحكم Firebase > قسم Authentication > Sign-in method.";
+                    } else {
+                        userMessage += "\n\nتلميح: تأكد من نسخ إعدادات Firebase بشكل صحيح، ومن أن قواعد الأمان في Firestore تسمح بالوصول.";
+                    }
+                    alert(userMessage);
+                }
+            }
+
+            main(); // Start the application.
+            initializePWA(); // Initialize the PWA features.
+
+        })();
     </script>
 </body>
 </html>
+
 
