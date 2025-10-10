@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل تسليم البريد</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA Manifest & Theme -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b66ff">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+
+    <style>
+        :root {
+            font-family: 'Cairo', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --primary-color: #0b66ff;
+            --light-primary-color: #eef2ff;
+            --border-color: #d7dbe6;
+            --text-color: #0b1220;
+            --muted-text-color: #6b7280;
+            --background-color: #f6f7fb;
+            --surface-color: #fff;
+            --shadow-color: rgba(11, 18, 32, 0.07);
+        }
+
+        body {
+            background: var(--background-color);
+            color: var(--text-color);
+            padding: 18px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px var(--shadow-color);
+        }
+
+        h1 {
+            margin: 0 0 16px 0;
+            font-size: 1.6rem;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 6px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--light-primary-color);
+        }
+        
+        .mic-btn {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(2px);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mic-btn:hover {
+            background-color: #f0f0f0;
+        }
+        .mic-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--muted-text-color);
+        }
+        .mic-btn.listening svg {
+            fill: var(--primary-color);
+        }
+        body.no-speech-recognition .mic-btn {
+            display: none;
+        }
+
+
+        .row {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: background-color 0.2s, transform 0.1s;
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #0a58e0;
+        }
+
+        .btn-ghost {
+            background: var(--light-primary-color);
+            color: var(--primary-color);
+            border: 1px solid #dbe7ff;
+        }
+        .btn-ghost:hover {
+            background: #e0e7ff;
+        }
+        
+        .btn-danger {
+            background: #fce8e8;
+            color: #d93025;
+            border: 1px solid #f9d0d0;
+        }
+        .btn-danger:hover {
+            background: #f8d7d7;
+        }
+        
+        .btn-sms {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+        .btn-sms:hover {
+             background: #dcedc8;
+        }
+
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            table-layout: fixed;
+        }
+        
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eef0f6;
+            text-align: right;
+            word-wrap: break-word;
+        }
+
+        th {
+            background: #fbfcff;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        tbody tr:hover {
+            background-color: #f9fafc;
+        }
+
+        .highlight-row {
+            background-color: var(--light-primary-color);
+        }
+        tbody tr.highlight-row:hover {
+             background-color: #e0e7ff;
+        }
+
+        .small {
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .muted {
+            color: var(--muted-text-color);
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 24px;
+            padding: 12px;
+            background: #f8f9fc;
+            border-radius: 8px;
+        }
+        
+        .form-actions {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .form-actions .right-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: var(--surface-color);
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        
+        #user-management-list {
+            list-style: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        #user-management-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #user-management-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Stats Page Styles */
+        .stats-container {
+            padding-top: 20px;
+        }
+        .stats-container h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 24px;
+        }
+        .stats-section {
+            margin-bottom: 30px;
+            background: #fdfdff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #f0f2f5;
+        }
+        .stats-section h3 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        #loginView {
+            max-width: 400px;
+            margin: 8vh auto 0 auto;
+        }
+        
+        .developer-credit {
+            font-weight: 600;
+            font-size: 1rem;
+            background: linear-gradient(45deg, #0b66ff, #ffc107);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        #sms-recipient-info {
+            background: #f8f9fc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 760px) {
+            body {
+                padding: 8px;
+            }
+            .container {
+                padding: 16px;
+            }
+            .row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .form-actions .right-actions {
+                margin-left: 0;
+                margin-top: 10px;
+                justify-content: space-between;
+            }
+             .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            /* Responsive Table Styles */
+            table {
+                table-layout: auto;
+                border: 0;
+            }
+            table thead {
+                display: none;
+            }
+            table tr {
+                display: block;
+                margin-bottom: 16px;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 12px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            }
+            table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                text-align: left;
+                padding: 10px 4px;
+                border-bottom: 1px solid #f0f2f5;
+            }
+            table td:last-child {
+                border-bottom: none;
+            }
+            table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                padding-left: 12px;
+                text-align: right;
+                color: var(--primary-color);
+                flex-basis: 50%;
+            }
+             .actions {
+                justify-content: center;
+                padding-top: 10px;
+                flex-wrap: wrap;
+            }
+            .actions::before {
+                display: none;
+            }
+            .actions .btn {
+                width: auto;
+                flex-grow: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loginView" class="container">
+        <h1>تسجيل الدخول</h1>
+        <form id="loginForm" autocomplete="off">
+            <div>
+                <label for="username">اسم المستخدم</label>
+                <input id="username" type="text" required>
+            </div>
+            <div style="margin-top: 12px;">
+                <label for="password">كلمة المرور</label>
+                <input id="password" type="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">دخول</button>
+        </form>
+        <div id="init-error-container" style="display:none; margin-top: 15px; padding: 10px; background-color: #fce8e8; color: #d93025; border-radius: 8px; text-align: center;"></div>
+    </div>
+
+    <div id="mainView" class="container" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>نظام تسجيل تسليم البريد</h1>
+            <button id="logoutBtn" class="btn btn-danger">خروج</button>
+        </div>
+        <div class="developer-credit" style="text-align:center; margin-bottom: 16px;">تم تطويره من قبل زهير عيه</div>
+
+        <form id="deliveryForm" autocomplete="off">
+            <div class="row">
+                <div class="col">
+                    <div class="input-wrapper">
+                        <label for="name">اسم الزبون</label>
+                        <input id="name" required />
+                        <button type="button" class="btn mic-btn" data-target-id="name" aria-label="تسجيل صوتي"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-wrapper">
+                        <label for="idnum">رقم الهوية / الرقم الوطني</label>
+                        <input id="idnum" />
+                        <button type="button" class="btn mic-btn" data-target-id="idnum" aria-label="تسجيل صوتي"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="idIssueDate">تاريخ إصدار الهوية</label>
+                    <input id="idIssueDate" type="text" placeholder="YYYY-MM-DD" />
+                </div>
+                <div class="col">
+                    <label for="idIssuer">صادرة عن بلدية</label>
+                    <select id="idIssuer">
+                        <option value="">-- اختر البلدية --</option>
+                        <option value="أميه ونسة">أميه ونسة</option>
+                        <option value="البياضة">البياضة</option>
+                        <option value="الحمادين">الحمادين</option>
+                        <option value="الحمراية">الحمراية</option>
+                        <option value="الدبيلة">الدبيلة</option>
+                        <option value="الرباح">الرباح</option>
+                        <option value="الرقيبة">الرقيبة</option>
+                        <option value="الطريفاوي">الطريفاوي</option>
+                        <option value="العقلة">العقلة</option>
+                        <option value="المرزاقة">المرزاقة</option>
+                        <option value="المقرن">المقرن</option>
+                        <option value="النخلة">النخلة</option>
+                        <option value="الوادي">الوادي</option>
+                        <option value="بن قشة">بن قشة</option>
+                        <option value="تغزوت">تغزوت</option>
+                        <option value="تندلة">تندلة</option>
+                        <option value="حاسي خليفة">حاسي خليفة</option>
+                        <option value="حساني عبد الكريم">حساني عبد الكريم</option>
+                        <option value="دوار الماء">دوار الماء</option>
+                        <option value="سيدي عون">سيدي عون</option>
+                        <option value="طالب العربي">طالب العربي</option>
+                        <option value="عين الشوشة">عين الشوشة</option>
+                        <option value="قمار">قمار</option>
+                        <option value="كوينين">كوينين</option>
+                        <option value="وادي العلندة">وادي العلندة</option>
+                        <option value="ورماس">ورماس</option>
+                        <option value="وغلانة">وغلانة</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                     <div class="input-wrapper">
+                        <label for="address">العنوان (شارع، رقم، حي)</label>
+                        <input id="address" />
+                        <button type="button" class="btn mic-btn" data-target-id="address" aria-label="تسجيل صوتي"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-wrapper">
+                        <label for="phone">هاتف للتواصل</label>
+                        <input id="phone" />
+                        <button type="button" class="btn mic-btn" data-target-id="phone" aria-label="تسجيل صوتي"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="itemType">نوع المستلم</label>
+                    <select id="itemType">
+                        <option value="دفتر صكوك">دفتر صكوك</option>
+                        <option value="بطاقة ذهبية">بطاقة ذهبية</option>
+                        <option value="حوالة بريدية">حوالة بريدية</option>
+                        <option value="رسالة">رسالة</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="date">تاريخ التسليم</label>
+                    <input id="date" type="text" placeholder="YYYY-MM-DD" />
+                </div>
+            </div>
+
+            <div class="input-wrapper">
+                <label for="notes">تفاصيل إضافية / ملاحظات</label>
+                <textarea id="notes" rows="2"></textarea>
+                <button type="button" class="btn mic-btn" data-target-id="notes" aria-label="تسجيل صوتي" style="transform: translateY(-8px);"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+            </div>
+            
+            <div class="input-wrapper">
+                <label for="communicationLog">سجل الاتصال (تم الاتصال / إرسال إشعار بتاريخ...)</label>
+                <textarea id="communicationLog" rows="2"></textarea>
+                <button type="button" class="btn mic-btn" data-target-id="communicationLog" aria-label="تسجيل صوتي" style="transform: translateY(-8px);"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+            </div>
+
+            <div class="input-wrapper">
+                <label for="nonReceiptReason">سبب عدم الاستلام</label>
+                <textarea id="nonReceiptReason" rows="2"></textarea>
+                <button type="button" class="btn mic-btn" data-target-id="nonReceiptReason" aria-label="تسجيل صوتي" style="transform: translateY(-8px);"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit">حفظ السجل</button>
+                <button id="resetBtn" class="btn btn-ghost" type="button">تفريغ الحقول</button>
+                <div class="right-actions">
+                    <button id="showStatsBtn" class="btn btn-ghost" type="button">عرض الإحصائيات</button>
+                    <button id="manageUsersBtn" class="btn btn-ghost" type="button" style="display: none;">إدارة المستخدمين</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="controls">
+            <input id="search" placeholder="بحث بالاسم أو الهاتف أو نوع الطرد..." style="flex:1;" />
+            <select id="filterType">
+                <option value="all">كل الأنواع</option>
+                <option value="دفتر صكوك">دفتر صكوك</option>
+                <option value="بطاقة ذهبية">بطاقة ذهبية</option>
+                <option value="حوالة بريدية">حوالة بريدية</option>
+                <option value="رسالة">رسالة</option>
+                <option value="أخرى">أخرى</option>
+            </select>
+            <div class="small muted">إجمالي السجلات: <span id="count">0</span></div>
+        </div>
+
+        <table id="recordsTable">
+            <thead>
+                <tr>
+                    <th>الاسم</th>
+                    <th>الهاتف</th>
+                    <th>النوع</th>
+                    <th>التاريخ</th>
+                    <th>سجل الاتصال</th>
+                    <th>سبب عدم الاستلام</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div class="small muted" style="margin-top:10px; text-align:center;">تطوير عيه زهير zinou</div>
+    </div>
+    
+    <div id="statsView" class="container" style="display: none;">
+        <div class="stats-container">
+            <h2>إحصائيات التسليم</h2>
+            <div id="dailyStats" class="stats-section"></div>
+            <div id="monthlyStats" class="stats-section"></div>
+            <button id="backToMainBtn" class="btn btn-primary" style="width: 100%; margin-top: 20px;">عودة للقائمة الرئيسية</button>
+        </div>
+    </div>
+
+    <!-- Generic Modal Structure -->
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modalHeader" class="modal-header"></div>
+            <div id="modalBody" class="modal-body"></div>
+            <div id="modalFooter" class="modal-footer"></div>
+        </div>
+    </div>
+    
+    <!-- SMS Modal -->
+    <div id="smsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>إرسال رسالة SMS</span>
+                <button id="closeSmsModal" class="btn btn-ghost" style="width:auto; padding: 4px 8px;">X</button>
+            </div>
+            <div class="modal-body">
+                <div id="sms-recipient-info"></div>
+                <form id="smsForm">
+                    <div>
+                        <label for="sms-sender">اسم المرسل</label>
+                        <input id="sms-sender" type="text" placeholder="مثال: PosteDZ" required>
+                    </div>
+                    <div style="margin-top: 12px;">
+                        <label for="sms-message">نص الرسالة</label>
+                        <textarea id="sms-message" rows="4" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelSmsBtn" class="btn btn-ghost">إلغاء</button>
+                <button id="sendSmsBtn" class="btn btn-primary">إرسال</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- User Management Modal -->
+    <div id="userManagementModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">إدارة المستخدمين</div>
+            <div class="modal-body">
+                <h4>إضافة مستخدم جديد</h4>
+                <form id="addUserForm" autocomplete="off">
+                    <div class="row">
+                        <div class="col">
+                            <label for="newUsername">اسم المستخدم</label>
+                            <input id="newUsername" type="text" required>
+                        </div>
+                        <div class="col">
+                            <label for="newPassword">كلمة المرور</label>
+                            <input id="newPassword" type="password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إنشاء مستخدم</button>
+                </form>
+                <hr style="margin: 20px 0;">
+                <h4>المستخدمون الحاليون</h4>
+                <ul id="user-management-list">
+                    <!-- User list will be populated here -->
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button id="closeUserManagementModal" class="btn btn-ghost">إغلاق</button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        // Import Firebase services
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        
+        let db, auth;
+        const DRAFT_KEY = 'postal_delivery_draft_v2';
+        
+        // --- View Elements ---
+        const loginView = document.getElementById('loginView');
+        const mainView = document.getElementById('mainView');
+        const statsView = document.getElementById('statsView');
+        const initErrorContainer = document.getElementById('init-error-container');
+        
+        // --- Login Elements ---
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // --- Main View Elements ---
+        const form = document.getElementById('deliveryForm');
+        const nameEl = document.getElementById('name');
+        const idEl = document.getElementById('idnum');
+        const idIssueDateEl = document.getElementById('idIssueDate');
+        const idIssuerEl = document.getElementById('idIssuer');
+        const addrEl = document.getElementById('address');
+        const phoneEl = document.getElementById('phone');
+        const typeEl = document.getElementById('itemType');
+        const dateEl = document.getElementById('date');
+        const notesEl = document.getElementById('notes');
+        const communicationLogEl = document.getElementById('communicationLog');
+        const nonReceiptReasonEl = document.getElementById('nonReceiptReason');
+        const tbody = document.querySelector('#recordsTable tbody');
+        const searchEl = document.getElementById('search');
+        const filterType = document.getElementById('filterType');
+        const countEl = document.getElementById('count');
+        
+        // --- Stats View Elements ---
+        const showStatsBtn = document.getElementById('showStatsBtn');
+        const backToMainBtn = document.getElementById('backToMainBtn');
+        const dailyStatsContainer = document.getElementById('dailyStats');
+        const monthlyStatsContainer = document.getElementById('monthlyStats');
+
+        // --- Modal elements ---
+        const modal = document.getElementById('customModal');
+        const modalHeader = document.getElementById('modalHeader');
+        const modalBody = document.getElementById('modalBody');
+        const modalFooter = document.getElementById('modalFooter');
+        
+        // --- SMS Modal Elements ---
+        const smsModal = document.getElementById('smsModal');
+        const closeSmsModalBtn = document.getElementById('closeSmsModal');
+        const cancelSmsBtn = document.getElementById('cancelSmsBtn');
+        const sendSmsBtn = document.getElementById('sendSmsBtn');
+        const smsForm = document.getElementById('smsForm');
+        const smsRecipientInfo = document.getElementById('sms-recipient-info');
+        const smsMessageEl = document.getElementById('sms-message');
+        const smsSenderEl = document.getElementById('sms-sender');
+
+        // --- User Management Elements ---
+        const manageUsersBtn = document.getElementById('manageUsersBtn');
+        const userManagementModal = document.getElementById('userManagementModal');
+        const closeUserManagementModalBtn = document.getElementById('closeUserManagementModal');
+        const addUserForm = document.getElementById('addUserForm');
+        const newUsernameEl = document.getElementById('newUsername');
+        const newPasswordEl = document.getElementById('newPassword');
+        const userManagementList = document.getElementById('user-management-list');
+        
+        let records = [];
+        let editId = null;
+        let activeInputForSpeech = null;
+        let deliveriesCol;
+        let credentialsCol;
+        let unsubscribe = () => {};
+        let currentSmsTarget = null;
+        
+        // --- Speech Recognition Setup ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'ar-DZ';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = function() {
+                const activeBtn = document.querySelector(`.mic-btn[data-target-id="${activeInputForSpeech.id}"]`);
+                if (activeBtn) activeBtn.classList.add('listening');
+            };
+
+            recognition.onend = function() {
+                const activeBtn = document.querySelector(`.mic-btn[data-target-id="${activeInputForSpeech.id}"]`);
+                if (activeBtn) activeBtn.classList.remove('listening');
+                activeInputForSpeech = null;
+            };
+
+            recognition.onresult = function(event) {
+                const speechResult = event.results[0][0].transcript;
+                if (activeInputForSpeech) {
+                    activeInputForSpeech.value = speechResult;
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error', event.error);
+                showAlert('حدث خطأ أثناء التعرف على الصوت: ' + event.error);
+            };
+
+        } else {
+            console.log("Speech Recognition not supported in this browser.");
+            document.body.classList.add('no-speech-recognition');
+        }
+
+        // --- Draft Management Functions ---
+        const formInputs = [nameEl, idEl, idIssueDateEl, idIssuerEl, addrEl, phoneEl, typeEl, dateEl, notesEl, communicationLogEl, nonReceiptReasonEl];
+
+        function saveDraft() {
+            const draftData = {};
+            formInputs.forEach(el => {
+                draftData[el.id] = el.value;
+            });
+            sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+        }
+
+        function loadDraft() {
+            const raw = sessionStorage.getItem(DRAFT_KEY);
+            if (!raw) return;
+            try {
+                const draftData = JSON.parse(raw);
+                formInputs.forEach(el => {
+                    if (draftData[el.id] !== undefined) {
+                        el.value = draftData[el.id];
+                    }
+                });
+            } catch (e) {
+                console.error("Failed to load draft", e);
+                sessionStorage.removeItem(DRAFT_KEY);
+            }
+        }
+
+        function clearDraft() {
+            sessionStorage.removeItem(DRAFT_KEY);
+        }
+
+
+        // --- View Management ---
+        function showLoginView() {
+            loginView.style.display = 'block';
+            mainView.style.display = 'none';
+            statsView.style.display = 'none';
+        }
+
+        function showMainView() {
+            loginView.style.display = 'none';
+            mainView.style.display = 'block';
+            statsView.style.display = 'none';
+        }
+
+        function showStatsView() {
+            loginView.style.display = 'none';
+            mainView.style.display = 'none';
+            statsView.style.display = 'block';
+        }
+
+
+        // --- Modal Functions ---
+        function showModal(header, body, buttons) {
+            modalHeader.textContent = header;
+            modalBody.innerHTML = ''; // Clear previous body
+            const p = document.createElement('p');
+            p.textContent = body;
+            modalBody.appendChild(p);
+
+            modalFooter.innerHTML = '';
+            buttons.forEach(btnInfo => {
+                const button = document.createElement('button');
+                button.textContent = btnInfo.text;
+                button.className = btnInfo.class;
+                button.addEventListener('click', () => {
+                    closeModal();
+                    if (btnInfo.onClick) {
+                        btnInfo.onClick();
+                    }
+                });
+                modalFooter.appendChild(button);
+            });
+            modal.classList.add('visible');
+        }
+
+        function closeModal() {
+            modal.classList.remove('visible');
+            userManagementModal.classList.remove('visible');
+            smsModal.classList.remove('visible');
+        }
+
+        function showAlert(message, title = 'تنبيه') {
+            showModal(title, message, [{ text: 'موافق', class: 'btn btn-primary' }]);
+        }
+
+        function showConfirm(message, onConfirm, title = 'تأكيد الإجراء') {
+            showModal(title, message, [
+                { text: 'إلغاء', class: 'btn btn-ghost' },
+                { text: 'تأكيد', class: 'btn btn-danger', onClick: onConfirm }
+            ]);
+        }
+        
+        [modal, userManagementModal, smsModal].forEach(m => {
+             m.addEventListener('click', (e) => {
+                if(e.target === m) {
+                    closeModal();
+                }
+            });
+        });
+
+
+        // --- Core App Functions (with Firebase) ---
+        function render() {
+            const q = (searchEl.value || '').trim().toLowerCase();
+            const typeFilter = filterType.value;
+            tbody.innerHTML = '';
+
+            const nameCounts = records.reduce((acc, record) => {
+                const name = (record.name || '').trim().toLowerCase();
+                if (name) {
+                    acc[name] = (acc[name] || 0) + 1;
+                }
+                return acc;
+            }, {});
+
+            const filtered = records.filter(r => {
+                if (typeFilter !== 'all' && r.itemType !== typeFilter) return false;
+                if (!q) return true;
+                return (r.name || '').toLowerCase().includes(q) ||
+                       (r.phone || '').toLowerCase().includes(q) ||
+                       (r.itemType || '').toLowerCase().includes(q);
+            });
+            
+            filtered.forEach(r => {
+                const tr = document.createElement('tr');
+                
+                const recordName = (r.name || '').trim().toLowerCase();
+                if (nameCounts[recordName] >= 2) {
+                    tr.classList.add('highlight-row');
+                }
+
+                tr.innerHTML = `
+                    <td data-label="الاسم">${escapeHtml(r.name)}</td>
+                    <td data-label="الهاتف">${escapeHtml(r.phone || '')}</td>
+                    <td data-label="النوع">${escapeHtml(r.itemType)}</td>
+                    <td data-label="التاريخ">${escapeHtml(r.date || '')}</td>
+                    <td data-label="سجل الاتصال" class="small">${escapeHtml(r.communicationLog || '')}</td>
+                    <td data-label="سبب عدم الاستلام" class="small">${escapeHtml(r.nonReceiptReason || '')}</td>
+                    <td data-label="إجراءات" class="actions">
+                        <button data-id="${r.id}" class="btn btn-sms">
+                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22 4H2.01L2 20h20V4zm-2 14H4V8l8 5 8-5v10zM12 11L4 6h16l-8 5z"/></svg>
+                        </button>
+                        <button data-id="${r.id}" class="btn btn-ghost btn-edit">تعديل</button>
+                        <button data-id="${r.id}" class="btn btn-danger btn-del">حذف</button>
+                    </td>`;
+                tbody.appendChild(tr);
+            });
+
+            countEl.textContent = records.length;
+        }
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            return String(s).replace(/[&<>"']/g, m => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[m]));
+        }
+
+        function clearForm() {
+            clearDraft();
+            form.reset();
+            editId = null;
+            dateEl.value = new Date().toISOString().slice(0, 10);
+            form.querySelector('button[type="submit"]').textContent = 'حفظ السجل';
+        }
+
+        async function addRecord(obj) {
+            try {
+                await addDoc(deliveriesCol, obj);
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                showAlert("حدث خطأ أثناء حفظ السجل.");
+            }
+        }
+
+        async function updateRecord(id, obj) {
+            try {
+                const docRef = doc(db, deliveriesCol.path, id);
+                await updateDoc(docRef, obj);
+            } catch (e) {
+                console.error("Error updating document: ", e);
+                showAlert("حدث خطأ أثناء تحديث السجل.");
+            }
+        }
+
+        function deleteRecord(id) {
+            showConfirm('هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
+                 try {
+                    const docRef = doc(db, deliveriesCol.path, id);
+                    await deleteDoc(docRef);
+                } catch (e) {
+                    console.error("Error deleting document: ", e);
+                    showAlert("حدث خطأ أثناء حذف السجل.");
+                }
+            });
+        }
+        
+        // --- Stats Functions ---
+        function renderStatistics() {
+            const now = new Date();
+            const todayStr = now.toISOString().slice(0, 10);
+            const currentMonthStr = now.toISOString().slice(0, 7);
+
+            const dailyCounts = {};
+            const monthlyCounts = {};
+            
+            const itemTypes = ["دفتر صكوك", "بطاقة ذهبية", "حوالة بريدية", "رسالة", "أخرى"];
+            itemTypes.forEach(type => {
+                dailyCounts[type] = 0;
+                monthlyCounts[type] = 0;
+            });
+
+            for (const record of records) {
+                if (record.date === todayStr) {
+                    dailyCounts[record.itemType] = (dailyCounts[record.itemType] || 0) + 1;
+                }
+                if (record.date && record.date.startsWith(currentMonthStr)) {
+                    monthlyCounts[record.itemType] = (monthlyCounts[record.itemType] || 0) + 1;
+                }
+            }
+
+            // Render Daily Stats
+            let dailyHtml = `<h3>إحصائيات اليوم (${todayStr})</h3>`;
+            dailyHtml += '<table><thead><tr><th>النوع</th><th>العدد</th></tr></thead><tbody>';
+            let dailyTotal = 0;
+            for (const type in dailyCounts) {
+                dailyHtml += `<tr><td>${escapeHtml(type)}</td><td>${dailyCounts[type]}</td></tr>`;
+                dailyTotal += dailyCounts[type];
+            }
+            dailyHtml += `<tr style="font-weight: bold;"><td>الإجمالي</td><td>${dailyTotal}</td></tr>`;
+            dailyHtml += '</tbody></table>';
+            dailyStatsContainer.innerHTML = dailyHtml;
+
+            // Render Monthly Stats
+            const monthName = now.toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
+            let monthlyHtml = `<h3>إحصائيات الشهر (${monthName})</h3>`;
+            monthlyHtml += '<table><thead><tr><th>النوع</th><th>العدد</th></tr></thead><tbody>';
+            let monthlyTotal = 0;
+            for (const type in monthlyCounts) {
+                monthlyHtml += `<tr><td>${escapeHtml(type)}</td><td>${monthlyCounts[type]}</td></tr>`;
+                monthlyTotal += monthlyCounts[type];
+            }
+            monthlyHtml += `<tr style="font-weight: bold;"><td>الإجمالي</td><td>${monthlyTotal}</td></tr>`;
+            monthlyHtml += '</tbody></table>';
+            monthlyStatsContainer.innerHTML = monthlyHtml;
+        }
+
+
+        // --- Event Listeners ---
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const user = usernameInput.value.trim();
+            const pass = passwordInput.value.trim();
+            
+            if (!user || !pass) return;
+
+            try {
+                const userDocRef = doc(credentialsCol, user);
+                const userDoc = await getDoc(userDocRef);
+
+                if (userDoc.exists() && userDoc.data().password === pass) {
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('loggedInUser', user);
+                    showMainView();
+                    initializeAppData(user);
+                } else {
+                    showAlert('اسم المستخدم أو كلمة المرور غير صحيحة.');
+                }
+            } catch (error) {
+                console.error("Login failed:", error);
+                showAlert("فشل تسجيل الدخول. يرجى التحقق من اتصالك بالإنترنت.");
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            if (typeof unsubscribe === 'function') {
+                unsubscribe(); // Detach listener
+            }
+            sessionStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('loggedInUser');
+            usernameInput.value = '';
+            passwordInput.value = '';
+            manageUsersBtn.style.display = 'none'; // Hide admin button
+            showLoginView();
+        });
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const payload = {
+                name: nameEl.value.trim(),
+                idnum: idEl.value.trim(),
+                idIssueDate: idIssueDateEl.value.trim(),
+                idIssuer: idIssuerEl.value.trim(),
+                address: addrEl.value.trim(),
+                phone: phoneEl.value.trim(),
+                itemType: typeEl.value,
+                date: dateEl.value || new Date().toISOString().slice(0, 10),
+                notes: notesEl.value.trim(),
+                communicationLog: communicationLogEl.value.trim(),
+                nonReceiptReason: nonReceiptReasonEl.value.trim()
+            };
+
+            if (!payload.name) {
+                showAlert('الرجاء إدخال اسم الزبون.');
+                nameEl.focus();
+                return;
+            }
+
+            if (editId) {
+                await updateRecord(editId, payload);
+            } else {
+                await addRecord(payload);
+            }
+            clearForm();
+        });
+        
+        form.addEventListener('click', (e) => {
+            const micBtn = e.target.closest('.mic-btn');
+            if (!micBtn || !recognition) return;
+
+            if (micBtn.classList.contains('listening')) {
+                recognition.stop();
+                return;
+            }
+            
+            const targetId = micBtn.dataset.targetId;
+            activeInputForSpeech = document.getElementById(targetId);
+
+            if (activeInputForSpeech) {
+                try {
+                    recognition.start();
+                } catch(err) {
+                    console.error("Could not start recognition", err);
+                    showAlert('لا يمكن بدء التعرف على الصوت الآن.');
+                }
+            }
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', clearForm);
+
+        tbody.addEventListener('click', function(e) {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const id = btn.dataset.id;
+            const rec = records.find(x => x.id === id);
+            if (!rec) return;
+
+            if (btn.classList.contains('btn-edit')) {
+                nameEl.value = rec.name;
+                idEl.value = rec.idnum;
+                idIssueDateEl.value = rec.idIssueDate;
+                idIssuerEl.value = rec.idIssuer;
+                addrEl.value = rec.address;
+                phoneEl.value = rec.phone;
+                typeEl.value = rec.itemType;
+                dateEl.value = rec.date;
+                notesEl.value = rec.notes;
+                communicationLogEl.value = rec.communicationLog;
+                nonReceiptReasonEl.value = rec.nonReceiptReason;
+                editId = id;
+                form.querySelector('button[type="submit"]').textContent = 'تحديث السجل';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (btn.classList.contains('btn-del')) {
+                deleteRecord(id);
+            } else if (btn.classList.contains('btn-sms')) {
+                openSmsModal(rec);
+            }
+        });
+        
+        // --- SMS Modal Listeners ---
+        function openSmsModal(record) {
+            if (!record.phone || record.phone.trim() === '') {
+                showAlert('لا يوجد رقم هاتف مسجل لهذا الزبون.');
+                return;
+            }
+            currentSmsTarget = record;
+            smsRecipientInfo.innerHTML = `إلى: <strong>${escapeHtml(record.name)}</strong> (${escapeHtml(record.phone)})`;
+            smsMessageEl.value = `مرحبًا ${record.name}، لديك طرد (${record.itemType}) جاهز للاستلام. يرجى التواصل معنا.`;
+            smsModal.classList.add('visible');
+        }
+
+        [closeSmsModalBtn, cancelSmsBtn].forEach(btn => {
+            btn.addEventListener('click', () => {
+                smsModal.classList.remove('visible');
+                currentSmsTarget = null;
+            });
+        });
+
+        sendSmsBtn.addEventListener('click', async () => {
+            const text = smsMessageEl.value.trim();
+            const sender = smsSenderEl.value.trim();
+            const to = currentSmsTarget.phone.trim();
+            
+            if (!text || !sender) {
+                showAlert('يرجى تعبئة اسم المرسل ونص الرسالة.');
+                return;
+            }
+            
+            sendSmsBtn.disabled = true;
+            sendSmsBtn.textContent = 'جاري الإرسال...';
+
+            try {
+                const response = await fetch('/api/send-sms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to, text, sender })
+                });
+
+                if (response.ok) {
+                    showAlert('تم إرسال الرسالة بنجاح!', 'نجاح');
+                    closeModal();
+                } else {
+                    const errorData = await response.json();
+                    console.error('SMS API Error:', errorData);
+                    showAlert(`فشل إرسال الرسالة: ${errorData.error?.requestError?.serviceException?.text || 'خطأ غير معروف'}`);
+                }
+            } catch (error) {
+                console.error('Network or fetch error:', error);
+                showAlert('فشل الاتصال بخادم الإرسال. يرجى التحقق من اتصالك بالإنترنت.');
+            } finally {
+                sendSmsBtn.disabled = false;
+                sendSmsBtn.textContent = 'إرسال';
+            }
+        });
+
+
+        searchEl.addEventListener('input', render);
+        filterType.addEventListener('change', render);
+
+        // Navigation Listeners
+        showStatsBtn.addEventListener('click', () => {
+            showStatsView();
+            renderStatistics();
+        });
+
+        backToMainBtn.addEventListener('click', () => {
+            showMainView();
+        });
+        
+        // --- User Management Listeners ---
+        manageUsersBtn.addEventListener('click', async () => {
+            await renderUserList();
+            userManagementModal.classList.add('visible');
+        });
+
+        closeUserManagementModalBtn.addEventListener('click', () => {
+            userManagementModal.classList.remove('visible');
+        });
+
+        addUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newUsername = newUsernameEl.value.trim();
+            const newPassword = newPasswordEl.value.trim();
+
+            if (!newUsername || !newPassword) {
+                showAlert("الرجاء تعبئة جميع الحقول.");
+                return;
+            }
+            
+            const userDocRef = doc(credentialsCol, newUsername);
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()) {
+                showAlert("اسم المستخدم هذا موجود بالفعل.");
+                return;
+            }
+
+            try {
+                await setDoc(userDocRef, { password: newPassword });
+                showAlert("تمت إضافة المستخدم بنجاح.", "نجاح");
+                addUserForm.reset();
+                await renderUserList();
+            } catch(err) {
+                console.error("Error adding user: ", err);
+                showAlert("حدث خطأ أثناء إضافة المستخدم.");
+            }
+        });
+
+        userManagementList.addEventListener('click', (e) => {
+            const delBtn = e.target.closest('.delete-user-btn');
+            if (!delBtn) return;
+            
+            const usernameToDelete = delBtn.dataset.username;
+            if (usernameToDelete === 'zinou') {
+                showAlert("لا يمكن حذف حساب المدير الرئيسي.");
+                return;
+            }
+
+            showConfirm(`هل أنت متأكد من حذف المستخدم "${usernameToDelete}"؟ سيتم حذف جميع بياناته.`, async () => {
+                try {
+                    await deleteDoc(doc(credentialsCol, usernameToDelete));
+                    showAlert("تم حذف المستخدم بنجاح.");
+                    await renderUserList();
+                } catch (err) {
+                    console.error("Error deleting user: ", err);
+                    showAlert("حدث خطأ أثناء حذف المستخدم.");
+                }
+            });
+        });
+
+        async function renderUserList() {
+            const usersSnapshot = await getDocs(credentialsCol);
+            userManagementList.innerHTML = '';
+            usersSnapshot.forEach(doc => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${escapeHtml(doc.id)}</span>
+                    <button class="btn btn-danger delete-user-btn" data-username="${escapeHtml(doc.id)}" style="padding: 4px 8px; font-size: 0.8rem;">حذف</button>
+                `;
+                userManagementList.appendChild(li);
+            });
+        }
+
+
+        // --- Initialization ---
+        async function bootstrapAdminUser() {
+            const zinouDocRef = doc(credentialsCol, 'zinou');
+            const zinouDoc = await getDoc(zinouDocRef);
+            if (!zinouDoc.exists()) {
+                await setDoc(zinouDocRef, { password: 'zinou' });
+                console.log("Admin user 'zinou' created/verified.");
+            }
+        }
+        
+        function initializeAppData(loggedInAppUser) {
+            if(loggedInAppUser === 'zinou'){
+                manageUsersBtn.style.display = 'inline-block';
+            }
+            
+            const firebaseUser = auth.currentUser;
+            
+            // Path for user-specific data
+            deliveriesCol = collection(db, `users/${firebaseUser.uid}/app_users/${loggedInAppUser}/deliveries`);
+
+            // Set up real-time listener
+            unsubscribe = onSnapshot(query(deliveriesCol), (snapshot) => {
+                records = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                records.sort((a,b) => (b.date || '').localeCompare(a.date || '')); // Sort by date
+                render();
+            });
+
+            if (!dateEl.value) {
+                dateEl.value = new Date().toISOString().slice(0, 10);
+            }
+            loadDraft();
+            
+            form.querySelectorAll('input, select, textarea').forEach(el => {
+                el.addEventListener('input', saveDraft);
+            });
+        }
+        
+        async function main() {
+            try {
+                // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+                const firebaseConfig = {
+                  apiKey: "AIzaSyDIESGl6TXDRtzbP7NZtOHGJa9pRY83_oY",
+                  authDomain: "poste-b276e.firebaseapp.com",
+                  projectId: "poste-b276e",
+                  storageBucket: "poste-b276e.appspot.com", // Corrected to .appspot.com
+                  messagingSenderId: "855137728375",
+                  appId: "1:855137728375:web:1428c3132f9ba79375d372",
+                  measurementId: "G-H07GT7NJ7E"
+                };
+
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                await signInAnonymously(auth);
+                console.log("Firebase Auth successful as anonymous user.");
+
+                credentialsCol = collection(db, `public_data/credentials`);
+
+                await bootstrapAdminUser();
+                
+                const loggedInUser = sessionStorage.getItem('loggedInUser');
+                if (sessionStorage.getItem('isLoggedIn') === 'true' && loggedInUser) {
+                    showMainView();
+                    initializeAppData(loggedInUser);
+                } else {
+                    showLoginView();
+                }
+            } catch (e) {
+                console.error("Critical initialization failed:", e);
+                initErrorContainer.textContent = `فشل تهيئة Firebase. يرجى التأكد من صحة إعداداتك في الكود أو الاتصال بالدعم الفني. تلميح: تأكد من أن قواعد الأمان في Firestore تسمح بالوصول.`;
+                initErrorContainer.style.display = 'block';
+            }
+        }
+        
+        // --- PWA Service Worker ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+
+        main(); // Start the application.
+
+    </script>
+</body>
+</html>
+
