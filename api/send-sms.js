@@ -1,56 +1,51 @@
-// Vercel Serverless Function to send SMS via Infobip (Secure Version with Phone Formatting)
-
 /**
- * Formats an Algerian phone number to the international E.164 standard.
- * Example: 0712345678 -> 213712345678
- * @param {string} phone The phone number to format.
- * @returns {string} The formatted phone number.
+ * Vercel Serverless Function to send an SMS via Infobip.
+ * This function acts as a secure backend proxy.
  */
-function formatPhoneNumber(phone) {
-    if (!phone) return '';
-    let cleaned = phone.replace(/[\s-]/g, ''); // Remove spaces and dashes
-    if (cleaned.startsWith('0')) {
-        return '213' + cleaned.substring(1);
-    }
-    if (cleaned.startsWith('+213')) {
-        return cleaned.substring(1);
-    }
-    return cleaned; // Assume it's already in the correct format if it doesn't start with 0
-}
-
-
 export default async function handler(request, response) {
-    // We only accept POST requests to this endpoint
+    // Only allow POST requests
     if (request.method !== 'POST') {
-        return response.status(405).json({ message: 'Method Not Allowed' });
+        response.status(405).json({ error: 'Method Not Allowed' });
+        return;
     }
 
+    // --- New Account Information ---
+    // WARNING: Storing secrets directly in code is NOT recommended for production.
+    // It's better to use Vercel Environment Variables.
+    const INFOBIP_API_KEY = "de21342e37e74606847425d420cf2f0d-096270d3-9fcf-41c4-b177-4e30f4198c74";
+    const INFOBIP_BASE_URL = "jjln59.api.infobip.com";
+    
     const { to, text, sender } = request.body;
 
     // Basic validation
     if (!to || !text || !sender) {
-        return response.status(400).json({ message: 'Missing required fields: to, text, sender' });
+        response.status(400).json({ error: 'Missing required fields: to, text, sender' });
+        return;
     }
 
-    // Securely read API key and URL from Vercel Environment Variables
-    const apiKey = process.env.INFOBIP_API_KEY;
-    const baseUrl = process.env.INFOBIP_BASE_URL;
-
-    if (!apiKey || !baseUrl) {
-        console.error('Server configuration error: Missing Infobip environment variables.');
-        // Do not expose detailed errors to the client
-        return response.status(500).json({ message: 'Server configuration error.' });
+    /**
+     * Formats an Algerian phone number to the international E.164 standard.
+     * @param {string} phone The phone number to format.
+     * @returns {string} The formatted phone number.
+     */
+    function formatPhoneNumber(phone) {
+        if (!phone) return '';
+        let cleaned = phone.replace(/[\s-]/g, ''); // Remove spaces and dashes
+        if (cleaned.startsWith('0')) {
+            return '213' + cleaned.substring(1);
+        }
+        if (cleaned.startsWith('+213')) {
+            return cleaned.substring(1);
+        }
+        return cleaned;
     }
 
-    const infobipUrl = `https://${baseUrl}/sms/2/text/advanced`;
-    
-    // Format the phone number before sending
-    const formattedPhoneNumber = formatPhoneNumber(to);
+    const formattedTo = formatPhoneNumber(to);
 
-    const payload = {
+    const apiRequestBody = {
         messages: [
             {
-                destinations: [{ to: formattedPhoneNumber }],
+                destinations: [{ to: formattedTo }],
                 from: sender,
                 text: text,
             },
@@ -58,28 +53,29 @@ export default async function handler(request, response) {
     };
 
     try {
-        const infobipResponse = await fetch(infobipUrl, {
+        const infobipResponse = await fetch(`https://${INFOBIP_BASE_URL}/sms/2/text/advanced`, {
             method: 'POST',
             headers: {
-                'Authorization': `App ${apiKey}`,
+                'Authorization': `App ${INFOBIP_API_KEY}`,
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
-            body: JSON.stringify(payload),
+            body: JSON.stringify(apiRequestBody),
         });
 
-        const data = await infobipResponse.json();
+        const responseData = await infobipResponse.json();
 
         if (infobipResponse.ok) {
-            console.log('SMS sent successfully:', data);
-            return response.status(200).json({ success: true, data });
+            // Forward the successful response from Infobip to the client
+            response.status(200).json(responseData);
         } else {
-            console.error('Infobip API Error:', data);
-            return response.status(infobipResponse.status).json({ success: false, error: data });
+            // Forward the error response from Infobip to the client
+            console.error('Infobip API Error:', responseData);
+            response.status(infobipResponse.status).json({ error: responseData });
         }
     } catch (error) {
         console.error('Internal Server Error:', error);
-        return response.status(500).json({ success: false, message: 'An internal server error occurred.' });
+        response.status(500).json({ error: 'Failed to send SMS due to an internal server error.' });
     }
 }
 
