@@ -1232,7 +1232,10 @@
             sendSmsBtn.textContent = 'جاري الإرسال...';
 
             try {
-                const response = await fetch('/api/send-sms', {
+                // Construct absolute URL for the API endpoint
+                const apiUrl = new URL('/api/send-sms', window.location.origin);
+                
+                const response = await window.fetch(apiUrl.href, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ to, text, sender })
@@ -1242,9 +1245,18 @@
                     showAlert('تم إرسال الرسالة بنجاح!', 'نجاح');
                     closeModal();
                 } else {
-                    const errorData = await response.json();
-                    console.error('SMS API Error:', errorData);
-                    showAlert(`فشل إرسال الرسالة: ${errorData.error?.requestError?.serviceException?.text || 'خطأ غير معروف'}`);
+                     const contentType = response.headers.get("content-type");
+                    let errorMessage = 'خطأ غير معروف';
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        const errorData = await response.json();
+                        console.error('SMS API Error:', errorData);
+                        errorMessage = errorData.error?.requestError?.serviceException?.text || JSON.stringify(errorData);
+                    } else {
+                        const textError = await response.text();
+                        console.error('Non-JSON error response from server:', textError);
+                        errorMessage = `فشل الخادم في الاستجابة بشكل صحيح (قد يكون مسار API غير موجود). الحالة: ${response.status}`;
+                    }
+                    showAlert(`فشل إرسال الرسالة: ${errorMessage}`);
                 }
             } catch (error) {
                 console.error('Network or fetch error:', error);
@@ -1389,7 +1401,7 @@
                   storageBucket: "poste-b276e.appspot.com", // Corrected to .appspot.com
                   messagingSenderId: "855137728375",
                   appId: "1:855137728375:web:1428c3132f9ba79375d372",
-                  measurementId: "G-H-H07GT7NJ7E"
+                  measurementId: "G-H07GT7NJ7E"
                 };
 
                 const app = initializeApp(firebaseConfig);
