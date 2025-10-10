@@ -16,7 +16,9 @@ export default async function handler(request, response) {
     // --- DANGER: Hardcoded secret keys ---
     // This is not secure. It's better to use Environment Variables.
     const apiKey = "a92653d3c0999e1e8534179a660e4137-de0ee46d-52e1-43af-8020-1acabc11278e";
-    const baseUrl = "lqnelj.api.infobip.com";
+    
+    // Using the correct global API endpoint that was tested and works.
+    const baseUrl = "api.infobip.com";
 
     if (!apiKey || !baseUrl) {
         console.error('Server configuration error: Missing Infobip environment variables.');
