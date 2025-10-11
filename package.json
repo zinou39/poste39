@@ -1,7 +1,15 @@
 {
-  "name": "mail-delivery-system",
+  "name": "poste-app-pushover",
   "version": "1.0.0",
-  "private": true,
-  "description": "Backend function for sending SMS."
+  "description": "A mail delivery log application using Pushover and MacroDroid.",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Zinou",
+  "license": "ISC",
+  "dependencies": {
+    "serve": "^14.2.0"
+  }
 }
-
