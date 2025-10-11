@@ -9,9 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- PWA Manifest & Theme -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0b66ff">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
 
     <style>
         :root {
@@ -166,15 +166,15 @@
             background: #f8d7d7;
         }
         
-        .btn-sms {
-            background: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
+        .btn-call {
+            background: #e0f2f1;
+            color: #00796b;
+            border: 1px solid #b2dfdb;
             padding: 4px 8px;
             font-size: 0.8rem;
         }
-        .btn-sms:hover {
-             background: #dcedc8;
+        .btn-call:hover {
+             background: #c8e6c9;
         }
 
 
@@ -353,7 +353,7 @@
             -webkit-text-fill-color: transparent;
         }
         
-        #sms-recipient-info {
+        #call-recipient-info {
             background: #f8f9fc;
             padding: 8px 12px;
             border-radius: 8px;
@@ -631,29 +631,25 @@
         </div>
     </div>
     
-    <!-- SMS Modal -->
-    <div id="smsModal" class="modal-overlay">
+    <!-- Call Modal -->
+    <div id="callModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <span>إرسال رسالة SMS</span>
-                <button id="closeSmsModal" class="btn btn-ghost" style="width:auto; padding: 4px 8px;">X</button>
+                <span>إجراء مكالمة آلية</span>
+                <button id="closeCallModal" class="btn btn-ghost" style="width:auto; padding: 4px 8px;">X</button>
             </div>
             <div class="modal-body">
-                <div id="sms-recipient-info"></div>
-                <form id="smsForm">
+                <div id="call-recipient-info"></div>
+                <form id="callForm">
                     <div>
-                        <label for="sms-sender">اسم المرسل</label>
-                        <input id="sms-sender" type="text" placeholder="مثال: PosteDZ" required>
-                    </div>
-                    <div style="margin-top: 12px;">
-                        <label for="sms-message">نص الرسالة</label>
-                        <textarea id="sms-message" rows="4" required></textarea>
+                        <label for="call-message">النص المراد تحويله إلى صوت</label>
+                        <textarea id="call-message" rows="4" required></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button id="cancelSmsBtn" class="btn btn-ghost">إلغاء</button>
-                <button id="sendSmsBtn" class="btn btn-primary">إرسال</button>
+                <button id="cancelCallBtn" class="btn btn-ghost">إلغاء</button>
+                <button id="makeCallBtn" class="btn btn-primary">إجراء المكالمة</button>
             </div>
         </div>
     </div>
@@ -741,16 +737,15 @@
         const modalBody = document.getElementById('modalBody');
         const modalFooter = document.getElementById('modalFooter');
         
-        // --- SMS Modal Elements ---
-        const smsModal = document.getElementById('smsModal');
-        const closeSmsModalBtn = document.getElementById('closeSmsModal');
-        const cancelSmsBtn = document.getElementById('cancelSmsBtn');
-        const sendSmsBtn = document.getElementById('sendSmsBtn');
-        const smsForm = document.getElementById('smsForm');
-        const smsRecipientInfo = document.getElementById('sms-recipient-info');
-        const smsMessageEl = document.getElementById('sms-message');
-        const smsSenderEl = document.getElementById('sms-sender');
-
+        // --- Call Modal Elements ---
+        const callModal = document.getElementById('callModal');
+        const closeCallModalBtn = document.getElementById('closeCallModal');
+        const cancelCallBtn = document.getElementById('cancelCallBtn');
+        const makeCallBtn = document.getElementById('makeCallBtn');
+        const callForm = document.getElementById('callForm');
+        const callRecipientInfo = document.getElementById('call-recipient-info');
+        const callMessageEl = document.getElementById('call-message');
+        
         // --- User Management Elements ---
         const manageUsersBtn = document.getElementById('manageUsersBtn');
         const userManagementModal = document.getElementById('userManagementModal');
@@ -766,24 +761,7 @@
         let deliveriesCol;
         let credentialsCol;
         let unsubscribe = () => {};
-        let currentSmsTarget = null;
-        
-        /**
-         * Formats an Algerian phone number to the international E.164 standard.
-         * @param {string} phone The phone number to format.
-         * @returns {string} The formatted phone number.
-         */
-        function formatPhoneNumber(phone) {
-            if (!phone) return '';
-            let cleaned = phone.replace(/[\s-]/g, ''); // Remove spaces and dashes
-            if (cleaned.startsWith('0')) {
-                return '213' + cleaned.substring(1);
-            }
-            if (cleaned.startsWith('+213')) {
-                return cleaned.substring(1);
-            }
-            return cleaned; // Assume it's already in the correct format if it doesn't start with 0
-        }
+        let currentCallTarget = null;
         
         // --- Speech Recognition Setup ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -903,7 +881,7 @@
         function closeModal() {
             modal.classList.remove('visible');
             userManagementModal.classList.remove('visible');
-            smsModal.classList.remove('visible');
+            callModal.classList.remove('visible');
         }
 
         function showAlert(message, title = 'تنبيه') {
@@ -917,7 +895,7 @@
             ]);
         }
         
-        [modal, userManagementModal, smsModal].forEach(m => {
+        [modal, userManagementModal, callModal].forEach(m => {
              m.addEventListener('click', (e) => {
                 if(e.target === m) {
                     closeModal();
@@ -964,8 +942,8 @@
                     <td data-label="سجل الاتصال" class="small">${escapeHtml(r.communicationLog || '')}</td>
                     <td data-label="سبب عدم الاستلام" class="small">${escapeHtml(r.nonReceiptReason || '')}</td>
                     <td data-label="إجراءات" class="actions">
-                        <button data-id="${r.id}" class="btn btn-sms">
-                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22 4H2.01L2 20h20V4zm-2 14H4V8l8 5 8-5v10zM12 11L4 6h16l-8 5z"/></svg>
+                        <button data-id="${r.id}" class="btn btn-call">
+                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
                         </button>
                         <button data-id="${r.id}" class="btn btn-ghost btn-edit">تعديل</button>
                         <button data-id="${r.id}" class="btn btn-danger btn-del">حذف</button>
@@ -1193,77 +1171,75 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } else if (btn.classList.contains('btn-del')) {
                 deleteRecord(id);
-            } else if (btn.classList.contains('btn-sms')) {
-                openSmsModal(rec);
+            } else if (btn.classList.contains('btn-call')) {
+                openCallModal(rec);
             }
         });
         
-        // --- SMS Modal Listeners ---
-        function openSmsModal(record) {
+        // --- Call Modal Listeners ---
+        function openCallModal(record) {
             if (!record.phone || record.phone.trim() === '') {
                 showAlert('لا يوجد رقم هاتف مسجل لهذا الزبون.');
                 return;
             }
-            currentSmsTarget = record;
-            const formattedPhone = formatPhoneNumber(record.phone);
-            smsRecipientInfo.innerHTML = `إلى: <strong>${escapeHtml(record.name)}</strong> (${escapeHtml(formattedPhone)})`;
-            smsMessageEl.value = `مرحبًا ${record.name}، لديك طرد (${record.itemType}) جاهز للاستلام. يرجى التواصل معنا.`;
-            smsModal.classList.add('visible');
+            currentCallTarget = record;
+            callRecipientInfo.innerHTML = `إلى: <strong>${escapeHtml(record.name)}</strong> (${escapeHtml(record.phone)})`;
+            callMessageEl.value = `مرحبًا ${record.name}، لديك طرد (${record.itemType}) جاهز للاستلام. يرجى الحضور إلى مكتب البريد لاستلامه.`;
+            callModal.classList.add('visible');
         }
 
-        [closeSmsModalBtn, cancelSmsBtn].forEach(btn => {
+        [closeCallModalBtn, cancelCallBtn].forEach(btn => {
             btn.addEventListener('click', () => {
-                smsModal.classList.remove('visible');
-                currentSmsTarget = null;
+                callModal.classList.remove('visible');
+                currentCallTarget = null;
             });
         });
 
-        sendSmsBtn.addEventListener('click', async () => {
-            const text = smsMessageEl.value.trim();
-            const sender = smsSenderEl.value.trim();
-            const to = currentSmsTarget.phone.trim();
+        makeCallBtn.addEventListener('click', async () => {
+            const text = callMessageEl.value.trim();
+            const to = currentCallTarget.phone.trim();
             
-            if (!text || !sender) {
-                showAlert('يرجى تعبئة اسم المرسل ونص الرسالة.');
+            if (!text) {
+                showAlert('يرجى كتابة النص المراد تحويله إلى صوت.');
                 return;
             }
             
-            sendSmsBtn.disabled = true;
-            sendSmsBtn.textContent = 'جاري الإرسال...';
+            makeCallBtn.disabled = true;
+            makeCallBtn.textContent = 'جاري الاتصال...';
 
             try {
                 // Construct absolute URL for the API endpoint
-                const apiUrl = new URL('/api/send-sms', window.location.origin);
+                const apiUrl = new URL('/api/make-call', window.location.origin);
                 
                 const response = await window.fetch(apiUrl.href, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ to, text, sender })
+                    body: JSON.stringify({ to, text })
                 });
 
                 if (response.ok) {
-                    showAlert('تم إرسال الرسالة بنجاح!', 'نجاح');
+                    showAlert('تم إرسال طلب الاتصال إلى هاتفك بنجاح!', 'نجاح');
                     closeModal();
                 } else {
                      const contentType = response.headers.get("content-type");
                     let errorMessage = 'خطأ غير معروف';
                     if (contentType && contentType.indexOf("application/json") !== -1) {
                         const errorData = await response.json();
-                        console.error('SMS API Error:', errorData);
+                        console.error('API Error:', errorData);
                         errorMessage = errorData.error?.requestError?.serviceException?.text || JSON.stringify(errorData);
                     } else {
                         const textError = await response.text();
                         console.error('Non-JSON error response from server:', textError);
                         errorMessage = `فشل الخادم في الاستجابة بشكل صحيح (قد يكون مسار API غير موجود). الحالة: ${response.status}`;
                     }
-                    showAlert(`فشل إرسال الرسالة: ${errorMessage}`);
+                    showAlert(`فشل إجراء المكالمة: ${errorMessage}`);
                 }
             } catch (error) {
                 console.error('Network or fetch error:', error);
-                showAlert('فشل الاتصال بخادم الإرسال. يرجى التحقق من اتصالك بالإنترنت.');
+                showAlert('فشل الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت.');
             } finally {
-                sendSmsBtn.disabled = false;
-                sendSmsBtn.textContent = 'إرسال';
+                makeCallBtn.disabled = false;
+                makeCallBtn.textContent = 'إجراء المكالمة';
             }
         });
 
