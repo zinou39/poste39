@@ -1,65 +1,116 @@
 /**
- * Vercel Serverless Function to send an SMS via Infobip.
- * This function acts as a secure backend proxy.
- */
+
+* Vercel Serverless Function to send a Pushover notification.
+
+* This notification will then trigger a MacroDroid macro on the phone.
+
+*/
+
 export default async function handler(request, response) {
-    // Only allow POST requests
-    if (request.method !== 'POST') {
-        response.status(405).json({ error: 'Method Not Allowed' });
-        return;
-    }
 
-    // --- New Account Information ---
-    // WARNING: Storing secrets directly in code is NOT recommended for production.
-    // It's better to use Vercel Environment Variables.
-    const INFOBIP_API_KEY = "de21342e37e74606847425d420cf2f0d-096270d3-9fcf-41c4-b177-4e30f4198c74";
-    const INFOBIP_BASE_URL = "jjln59.api.infobip.com";
-    
-    const { to, text, sender } = request.body;
+if (request.method !== 'POST') {
 
-    // Basic validation
-    if (!to || !text || !sender) {
-        response.status(400).json({ error: 'Missing required fields: to, text, sender' });
-        return;
-    }
+return response.status(405).json({ error: 'Method Not Allowed' });
 
-    /**
-     * Formats an Algerian phone number to the international E.164 standard.
-     * @param {string} phone The phone number to format.
-     * @returns {string} The formatted phone number.
-     */
-    function formatPhoneNumber(phone) {
-        if (!phone) return '';
-        let cleaned = phone.replace(/[\s-]/g, ''); // Remove spaces and dashes
-        if (cleaned.startsWith('0')) {
-            return '213' + cleaned.substring(1);
-        }
-        if (cleaned.startsWith('+213')) {
-            return cleaned.substring(1);
-        }
-        return cleaned;
-    }
+}
 
-    const formattedTo = formatPhoneNumber(to);
 
-    const apiRequestBody = {
-        messages: [
-            {
-                destinations: [{ to: formattedTo }],
-                from: sender,
-                text: text,
-            },
-        ],
-    };
 
-    try {
-        const infobipResponse = await fetch(`https://${INFOBIP_BASE_URL}/sms/2/text/advanced`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `App ${INFOBIP_API_KEY}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
+// --- Securely get secrets from Vercel Environment Variables ---
+
+const PUSHOVER_USER_KEY = process.env.PUSHOVER_USER_KEY;
+
+const PUSHOVER_API_TOKEN = process.env.PUSHOVER_API_TOKEN;
+
+
+
+if (!PUSHOVER_USER_KEY || !PUSHOVER_API_TOKEN) {
+
+console.error("Missing Pushover environment variables");
+
+return response.status(500).json({ error: 'Server configuration error.' });
+
+}
+
+
+const { to, text } = request.body;
+
+
+
+if (!to || !text) {
+
+return response.status(400).json({ error: 'Missing required fields: to, text' });
+
+}
+
+
+
+// We will send the phone number as the notification's title
+
+// and the message text as the notification's body.
+
+// We add a keyword to the message to ensure only this macro is triggered.
+
+const notificationBody = `call_request ${text}`;
+
+
+try {
+
+const pushoverResponse = await fetch("https://api.pushover.net/1/messages.json", {
+
+method: 'POST',
+
+headers: {
+
+'Content-Type': 'application/json',
+
+},
+
+body: JSON.stringify({
+
+token: PUSHOVER_API_TOKEN,
+
+user: PUSHOVER_USER_KEY,
+
+title: to, // Phone number in the title
+
+message: notificationBody, // Message text in the body
+
+sound: 'pushover', // optional: a default sound
+
+priority: 0 // optional: normal priority
+
+}),
+
+});
+
+
+
+const responseData = await pushoverResponse.json();
+
+
+
+if (pushoverResponse.ok && responseData.status === 1) {
+
+response.status(200).json({ message: "Notification sent to phone successfully." });
+
+} else {
+
+console.error('Pushover API Error:', responseData);
+
+response.status(pushoverResponse.status).json({ error: responseData.errors || 'Failed to send notification.' });
+
+}
+
+} catch (error) {
+
+console.error('Internal Server Error:', error);
+
+response.status(500).json({ error: 'Failed to send notification due to an internal server error.' });
+
+}
+
+}
             body: JSON.stringify(apiRequestBody),
         });
 
@@ -78,4 +129,5 @@ export default async function handler(request, response) {
         response.status(500).json({ error: 'Failed to send SMS due to an internal server error.' });
     }
 }
+
 
