@@ -1,15 +1,15 @@
 {
-  "name": "poste-app-pushover",
+  "name": "poste-app-pushover-final",
   "version": "1.0.0",
   "description": "A mail delivery log application using Pushover and MacroDroid.",
   "main": "index.html",
   "scripts": {
-    "start": "serve",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Zinou",
   "license": "ISC",
   "dependencies": {
-    "serve": "^14.2.0"
+    "node-fetch": "^2.6.7"
   }
 }
+
