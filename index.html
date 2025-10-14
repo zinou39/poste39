@@ -177,16 +177,6 @@
         #kiosk-status, #kiosk-result-text { font-size: 1.5rem; font-weight: 500; margin-top: 24px; color: var(--muted-text-color); }
         #kiosk-result-text { font-size: 2rem; font-weight: 600; margin-bottom: 32px; }
         
-        #amountConverterView {
-            width: 100%;
-            max-width: 800px;
-            text-align: center;
-        }
-        #amountInWords {
-            background: var(--surface-color); padding: 20px; border-radius: 8px; margin-top: 16px;
-            font-size: 1.5rem; font-weight: 600; color: var(--primary-color); min-height: 50px;
-        }
-
         #kiosk-video-view { width: 100%; max-width: 800px; margin-top: 24px;}
         #cloudinary-player { width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px var(--shadow-color); background-color: #000; aspect-ratio: 16 / 9; }
 
@@ -252,22 +242,14 @@
             <ul id="kiosk-options-list"></ul>
             <h4 style="margin-top: 40px;">خدمات مالية</h4>
             <ul id="kiosk-financial-list">
-                <li id="startAmountConverterBtn">ارسال حوالة بريدية</li>
+                <li id="startVideoBtn">ارسال حوالة بريدية</li>
                 <li>ملئ صك (شاك)</li>
             </ul>
         </div>
         
-        <div id="amountConverterView" style="display: none;">
-            <h2>مساعد تحويل المبلغ</h2>
-            <div>
-                <label for="amountInput" style="font-size: 1.2rem;">أدخل المبلغ بالأرقام</label>
-                <input id="amountInput" type="number" style="font-size: 2rem; text-align: center; padding: 15px;">
-            </div>
-            <div id="amountInWords"></div>
-            <div id="kiosk-video-view" style="display: none;">
-                <div id="cloudinary-player"></div>
-            </div>
-            <button id="converter-back-btn" class="btn btn-ghost" style="margin-top: 20px;">عودة</button>
+        <div id="kiosk-video-view" style="display: none;">
+            <div id="cloudinary-player"></div>
+            <button id="video-back-btn" class="btn btn-ghost" style="margin-top: 20px;">عودة</button>
         </div>
         
         <div id="kiosk-listening-view" style="display: none;">
@@ -298,21 +280,9 @@
                 <h4>القائمة الحالية</h4>
                 <ul id="route-list"></ul>
                 <hr style="margin: 20px 0;">
-                <h4>إعدادات مشغل الفيديو (Cloudinary)</h4>
-                <p>أدخل معلومات الفيديو التعليمي من حسابك على Cloudinary.</p>
-                <div>
-                    <label for="cloudinaryCloudName">اسم الحساب (Cloud Name)</label>
-                    <input id="cloudinaryCloudName" type="text" placeholder="مثال: dmbbqndvk">
-                </div>
-                <div style="margin-top: 10px;">
-                    <label for="cloudinaryPublicId">معرف الفيديو العام (Public ID)</label>
-                    <input id="cloudinaryPublicId" type="text" placeholder="مثال: 1014_sqy5y0">
-                </div>
-                <p id="uploadStatus" style="font-size: 0.9rem; margin-top: 8px;"></p>
-                <hr style="margin: 20px 0;">
                 <button id="showCustomerViewBtn" class="btn btn-ghost" style="width: 100%;">عرض واجهة الزبون</button>
             </div>
-            <div class="modal-footer"><button id="saveSettingsBtn" class="btn btn-primary">حفظ الإعدادات</button><button id="closeSettingsModal" class="btn btn-ghost">إغلاق</button></div>
+            <div class="modal-footer"><button id="closeSettingsModal" class="btn btn-ghost">إغلاق</button></div>
         </div>
     </div>
     
@@ -324,10 +294,9 @@
         
         let db, auth;
         let records = [], routes = [];
-        let deliveriesCol, credentialsCol, routesCol, settingsDocRef;
-        let unsubscribeRecords = () => {}, unsubscribeRoutes = () => {}, unsubscribeSettings = () => {};
-        let cloudinaryConfig = {};
-
+        let deliveriesCol, credentialsCol, routesCol;
+        let unsubscribeRecords = () => {}, unsubscribeRoutes = () => {};
+        
         const loginView = document.getElementById('loginView'), mainView = document.getElementById('mainView'), customerKioskView = document.getElementById('customerKioskView');
         const loginForm = document.getElementById('loginForm'), usernameInput = document.getElementById('username'), passwordInput = document.getElementById('password');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -339,19 +308,23 @@
         const kioskListeningView = document.getElementById('kiosk-listening-view'), kioskResultView = document.getElementById('kiosk-result-view');
         const kioskStatus = document.getElementById('kiosk-status'), kioskResultText = document.getElementById('kiosk-result-text'), kioskBackBtn = document.getElementById('kiosk-back-btn');
         const tbody = document.querySelector('#recordsTable tbody'), form = document.getElementById('deliveryForm');
-        const startAmountConverterBtn = document.getElementById('startAmountConverterBtn'), amountConverterView = document.getElementById('amountConverterView');
-        const amountInput = document.getElementById('amountInput'), amountInWords = document.getElementById('amountInWords');
-        const converterBackBtn = document.getElementById('converter-back-btn');
+        const kioskFinancialList = document.getElementById('kiosk-financial-list');
         const kioskVideoView = document.getElementById('kiosk-video-view');
-        const cloudinaryCloudNameEl = document.getElementById('cloudinaryCloudName');
-        const cloudinaryPublicIdEl = document.getElementById('cloudinaryPublicId');
-        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-        const uploadStatus = document.getElementById('uploadStatus');
+        const videoBackBtn = document.getElementById('video-back-btn');
+
+        const cloudinaryConfig = { cloudName: "dmbbqndvk", publicId: "1014_sqy5y0" };
         
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
         
-        function speak(text) { /* ... implementation ... */ }
+        function speak(text) { 
+             try {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-SA';
+                speechSynthesis.speak(utterance);
+            } catch (e) { console.error("Speech synthesis failed", e); }
+        }
 
         const escapeHtml = s => s ? String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : '';
         const showLoginView = () => { loginView.style.display = 'block'; mainView.style.display = 'none'; customerKioskView.style.display = 'none'; };
@@ -362,7 +335,6 @@
         
         const showKioskMain = () => {
             kioskMainView.style.display = 'block';
-            amountConverterView.style.display = 'none';
             kioskVideoView.style.display = 'none';
             kioskListeningView.style.display = 'none';
             kioskResultView.style.display = 'none';
@@ -374,28 +346,27 @@
         const showKioskListening = (status) => { kioskMainView.style.display = 'none'; kioskListeningView.style.display = 'block'; kioskResultView.style.display = 'none'; kioskStatus.textContent = status; };
         const showKioskResult = (result) => { kioskMainView.style.display = 'none'; kioskListeningView.style.display = 'none'; kioskResultView.style.display = 'block'; kioskResultText.textContent = result; };
         
-        function numberToArabicWords(number) { /* ... full implementation ... */ }
-        
         let cldPlayer;
         function playInstructionVideo() {
-            if (!cloudinaryConfig.cloudName || !cloudinaryConfig.publicId) {
-                alert("لم يتم إعداد معلومات الفيديو من Cloudinary بعد.");
-                showKioskMain();
-                return;
+             if (typeof cloudinary === 'undefined' || !window.cloudinary) {
+                return showAlert("خطأ: مكتبة تشغيل الفيديو لم يتم تحميلها بعد.");
             }
+            if (!cloudinaryConfig.cloudName || !cloudinaryConfig.publicId) {
+                return showAlert("لم يتم إعداد معلومات الفيديو.");
+            }
+
+            kioskMainView.style.display = 'none';
             kioskVideoView.style.display = 'block';
 
-            if (cldPlayer) {
-                cldPlayer.source(cloudinaryConfig.publicId);
-            } else {
-                 cldPlayer = cloudinary.videoPlayer('cloudinary-player', {
+            if (!cldPlayer) {
+                 cldPlayer = window.cloudinary.videoPlayer('cloudinary-player', {
                     cloud_name: cloudinaryConfig.cloudName,
                     autoplay: true,
                     muted: false,
                     controls: true,
                 });
-                cldPlayer.source(cloudinaryConfig.publicId);
             }
+            cldPlayer.source(cloudinaryConfig.publicId);
             
             let playCount = 0;
             const onEnded = () => {
@@ -413,10 +384,62 @@
             cldPlayer.play();
         }
 
-        function render() { /* ... full implementation ... */ }
-        function renderRoutesList() { /* ... full implementation ... */ }
-        function renderKioskOptions() { /* ... full implementation ... */ }
-        function startInquiry(itemType) { /* ... full implementation ... */ }
+        function render() {
+            tbody.innerHTML = '';
+            records.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.phone||'')}</td><td>${escapeHtml(r.itemType)}</td><td>${escapeHtml(r.counter||'')}</td><td>${escapeHtml(r.date||'')}</td>
+                                <td class="actions"><button data-id="${r.id}" class="btn btn-danger btn-del">حذف</button></td>`;
+                tbody.appendChild(tr);
+            });
+        }
+        function renderRoutesList() {
+            routeList.innerHTML = '';
+            [...routes].sort((a,b)=>a.number-b.number).forEach(r => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span><strong>${r.number}:</strong> ${escapeHtml(r.itemType)}</span><button data-id="${r.id}" class="btn btn-danger delete-route-btn">حذف</button>`;
+                routeList.appendChild(li);
+            });
+        }
+        function renderKioskOptions() {
+            kioskOptionsList.innerHTML = '';
+            [...routes].sort((a,b)=>a.number-b.number).forEach(r => {
+                const li = document.createElement('li');
+                li.dataset.itemType = r.itemType;
+                li.innerHTML = `<span class="kiosk-item-type">${escapeHtml(r.itemType)}</span><span class="kiosk-number">${r.number}</span>`;
+                kioskOptionsList.appendChild(li);
+            });
+        }
+        
+        function startInquiry(itemType) {
+            if (!SpeechRecognition) { return showAlert("البحث الصوتي غير مدعوم."); }
+            showKioskListening("جاري الاستماع... يرجى ذكر اسمك الكامل أو رقم هاتفك.");
+            speak("يرجى ذكر اسمك الكامل أو رقم هاتفك.");
+            
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ar-SA';
+            recognition.onresult = (event) => {
+                const spokenText = event.results[0][0].transcript.trim().toLowerCase();
+                showKioskListening(`جاري البحث عن "${spokenText}"...`);
+                
+                const foundRecord = records.find(r => 
+                    r.itemType === itemType &&
+                    (r.name.toLowerCase().includes(spokenText) || (r.phone && r.phone.includes(spokenText)))
+                );
+                
+                let resultText = foundRecord ? `نعم يا ${foundRecord.name}، لديك ${itemType} جاهز للاستلام. يرجى التوجه إلى الشباك رقم ${foundRecord.counter || 'المخصص'}.`
+                                             : `عذرًا، لم نجد أي ${itemType} مسجل بالمعلومات التي قدمتها.`;
+                
+                showKioskResult(resultText);
+                speak(resultText);
+            };
+            recognition.onerror = () => {
+                const errorText = "عذرًا، حدث خطأ. يرجى المحاولة مرة أخرى.";
+                showKioskResult(errorText);
+                speak(errorText);
+            };
+            recognition.start();
+        }
 
         showSettingsBtn.addEventListener('click', () => settingsModal.classList.add('visible'));
         closeSettingsModal.addEventListener('click', closeModal);
@@ -425,36 +448,19 @@
         showCustomerViewBtn.addEventListener('click', () => { closeModal(); renderKioskOptions(); showKioskMain(); showCustomerKiosk(); });
         kioskExitBtn.addEventListener('click', showMainView);
         kioskBackBtn.addEventListener('click', showKioskMain);
-        kioskOptionsList.addEventListener('click', (e) => { const li = e.target.closest('li'); if (li) startInquiry(li.dataset.itemType); });
-        startAmountConverterBtn.addEventListener('click', () => { kioskMainView.style.display = 'none'; amountConverterView.style.display = 'block'; });
-        converterBackBtn.addEventListener('click', showKioskMain);
+        kioskOptionsList.addEventListener('click', (e) => { 
+            const li = e.target.closest('li'); 
+            if (li && li.dataset.itemType) startInquiry(li.dataset.itemType); 
+        });
         
-        let debounceTimer;
-        amountInput.addEventListener('input', (e) => {
-            clearTimeout(debounceTimer);
-            const num = parseInt(e.target.value, 10);
-            amountInWords.textContent = (!isNaN(num) && num > 0) ? numberToArabicWords(num) + " دينار جزائري" : '';
-            if (!isNaN(num) && num > 0) {
-                 debounceTimer = setTimeout(playInstructionVideo, 1500);
+        kioskFinancialList.addEventListener('click', (e) => {
+            const li = e.target.closest('li');
+            if (li && li.id === 'startVideoBtn') {
+                playInstructionVideo();
             }
         });
         
-        saveSettingsBtn.addEventListener('click', async () => {
-            const cloudName = cloudinaryCloudNameEl.value.trim();
-            const publicId = cloudinaryPublicIdEl.value.trim();
-            if (cloudName && publicId) {
-                try {
-                    await setDoc(settingsDocRef, { cloudinaryCloudName: cloudName, cloudinaryPublicId: publicId }, { merge: true });
-                    uploadStatus.textContent = "تم الحفظ بنجاح!";
-                    setTimeout(() => uploadStatus.textContent = "", 2000);
-                } catch (e) {
-                    console.error("Error saving settings:", e);
-                    uploadStatus.textContent = "فشل الحفظ.";
-                }
-            } else {
-                alert("يرجى ملء جميع الحقول.");
-            }
-        });
+        videoBackBtn.addEventListener('click', showKioskMain);
         
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -474,7 +480,6 @@
         logoutBtn.addEventListener('click', () => {
             if(unsubscribeRecords) unsubscribeRecords();
             if(unsubscribeRoutes) unsubscribeRoutes();
-            if(unsubscribeSettings) unsubscribeSettings();
             sessionStorage.clear();
             showLoginView();
         });
@@ -502,16 +507,6 @@
             unsubscribeRecords = onSnapshot(query(deliveriesCol), snap => { records = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); });
             routesCol = collection(db, `user_data/${loggedInAppUser}/customer_options`);
             unsubscribeRoutes = onSnapshot(query(routesCol), snap => { routes = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRoutesList(); });
-            
-            settingsDocRef = doc(db, `user_data/${loggedInAppUser}/settings/kiosk`);
-            unsubscribeSettings = onSnapshot(settingsDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    cloudinaryConfig.cloudName = docSnap.data().cloudinaryCloudName;
-                    cloudinaryConfig.publicId = docSnap.data().cloudinaryPublicId;
-                    cloudinaryCloudNameEl.value = cloudinaryConfig.cloudName || '';
-                    cloudinaryPublicIdEl.value = cloudinaryConfig.publicId || '';
-                }
-            });
         }
         
         async function main() {
