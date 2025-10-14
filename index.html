@@ -7,8 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Cloudinary Video Player -->
-    <script src="https://player.cloudinary.com/v2.0.0/global/all.js" type="text/javascript"></script>
     
     <style>
         :root {
@@ -40,14 +38,14 @@
             box-shadow: 0 8px 24px var(--shadow-color);
         }
 
-        h1, h2, h4 {
+        h1, h2, h3, h4 {
             color: var(--primary-color);
             text-align: center;
         }
         h1 { font-size: 1.6rem; margin: 0 0 16px 0; }
         h2 { font-size: 2rem; margin: 0 0 16px 0; }
+        h3 { font-size: 1.3rem; margin-top: 24px; margin-bottom: 12px; border-bottom: 2px solid var(--primary-color); padding-bottom: 8px; }
         h4 { font-size: 1.1rem; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;}
-
 
         label {
             display: block;
@@ -66,14 +64,12 @@
             margin-top: 6px;
             font-size: 0.95rem;
             box-sizing: border-box;
-            transition: border-color 0.2s, box-shadow 0.2s;
             font-family: 'Cairo', sans-serif;
         }
         
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--light-primary-color);
+        progress {
+            width: 100%;
+            margin-top: 5px;
         }
 
         .row {
@@ -94,45 +90,24 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 0.95rem;
-            transition: background-color 0.2s, transform 0.1s;
-            font-family: 'Cairo', sans-serif;
+            transition: background-color 0.2s;
         }
-        .btn:active {
-            transform: scale(0.98);
-        }
-        .btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
+        .btn:disabled { cursor: not-allowed; opacity: 0.7; }
         .btn-primary { background: var(--primary-color); color: #fff; }
-        .btn-primary:hover { background: #0a58e0; }
         .btn-ghost { background: var(--light-primary-color); color: var(--primary-color); border: 1px solid #dbe7ff; }
-        .btn-ghost:hover { background: #e0e7ff; }
         .btn-danger { background: #fce8e8; color: #d93025; border: 1px solid #f9d0d0; }
-        .btn-danger:hover { background: #f8d7d7; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        
-        th, td { padding: 12px; border-bottom: 1px solid #eef0f6; text-align: right; }
-        th { background: #fbfcff; font-weight: 700; font-size: 0.9rem; }
         
         .form-actions {
             margin-top: 20px;
             display: flex;
-            flex-wrap: wrap;
             gap: 8px;
+            flex-wrap: wrap;
             align-items: center;
         }
         .form-actions .right-actions {
             margin-left: auto;
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
         }
 
         /* Modal Styles */
@@ -144,18 +119,18 @@
         .modal-overlay.visible { opacity: 1; visibility: visible; }
         .modal-content {
             background: var(--surface-color); padding: 24px; border-radius: 12px;
-            width: 90%; max-width: 500px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transform: scale(0.9); transition: transform 0.3s;
+            width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto;
         }
-        .modal-overlay.visible .modal-content { transform: scale(1); }
         
-        #route-list { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; }
-        #route-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); }
+        .image-library-list, #route-list { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; }
+        .image-library-list li, #route-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); }
+        .image-library-list img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-left: 10px; }
         
         /* Customer Kiosk View Styles */
         #customerKioskView {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--background-color); z-index: 2000; display: none;
+            background: var(--background-color) center/cover no-repeat; 
+            z-index: 2000; display: none;
             flex-direction: column; align-items: center; justify-content: flex-start;
             padding: 24px; box-sizing: border-box; overflow-y: auto;
         }
@@ -165,22 +140,42 @@
             border-radius: 16px; box-shadow: 0 8px 24px var(--shadow-color);
             display: flex; justify-content: space-between; align-items: center;
             font-size: 2rem; font-weight: 700; cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
         }
-        #kiosk-options-list li:hover, #kiosk-financial-list li:hover { transform: translateY(-5px); box-shadow: 0 12px 28px rgba(11, 18, 32, 0.1); }
         .kiosk-number { color: var(--primary-color); font-size: 2.5rem; margin-left: 24px; }
         #kiosk-financial-list li { justify-content: center; font-size: 1.8rem; }
         
+        #amountConverterView {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+        #amountInWords {
+            background: var(--surface-color); padding: 20px; border-radius: 8px; margin-top: 16px;
+            font-size: 1.5rem; font-weight: 600; color: var(--primary-color); min-height: 50px;
+        }
+
+        #kiosk-image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+            width: 100%;
+        }
+        .gallery-item {
+            background: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            overflow: hidden;
+        }
+        .gallery-item img { width: 100%; height: auto; display: block; }
+        .gallery-item figcaption { padding: 12px; font-size: 1rem; font-weight: 500; text-align: center; }
+
+        #loginView { max-width: 400px; margin: 8vh auto 0 auto; }
         #kiosk-listening-view, #kiosk-result-view { text-align: center; }
         #kiosk-mic-icon { width: 120px; height: 120px; fill: var(--primary-color); animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         #kiosk-status, #kiosk-result-text { font-size: 1.5rem; font-weight: 500; margin-top: 24px; color: var(--muted-text-color); }
         #kiosk-result-text { font-size: 2rem; font-weight: 600; margin-bottom: 32px; }
-        
-        #kiosk-video-view { width: 100%; max-width: 800px; margin-top: 24px;}
-        #cloudinary-player { width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px var(--shadow-color); background-color: #000; aspect-ratio: 16 / 9; }
-
-        #loginView { max-width: 400px; margin: 8vh auto 0 auto; }
     </style>
 </head>
 <body>
@@ -218,7 +213,8 @@
                     <button class="btn btn-primary" type="submit">حفظ السجل</button>
                     <button id="resetBtn" class="btn btn-ghost" type="button">تفريغ الحقول</button>
                     <div class="right-actions">
-                        <button id="showSettingsBtn" class="btn btn-ghost" type="button">الإعدادات</button>
+                        <button id="showKioskSettingsBtn" class="btn btn-ghost">إعدادات واجهة الزبون</button>
+                        <button id="showCustomerViewBtn" class="btn btn-primary">عرض واجهة الزبون</button>
                     </div>
                 </div>
             </form>
@@ -242,17 +238,23 @@
             <ul id="kiosk-options-list"></ul>
             <h4 style="margin-top: 40px;">خدمات مالية</h4>
             <ul id="kiosk-financial-list">
-                <li id="startVideoBtn">ارسال حوالة بريدية</li>
-                <li>ملئ صك (شاك)</li>
+                <li data-form-type="moneyOrder">ارسال حوالة بريدية</li>
+                <li data-form-type="check">ملئ صك (شاك)</li>
             </ul>
         </div>
         
-        <div id="kiosk-video-view" style="display: none;">
-            <div id="cloudinary-player"></div>
-            <button id="video-back-btn" class="btn btn-ghost" style="margin-top: 20px;">عودة</button>
+        <div id="amountConverterView" style="display: none;">
+            <h2 id="converterTitle"></h2>
+            <div>
+                <label for="amountInput" style="font-size: 1.2rem;">أدخل المبلغ بالأرقام</label>
+                <input id="amountInput" type="number" style="font-size: 2rem; text-align: center; padding: 15px;">
+            </div>
+            <div id="amountInWords"></div>
+            <div id="kiosk-image-gallery"></div>
+            <button id="converter-back-btn" class="btn btn-ghost" style="margin-top: 20px;">عودة</button>
         </div>
         
-        <div id="kiosk-listening-view" style="display: none;">
+         <div id="kiosk-listening-view" style="display: none;">
             <svg id="kiosk-mic-icon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg>
             <p id="kiosk-status"></p>
         </div>
@@ -260,124 +262,135 @@
             <p id="kiosk-result-text"></p>
             <button id="kiosk-back-btn" class="btn btn-primary">عودة للقائمة الرئيسية</button>
         </div>
-        <button id="kiosk-exit-btn" class="btn btn-danger" style="position: absolute; bottom: 20px; left: 20px;">خروج من وضع الزبون</button>
+
+        <button id="kiosk-exit-btn" class="btn btn-danger" style="position: absolute; bottom: 20px; left: 20px;">خروج</button>
     </div>
     
     <!-- Modals -->
-    <div id="settingsModal" class="modal-overlay">
+    <div id="kioskSettingsModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="modal-header">الإعدادات</div>
+            <div class="modal-header">إعدادات واجهة الزبون</div>
             <div class="modal-body">
-                <h4>إعدادات واجهة الزبون</h4>
+                <h3>خدمات استلام الطرود</h3>
                 <form id="addRouteForm" autocomplete="off">
-                    <div class="row">
+                     <div class="row">
                         <div class="col" style="flex: 0.3;"><label for="routeNumber">الرقم</label><input id="routeNumber" type="number" required></div>
                         <div class="col"><label for="routeItemType">نوع المستلم</label><select id="routeItemType"><option value="دفتر صكوك">دفتر صكوك</option><option value="بطاقة ذهبية">بطاقة ذهبية</option><option value="حوالة بريدية">حوالة بريدية</option><option value="رسالة">رسالة</option><option value="أخرى">أخرى</option></select></div>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة خدمة</button>
                 </form>
                 <hr style="margin: 20px 0;">
                 <h4>القائمة الحالية</h4>
                 <ul id="route-list"></ul>
                 <hr style="margin: 20px 0;">
-                <button id="showCustomerViewBtn" class="btn btn-ghost" style="width: 100%;">عرض واجهة الزبون</button>
+
+                <h3>الصور التعليمية للحوالة البريدية</h3>
+                <form id="addImageForm-moneyOrder">
+                    <label for="imageTitle-moneyOrder">عنوان الصورة</label><input type="text" id="imageTitle-moneyOrder" required>
+                    <label for="imageUpload-moneyOrder">ملف الصورة</label><input type="file" id="imageUpload-moneyOrder" accept="image/*" required>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة صورة للحوالة</button>
+                </form>
+                <p id="uploadStatus-moneyOrder" class="upload-status"></p>
+                <ul id="image-library-list-moneyOrder" class="image-library-list"></ul>
+                <hr style="margin: 20px 0;">
+                
+                <h3>الصور التعليمية لملء الصك</h3>
+                <form id="addImageForm-check">
+                    <label for="imageTitle-check">عنوان الصورة</label><input type="text" id="imageTitle-check" required>
+                    <label for="imageUpload-check">ملف الصورة</label><input type="file" id="imageUpload-check" accept="image/*" required>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة صورة للصك</button>
+                </form>
+                <p id="uploadStatus-check" class="upload-status"></p>
+                <ul id="image-library-list-check" class="image-library-list"></ul>
+                <hr style="margin: 20px 0;">
+
+                <h3>صورة خلفية الواجهة</h3>
+                <input type="file" id="bgImageUpload" accept="image/*">
+                <p id="uploadStatus-bg" class="upload-status"></p>
+
             </div>
-            <div class="modal-footer"><button id="closeSettingsModal" class="btn btn-ghost">إغلاق</button></div>
+            <div class="modal-footer"><button id="closeKioskSettingsModal" class="btn btn-ghost">إغلاق</button></div>
         </div>
     </div>
     
     <script type="module">
-        // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, getDoc, setDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
         
-        let db, auth;
-        let records = [], routes = [];
-        let deliveriesCol, credentialsCol, routesCol;
-        let unsubscribeRecords = () => {}, unsubscribeRoutes = () => {};
+        let db, auth, storage;
+        let records = [], routes = [], instructionalImages = { moneyOrder: [], check: [] };
+        let deliveriesCol, credentialsCol, routesCol, kioskImagesMoneyOrderCol, kioskImagesCheckCol, kioskSettingsDocRef;
+        let unsubscribeRecords = () => {}, unsubscribeRoutes = () => {}, unsubscribeImagesMoneyOrder = () => {}, unsubscribeImagesCheck = () => {}, unsubscribeSettings = () => {};
         
         const loginView = document.getElementById('loginView'), mainView = document.getElementById('mainView'), customerKioskView = document.getElementById('customerKioskView');
+        const showKioskSettingsBtn = document.getElementById('showKioskSettingsBtn'), kioskSettingsModal = document.getElementById('kioskSettingsModal'), closeKioskSettingsModal = document.getElementById('closeKioskSettingsModal');
+        const showCustomerViewBtn = document.getElementById('showCustomerViewBtn'), kioskExitBtn = document.getElementById('kiosk-exit-btn');
+        const amountConverterView = document.getElementById('amountConverterView');
+        const kioskMainView = document.getElementById('kiosk-main-view');
+        const amountInput = document.getElementById('amountInput'), amountInWords = document.getElementById('amountInWords');
+        const converterBackBtn = document.getElementById('converter-back-btn');
         const loginForm = document.getElementById('loginForm'), usernameInput = document.getElementById('username'), passwordInput = document.getElementById('password');
         const logoutBtn = document.getElementById('logoutBtn');
-        const showSettingsBtn = document.getElementById('showSettingsBtn'), settingsModal = document.getElementById('settingsModal'), closeSettingsModal = document.getElementById('closeSettingsModal');
-        const addRouteForm = document.getElementById('addRouteForm'), routeNumberEl = document.getElementById('routeNumber'), routeItemTypeEl = document.getElementById('routeItemType');
-        const routeList = document.getElementById('route-list');
-        const showCustomerViewBtn = document.getElementById('showCustomerViewBtn'), kioskExitBtn = document.getElementById('kiosk-exit-btn');
-        const kioskOptionsList = document.getElementById('kiosk-options-list'), kioskMainView = document.getElementById('kiosk-main-view');
+        const kioskFinancialList = document.getElementById('kiosk-financial-list');
+        const kioskImageGallery = document.getElementById('kiosk-image-gallery');
+        const converterTitle = document.getElementById('converterTitle');
+        const kioskOptionsList = document.getElementById('kiosk-options-list');
         const kioskListeningView = document.getElementById('kiosk-listening-view'), kioskResultView = document.getElementById('kiosk-result-view');
         const kioskStatus = document.getElementById('kiosk-status'), kioskResultText = document.getElementById('kiosk-result-text'), kioskBackBtn = document.getElementById('kiosk-back-btn');
         const tbody = document.querySelector('#recordsTable tbody'), form = document.getElementById('deliveryForm');
-        const kioskFinancialList = document.getElementById('kiosk-financial-list');
-        const kioskVideoView = document.getElementById('kiosk-video-view');
-        const videoBackBtn = document.getElementById('video-back-btn');
-
-        const cloudinaryConfig = { cloudName: "dmbbqndvk", publicId: "1014_sqy5y0" };
+        const addRouteForm = document.getElementById('addRouteForm'), routeNumberEl = document.getElementById('routeNumber'), routeItemTypeEl = document.getElementById('routeItemType'), routeList = document.getElementById('route-list');
         
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
-        
-        function speak(text) { 
-             try {
-                speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'ar-SA';
-                speechSynthesis.speak(utterance);
-            } catch (e) { console.error("Speech synthesis failed", e); }
-        }
+        function speak(text) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ar-SA'; speechSynthesis.speak(u); } catch (e) { console.error(e); } }
 
         const escapeHtml = s => s ? String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : '';
         const showLoginView = () => { loginView.style.display = 'block'; mainView.style.display = 'none'; customerKioskView.style.display = 'none'; };
         const showMainView = () => { loginView.style.display = 'none'; mainView.style.display = 'block'; customerKioskView.style.display = 'none'; };
         const showCustomerKiosk = () => { mainView.style.display = 'none'; customerKioskView.style.display = 'flex'; };
         const closeModal = () => document.querySelectorAll('.modal-overlay.visible').forEach(m => m.classList.remove('visible'));
-        const showAlert = (message) => alert(message);
         
-        const showKioskMain = () => {
+        function showKioskMain() {
             kioskMainView.style.display = 'block';
-            kioskVideoView.style.display = 'none';
+            amountConverterView.style.display = 'none';
             kioskListeningView.style.display = 'none';
             kioskResultView.style.display = 'none';
-            if (cldPlayer) {
-                cldPlayer.off('ended');
-                cldPlayer.pause();
-            }
-        };
-        const showKioskListening = (status) => { kioskMainView.style.display = 'none'; kioskListeningView.style.display = 'block'; kioskResultView.style.display = 'none'; kioskStatus.textContent = status; };
-        const showKioskResult = (result) => { kioskMainView.style.display = 'none'; kioskListeningView.style.display = 'none'; kioskResultView.style.display = 'block'; kioskResultText.textContent = result; };
+        }
         
-        let cldPlayer;
-        function playInstructionVideo() {
-             if (typeof cloudinary === 'undefined' || !window.cloudinary) {
-                return showAlert("خطأ: مكتبة تشغيل الفيديو لم يتم تحميلها بعد.");
-            }
-            kioskMainView.style.display = 'none';
-            kioskVideoView.style.display = 'block';
+        function numberToArabicWords(number) {
+            const units=["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة"],tens=["","عشرة","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"],teens=["عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];if(number===0)return"صفر";let words="";function convertLessThanOneThousand(num){let currentWords="";if(num>=100){if(Math.floor(num/100)===1)currentWords+="مئة ";else if(Math.floor(num/100)===2)currentWords+="مئتان ";else currentWords+=units[Math.floor(num/100)]+"مئة ";num%=100}if(num>0){if(currentWords!=="")currentWords+=" و ";if(num<10)currentWords+=units[num];else if(num<20)currentWords+=teens[num-10];else{currentWords+=units[num%10]+(num%10!==0?" و ":"")+tens[Math.floor(num/10)]}}return currentWords}if(number>=1000000){let millions=Math.floor(number/1000000);if(millions===1)words+="مليون ";else if(millions===2)words+="مليونان ";else if(millions>=3&&millions<=10)words+=convertLessThanOneThousand(millions)+" ملايين ";else words+=convertLessThanOneThousand(millions)+" مليون ";number%=1000000}if(number>=1000){let thousands=Math.floor(number/1000);if(words!=="")words+="و ";if(thousands===1)words+="ألف ";else if(thousands===2)words+="ألفان ";else if(thousands>=3&&thousands<=10)words+=convertLessThanOneThousand(thousands)+" آلاف ";else words+=convertLessThanOneThousand(thousands)+" ألف ";number%=1000}if(number>0){if(words!=="")words+="و ";words+=convertLessThanOneThousand(number)}return words.trim()
+        }
 
-            if (!cldPlayer) {
-                 cldPlayer = window.cloudinary.videoPlayer('cloudinary-player', {
-                    cloud_name: cloudinaryConfig.cloudName,
-                    autoplay: true,
-                    muted: false,
-                    controls: true,
-                });
-            }
-            cldPlayer.source(cloudinaryConfig.publicId);
+        async function uploadImage(file, title, userId, type) { /* ... */ }
+        async function uploadBgImage(file, userId) { /* ... */ }
+        async function deleteInstructionalImage(imageData, type) { /* ... */ }
+        function renderImageLibrary(type) { /* ... */ }
+        
+        function showAmountConverter(type) {
+            kioskMainView.style.display = 'none';
+            amountConverterView.style.display = 'block';
+            converterTitle.textContent = type === 'moneyOrder' ? "مساعد إرسال حوالة" : "مساعد ملء صك";
+            amountInput.value = '';
+            amountInWords.textContent = '';
+            kioskImageGallery.innerHTML = '';
             
-            let playCount = 0;
-            const onEnded = () => {
-                playCount++;
-                if (playCount < 3) {
-                    cldPlayer.play();
-                } else {
-                    cldPlayer.off('ended', onEnded);
-                    showKioskMain();
-                }
+            amountInput.oninput = () => {
+                const num = parseInt(amountInput.value, 10);
+                amountInWords.textContent = (!isNaN(num) && num > 0) ? numberToArabicWords(num) + " دينار جزائري" : '';
+                showImageGallery(type);
             };
-            
-            cldPlayer.off('ended');
-            cldPlayer.on('ended', onEnded);
-            cldPlayer.play();
+        }
+        
+        function showImageGallery(type) {
+            kioskImageGallery.innerHTML = '';
+            instructionalImages[type].forEach(img => {
+                const figure = document.createElement('figure');
+                figure.className = 'gallery-item';
+                figure.innerHTML = `<img src="${img.imageUrl}" alt="${escapeHtml(img.title)}"><figcaption>${escapeHtml(img.title)}</figcaption>`;
+                kioskImageGallery.appendChild(figure);
+            });
         }
 
         function render() {
@@ -408,7 +421,7 @@
         }
         
         function startInquiry(itemType) {
-            if (!SpeechRecognition) { return showAlert("البحث الصوتي غير مدعوم."); }
+            if (!SpeechRecognition) { return alert("البحث الصوتي غير مدعوم."); }
             showKioskListening("جاري الاستماع... يرجى ذكر اسمك الكامل أو رقم هاتفك.");
             speak("يرجى ذكر اسمك الكامل أو رقم هاتفك.");
             
@@ -416,7 +429,7 @@
             recognition.lang = 'ar-SA';
             recognition.onresult = (event) => {
                 const spokenText = event.results[0][0].transcript.trim().toLowerCase();
-                showKioskListening(`جاري البحث عن "${spokenText}"...`);
+                kioskListeningView.style.display = 'none'; // Hide listening UI
                 
                 const foundRecord = records.find(r => 
                     r.itemType === itemType &&
@@ -426,37 +439,37 @@
                 let resultText = foundRecord ? `نعم يا ${foundRecord.name}، لديك ${itemType} جاهز للاستلام. يرجى التوجه إلى الشباك رقم ${foundRecord.counter || 'المخصص'}.`
                                              : `عذرًا، لم نجد أي ${itemType} مسجل بالمعلومات التي قدمتها.`;
                 
-                showKioskResult(resultText);
+                kioskResultView.style.display = 'block';
+                kioskResultText.textContent = resultText;
                 speak(resultText);
             };
             recognition.onerror = () => {
                 const errorText = "عذرًا، حدث خطأ. يرجى المحاولة مرة أخرى.";
-                showKioskResult(errorText);
+                kioskResultView.style.display = 'block';
+                kioskResultText.textContent = errorText;
                 speak(errorText);
             };
             recognition.start();
         }
 
-        showSettingsBtn.addEventListener('click', () => settingsModal.classList.add('visible'));
-        closeSettingsModal.addEventListener('click', closeModal);
+        showKioskSettingsBtn.addEventListener('click', () => kioskSettingsModal.classList.add('visible'));
+        closeKioskSettingsModal.addEventListener('click', closeModal);
         addRouteForm.addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(routesCol, { number: parseInt(routeNumberEl.value), itemType: routeItemTypeEl.value }); addRouteForm.reset(); });
         routeList.addEventListener('click', (e) => { if (e.target.classList.contains('delete-route-btn')) deleteDoc(doc(db, routesCol.path, e.target.dataset.id)); });
-        showCustomerViewBtn.addEventListener('click', () => { closeModal(); renderKioskOptions(); showKioskMain(); showCustomerKiosk(); });
+        showCustomerViewBtn.addEventListener('click', () => { showCustomerKiosk(); showKioskMain(); renderKioskOptions(); });
         kioskExitBtn.addEventListener('click', showMainView);
-        kioskBackBtn.addEventListener('click', showKioskMain);
-        kioskOptionsList.addEventListener('click', (e) => { 
-            const li = e.target.closest('li'); 
-            if (li && li.dataset.itemType) startInquiry(li.dataset.itemType); 
-        });
-        
         kioskFinancialList.addEventListener('click', (e) => {
             const li = e.target.closest('li');
-            if (li && li.id === 'startVideoBtn') {
-                playInstructionVideo();
+            if(li && li.dataset.formType) {
+                showAmountConverter(li.dataset.formType);
             }
         });
-        
-        videoBackBtn.addEventListener('click', showKioskMain);
+        kioskOptionsList.addEventListener('click', (e) => { 
+            const li = e.target.closest('li');
+            if (li && li.dataset.itemType) startInquiry(li.dataset.itemType);
+        });
+        converterBackBtn.addEventListener('click', showKioskMain);
+        kioskBackBtn.addEventListener('click', showKioskMain);
         
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -469,24 +482,37 @@
                     sessionStorage.setItem('loggedInUser', user);
                     showMainView();
                     initializeAppData(user);
-                } else { showAlert('اسم المستخدم أو كلمة المرور غير صحيحة.'); }
-            } catch (error) { console.error("Login failed:", error); showAlert("فشل تسجيل الدخول."); }
+                } else {
+                    alert('اسم المستخدم أو كلمة المرور غير صحيحة.');
+                }
+            } catch (error) {
+                console.error("Login Error:", error);
+                alert("فشل تسجيل الدخول. تحقق من اتصالك بالانترنت وقواعد الأمان.");
+            }
         });
 
-        logoutBtn.addEventListener('click', () => {
+        logoutBtn.addEventListener('click', () => { 
             if(unsubscribeRecords) unsubscribeRecords();
             if(unsubscribeRoutes) unsubscribeRoutes();
+            if(unsubscribeImagesMoneyOrder) unsubscribeImagesMoneyOrder();
+            if(unsubscribeImagesCheck) unsubscribeImagesCheck();
+            if(unsubscribeSettings) unsubscribeSettings();
             sessionStorage.clear();
             showLoginView();
-        });
+         });
         
         form.addEventListener('submit', async (e) => {
              e.preventDefault();
+             const formData = new FormData(form);
              await addDoc(deliveriesCol, {
-                 name: form.name.value, phone: form.phone.value, itemType: form.itemType.value,
-                 counter: form.counter.value, date: form.date.value || new Date().toISOString().slice(0, 10),
+                 name: formData.get('name'), 
+                 phone: formData.get('phone'), 
+                 itemType: formData.get('itemType'),
+                 counter: formData.get('counter'), 
+                 date: formData.get('date') || new Date().toISOString().slice(0, 10),
              });
              form.reset();
+             document.getElementById('date').value = new Date().toISOString().slice(0, 10);
         });
         
         tbody.addEventListener('click', (e) => { if (e.target.classList.contains('btn-del')) deleteDoc(doc(db, deliveriesCol.path, e.target.dataset.id)); });
@@ -499,19 +525,33 @@
         }
         
         function initializeAppData(loggedInAppUser) {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            // Initialize all collections for the logged-in user
+            credentialsCol = collection(db, 'credentials');
             deliveriesCol = collection(db, `user_data/${loggedInAppUser}/deliveries`);
-            unsubscribeRecords = onSnapshot(query(deliveriesCol), snap => { records = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); });
             routesCol = collection(db, `user_data/${loggedInAppUser}/customer_options`);
+            kioskImagesMoneyOrderCol = collection(db, `user_data/${loggedInAppUser}/kiosk_images/moneyOrder/images`);
+            kioskImagesCheckCol = collection(db, `user_data/${loggedInAppUser}/kiosk_images/check/images`);
+            kioskSettingsDocRef = doc(db, `user_data/${loggedInAppUser}/kiosk_settings/display`);
+
+            unsubscribeRecords = onSnapshot(query(deliveriesCol), snap => { records = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); });
             unsubscribeRoutes = onSnapshot(query(routesCol), snap => { routes = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRoutesList(); });
+            unsubscribeImagesMoneyOrder = onSnapshot(query(kioskImagesMoneyOrderCol, orderBy("createdAt")), snap => { instructionalImages.moneyOrder = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderImageLibrary('moneyOrder'); });
+            unsubscribeImagesCheck = onSnapshot(query(kioskImagesCheckCol, orderBy("createdAt")), snap => { instructionalImages.check = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderImageLibrary('check'); });
+            unsubscribeSettings = onSnapshot(kioskSettingsDocRef, (docSnap) => { if (docSnap.exists() && docSnap.data().backgroundUrl) customerKioskView.style.backgroundImage = `url(${docSnap.data().backgroundUrl})`; });
         }
         
         async function main() {
             try {
-                const firebaseConfig = {"apiKey":"AIzaSyDIESGl6TXDRtzbP7NZtOHGJa9pRY83_oY","authDomain":"poste-b276e.firebaseapp.com","projectId":"poste-b276e","storageBucket":"poste-b276e.appspot.com","messagingSenderId":"855137728375","appId":"1:855137728375:web:1428c3132f9ba79375d372"};
+                const firebaseConfig = {"apiKey":"AIzaSyDIESGl6TXDRtzbP7NZtOHGJa9pRY83_oY","authDomain":"poste-b276e.firebaseapp.com","projectId":"poste-b276e","storageBucket":"poste-b276e.appspot.com"};
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
+                storage = getStorage(app);
                 await signInAnonymously(auth);
+                
                 credentialsCol = collection(db, 'credentials');
                 await bootstrapAdminUser();
                 
