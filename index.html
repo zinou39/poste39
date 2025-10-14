@@ -351,10 +351,6 @@
              if (typeof cloudinary === 'undefined' || !window.cloudinary) {
                 return showAlert("خطأ: مكتبة تشغيل الفيديو لم يتم تحميلها بعد.");
             }
-            if (!cloudinaryConfig.cloudName || !cloudinaryConfig.publicId) {
-                return showAlert("لم يتم إعداد معلومات الفيديو.");
-            }
-
             kioskMainView.style.display = 'none';
             kioskVideoView.style.display = 'block';
 
