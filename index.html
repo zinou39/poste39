@@ -73,6 +73,19 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px var(--light-primary-color);
         }
+        
+        progress {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: none;
+        }
+        progress::-webkit-progress-bar { background-color: #eee; }
+        progress::-webkit-progress-value { background-color: var(--primary-color); transition: width 0.1s; }
+
 
         .row {
             display: flex;
@@ -97,6 +110,10 @@
         }
         .btn:active {
             transform: scale(0.98);
+        }
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
         }
 
         .btn-primary { background: var(--primary-color); color: #fff; }
@@ -296,11 +313,12 @@
                 <p>ارفع الفيديو الذي سيتم عرضه للزبون.</p>
                 <input type="file" id="formVideoUpload" accept="video/*">
                 <p id="uploadStatus" style="font-size: 0.9rem; margin-top: 8px;"></p>
+                <progress id="uploadProgress" value="0" max="100" style="width: 100%; display: none; margin-top: 5px;"></progress>
                 <video id="formVideoPreview" src="" style="max-width: 100%; border-radius: 8px; margin-top: 10px; display: none;" controls></video>
                 <hr style="margin: 20px 0;">
                 <button id="showCustomerViewBtn" class="btn btn-ghost" style="width: 100%;">عرض واجهة الزبون</button>
             </div>
-            <div class="modal-footer"><button id="saveSettingsBtn" class="btn btn-primary">حفظ الإعدادات</button><button id="closeSettingsModal" class="btn btn-ghost">إغلاق</button></div>
+            <div class="modal-footer"><button id="saveSettingsBtn" class="btn btn-primary" disabled>حفظ الإعدادات</button><button id="closeSettingsModal" class="btn btn-ghost">إغلاق</button></div>
         </div>
     </div>
     
@@ -309,7 +327,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
         
         let db, auth, storage;
         let records = [], routes = [];
@@ -335,6 +353,7 @@
         const formVideoUpload = document.getElementById('formVideoUpload'), uploadStatus = document.getElementById('uploadStatus'), formVideoPreview = document.getElementById('formVideoPreview');
         const saveSettingsBtn = document.getElementById('saveSettingsBtn');
         const kioskVideoView = document.getElementById('kiosk-video-view'), instructionVideo = document.getElementById('instructionVideo');
+        const uploadProgress = document.getElementById('uploadProgress');
         
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
@@ -413,25 +432,45 @@
             return words.trim();
         }
 
-        async function uploadFormVideo(file, userId) {
-            if (!file) return;
-            saveSettingsBtn.textContent = 'جاري الحفظ...';
+        function uploadFormVideo() {
+            const userId = auth.currentUser ? auth.currentUser.uid : null;
+            if (!selectedVideoFile || !userId) {
+                showAlert("الرجاء اختيار ملف فيديو أولاً.");
+                return;
+            }
+            
             saveSettingsBtn.disabled = true;
             uploadStatus.textContent = '';
+            uploadProgress.style.display = 'block';
+            uploadProgress.value = 0;
+            
             const storageRef = ref(storage, `users/${userId}/kiosk/instruction_video`);
-            try {
-                await uploadBytes(storageRef, file);
-                const url = await getDownloadURL(storageRef);
-                await setDoc(settingsDocRef, { formVideoUrl: url }, { merge: true });
-                uploadStatus.textContent = 'تم الحفظ بنجاح!';
-                selectedVideoFile = null; 
-            } catch (error) {
-                console.error("Upload failed", error);
-                uploadStatus.textContent = 'فشل الحفظ.';
-            } finally {
-                saveSettingsBtn.textContent = 'حفظ الإعدادات';
-                saveSettingsBtn.disabled = true; // Disable again after saving is complete
-            }
+            const uploadTask = uploadBytesResumable(storageRef, selectedVideoFile);
+
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    uploadProgress.value = progress;
+                    uploadStatus.textContent = `جاري الرفع... ${Math.round(progress)}%`;
+                }, 
+                (error) => {
+                    console.error("Upload failed", error);
+                    uploadStatus.textContent = 'فشل الرفع.';
+                    saveSettingsBtn.disabled = false;
+                    uploadProgress.style.display = 'none';
+                }, 
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+                        await setDoc(settingsDocRef, { formVideoUrl: downloadURL }, { merge: true });
+                        uploadStatus.textContent = 'تم الحفظ بنجاح!';
+                        selectedVideoFile = null;
+                        setTimeout(() => {
+                           uploadProgress.style.display = 'none';
+                           uploadStatus.textContent = '';
+                        }, 2000);
+                    });
+                }
+            );
         }
         
         let loopCount = 0;
@@ -492,6 +531,7 @@
 
         showSettingsBtn.addEventListener('click', () => {
             uploadStatus.textContent = '';
+            uploadProgress.style.display = 'none';
             saveSettingsBtn.disabled = true;
             settingsModal.classList.add('visible');
         });
@@ -524,12 +564,7 @@
             }
         });
         
-        saveSettingsBtn.addEventListener('click', () => {
-            const userId = sessionStorage.getItem('loggedInUser');
-            if (selectedVideoFile && userId) {
-                uploadFormVideo(selectedVideoFile, userId);
-            }
-        });
+        saveSettingsBtn.addEventListener('click', uploadFormVideo);
         
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -573,6 +608,9 @@
         }
         
         function initializeAppData(loggedInAppUser) {
+            const user = auth.currentUser;
+            if(!user) return;
+            
             deliveriesCol = collection(db, `user_data/${loggedInAppUser}/deliveries`);
             unsubscribeRecords = onSnapshot(query(deliveriesCol), snap => { records = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); });
             routesCol = collection(db, `user_data/${loggedInAppUser}/customer_options`);
