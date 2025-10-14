@@ -8,11 +8,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- PWA Manifest & Theme -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0b66ff">
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-
     <style>
         :root {
             font-family: 'Cairo', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -43,22 +38,20 @@
             box-shadow: 0 8px 24px var(--shadow-color);
         }
 
-        h1 {
-            margin: 0 0 16px 0;
-            font-size: 1.6rem;
+        h1, h2, h4 {
             color: var(--primary-color);
             text-align: center;
         }
+        h1 { font-size: 1.6rem; margin: 0 0 16px 0; }
+        h2 { font-size: 2rem; margin: 0 0 16px 0; }
+        h4 { font-size: 1.1rem; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;}
+
 
         label {
             display: block;
             margin-top: 10px;
             font-size: 0.9rem;
             font-weight: 500;
-        }
-
-        .input-wrapper {
-            position: relative;
         }
 
         input,
@@ -80,36 +73,6 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px var(--light-primary-color);
         }
-        
-        .mic-btn {
-            position: absolute;
-            left: 8px;
-            top: 50%;
-            transform: translateY(2px);
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 6px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .mic-btn:hover {
-            background-color: #f0f0f0;
-        }
-        .mic-btn svg {
-            width: 20px;
-            height: 20px;
-            fill: var(--muted-text-color);
-        }
-        .mic-btn.listening svg {
-            fill: var(--primary-color);
-        }
-        body.no-speech-recognition .mic-btn {
-            display: none;
-        }
-
 
         .row {
             display: flex;
@@ -135,105 +98,22 @@
         .btn:active {
             transform: scale(0.98);
         }
-        .btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
 
-        .btn-primary {
-            background: var(--primary-color);
-            color: #fff;
-        }
-        .btn-primary:hover {
-            background: #0a58e0;
-        }
-
-        .btn-ghost {
-            background: var(--light-primary-color);
-            color: var(--primary-color);
-            border: 1px solid #dbe7ff;
-        }
-        .btn-ghost:hover {
-            background: #e0e7ff;
-        }
-        
-        .btn-danger {
-            background: #fce8e8;
-            color: #d93025;
-            border: 1px solid #f9d0d0;
-        }
-        .btn-danger:hover {
-            background: #f8d7d7;
-        }
-        
-        .btn-call {
-            background: #e0f2f1;
-            color: #00796b;
-            border: 1px solid #b2dfdb;
-            padding: 4px 8px;
-            font-size: 0.8rem;
-        }
-        .btn-call:hover {
-             background: #c8e6c9;
-        }
-
-
-        .actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
+        .btn-primary { background: var(--primary-color); color: #fff; }
+        .btn-primary:hover { background: #0a58e0; }
+        .btn-ghost { background: var(--light-primary-color); color: var(--primary-color); border: 1px solid #dbe7ff; }
+        .btn-ghost:hover { background: #e0e7ff; }
+        .btn-danger { background: #fce8e8; color: #d93025; border: 1px solid #f9d0d0; }
+        .btn-danger:hover { background: #f8d7d7; }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            table-layout: fixed;
         }
         
-        th,
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #eef0f6;
-            text-align: right;
-            word-wrap: break-word;
-        }
-
-        th {
-            background: #fbfcff;
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-        
-        tbody tr:hover {
-            background-color: #f9fafc;
-        }
-
-        .highlight-row {
-            background-color: var(--light-primary-color);
-        }
-        tbody tr.highlight-row:hover {
-             background-color: #e0e7ff;
-        }
-
-        .small {
-            font-size: 0.85rem;
-            color: #475569;
-        }
-
-        .muted {
-            color: var(--muted-text-color);
-        }
-
-        .controls {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            margin-top: 24px;
-            padding: 12px;
-            background: #f8f9fc;
-            border-radius: 8px;
-        }
+        th, td { padding: 12px; border-bottom: 1px solid #eef0f6; text-align: right; }
+        th { background: #fbfcff; font-weight: 700; font-size: 0.9rem; }
         
         .form-actions {
             margin-top: 20px;
@@ -246,1181 +126,490 @@
             margin-left: auto;
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         /* Modal Styles */
         .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s;
         }
-        .modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
         .modal-content {
-            background: var(--surface-color);
-            padding: 24px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 450px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transform: scale(0.9);
-            transition: transform 0.3s;
+            background: var(--surface-color); padding: 24px; border-radius: 12px;
+            width: 90%; max-width: 500px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: scale(0.9); transition: transform 0.3s;
         }
-        .modal-overlay.visible .modal-content {
-            transform: scale(1);
-        }
-        .modal-header {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .modal-body {
-            margin-bottom: 20px;
-        }
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-        }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
         
-        #user-management-list {
-            list-style: none;
-            padding: 0;
-            max-height: 200px;
-            overflow-y: auto;
+        #route-list { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; }
+        #route-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); }
+        
+        /* Customer Kiosk View Styles */
+        #customerKioskView {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--background-color); z-index: 2000; display: none;
+            flex-direction: column; align-items: center; justify-content: flex-start;
+            padding: 24px; box-sizing: border-box; overflow-y: auto;
         }
-        #user-management-list li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            border-bottom: 1px solid var(--border-color);
+        #kiosk-options-list, #kiosk-financial-list { list-style: none; padding: 0; width: 100%; max-width: 600px; }
+        #kiosk-options-list li, #kiosk-financial-list li {
+            background: var(--surface-color); margin-bottom: 16px; padding: 20px;
+            border-radius: 16px; box-shadow: 0 8px 24px var(--shadow-color);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 2rem; font-weight: 700; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        #user-management-list li:last-child {
-            border-bottom: none;
-        }
-
-        /* Stats Page Styles */
-        .stats-container {
-            padding-top: 20px;
-        }
-        .stats-container h2 {
+        #kiosk-options-list li:hover, #kiosk-financial-list li:hover { transform: translateY(-5px); box-shadow: 0 12px 28px rgba(11, 18, 32, 0.1); }
+        .kiosk-number { color: var(--primary-color); font-size: 2.5rem; margin-left: 24px; }
+        #kiosk-financial-list li { justify-content: center; font-size: 1.8rem; }
+        
+        #kiosk-listening-view, #kiosk-result-view { text-align: center; }
+        #kiosk-mic-icon { width: 120px; height: 120px; fill: var(--primary-color); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        #kiosk-status, #kiosk-result-text { font-size: 1.5rem; font-weight: 500; margin-top: 24px; color: var(--muted-text-color); }
+        #kiosk-result-text { font-size: 2rem; font-weight: 600; margin-bottom: 32px; }
+        
+        #amountConverterView {
+            width: 100%;
+            max-width: 800px;
             text-align: center;
-            color: var(--primary-color);
-            margin-bottom: 24px;
         }
-        .stats-section {
-            margin-bottom: 30px;
-            background: #fdfdff;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #f0f2f5;
-        }
-        .stats-section h3 {
-            margin-top: 0;
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-        
-        #loginView {
-            max-width: 400px;
-            margin: 8vh auto 0 auto;
-        }
-        
-        .developer-credit {
-            font-weight: 600;
-            font-size: 1rem;
-            background: linear-gradient(45deg, #0b66ff, #ffc107);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        #call-recipient-info {
-            background: #f8f9fc;
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 0.9rem;
+        #amountInWords {
+            background: var(--surface-color); padding: 20px; border-radius: 8px; margin-top: 16px;
+            font-size: 1.5rem; font-weight: 600; color: var(--primary-color); min-height: 50px;
         }
 
-        @media (max-width: 760px) {
-            body {
-                padding: 8px;
-            }
-            .container {
-                padding: 16px;
-            }
-            .row {
-                flex-direction: column;
-                gap: 0;
-            }
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .form-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .form-actions .right-actions {
-                margin-left: 0;
-                margin-top: 10px;
-                justify-content: space-between;
-            }
-             .btn {
-                width: 100%;
-                text-align: center;
-            }
+        #kiosk-video-view { width: 100%; max-width: 800px; margin-top: 24px;}
+        #instructionVideo { width: 100%; border-radius: 12px; box-shadow: 0 8px 24px var(--shadow-color); background-color: #000;}
 
-            /* Responsive Table Styles */
-            table {
-                table-layout: auto;
-                border: 0;
-            }
-            table thead {
-                display: none;
-            }
-            table tr {
-                display: block;
-                margin-bottom: 16px;
-                border: 1px solid var(--border-color);
-                border-radius: 8px;
-                padding: 12px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            }
-            table td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                text-align: left;
-                padding: 10px 4px;
-                border-bottom: 1px solid #f0f2f5;
-            }
-            table td:last-child {
-                border-bottom: none;
-            }
-            table td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                padding-left: 12px;
-                text-align: right;
-                color: var(--primary-color);
-                flex-basis: 50%;
-            }
-             .actions {
-                justify-content: center;
-                padding-top: 10px;
-                flex-wrap: wrap;
-            }
-            .actions::before {
-                display: none;
-            }
-            .actions .btn {
-                width: auto;
-                flex-grow: 1;
-            }
-        }
+        #loginView { max-width: 400px; margin: 8vh auto 0 auto; }
     </style>
 </head>
 <body>
 
-    <div id="loginView" class="container">
-        <h1>تسجيل الدخول</h1>
-        <form id="loginForm" autocomplete="off">
-            <div>
-                <label for="username">اسم المستخدم</label>
-                <input id="username" type="text" required>
-            </div>
-            <div style="margin-top: 12px;">
-                <label for="password">كلمة المرور</label>
-                <input id="password" type="password" required>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">دخول</button>
-        </form>
-        <div id="init-error-container" style="display:none; margin-top: 15px; padding: 10px; background-color: #fce8e8; color: #d93025; border-radius: 8px; text-align: center;"></div>
-    </div>
-
-    <div id="mainView" class="container" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1>نظام تسجيل تسليم البريد</h1>
-            <button id="logoutBtn" class="btn btn-danger">خروج</button>
+    <div id="appContainer">
+        <div id="loginView" class="container">
+            <h1>تسجيل الدخول</h1>
+            <form id="loginForm" autocomplete="off">
+                <div><label for="username">اسم المستخدم</label><input id="username" type="text" required></div>
+                <div style="margin-top: 12px;"><label for="password">كلمة المرور</label><input id="password" type="password" required></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">دخول</button>
+            </form>
         </div>
-        <div class="developer-credit" style="text-align:center; margin-bottom: 16px;">تم تطويره من قبل زهير عيه</div>
 
-        <form id="deliveryForm" autocomplete="off">
-            <div class="row">
-                <div class="col">
-                    <div class="input-wrapper">
-                        <label for="name">اسم الزبون</label>
-                        <input id="name" required />
-                        <button type="button" class="btn mic-btn" data-target-id="name" aria-label="تسجيل صوتي"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="input-wrapper">
-                        <label for="idnum">رقم الهوية / الرقم الوطني</label>
-                        <input id="idnum" />
-                        <button type="button" class="btn mic-btn" data-target-id="idnum" aria-label="تسجيل صوتي"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <label for="idIssueDate">تاريخ إصدار الهوية</label>
-                    <input id="idIssueDate" type="text" placeholder="YYYY-MM-DD" />
-                </div>
-                <div class="col">
-                    <label for="idIssuer">صادرة عن بلدية</label>
-                    <select id="idIssuer">
-                        <option value="">-- اختر البلدية --</option>
-                        <option value="أميه ونسة">أميه ونسة</option>
-                        <option value="البياضة">البياضة</option>
-                        <option value="الحمادين">الحمادين</option>
-                        <option value="الحمراية">الحمراية</option>
-                        <option value="الدبيلة">الدبيلة</option>
-                        <option value="الرباح">الرباح</option>
-                        <option value="الرقيبة">الرقيبة</option>
-                        <option value="الطريفاوي">الطريفاوي</option>
-                        <option value="العقلة">العقلة</option>
-                        <option value="المرزاقة">المرزاقة</option>
-                        <option value="المقرن">المقرن</option>
-                        <option value="النخلة">النخلة</option>
-                        <option value="الوادي">الوادي</option>
-                        <option value="بن قشة">بن قشة</option>
-                        <option value="تغزوت">تغزوت</option>
-                        <option value="تندلة">تندلة</option>
-                        <option value="حاسي خليفة">حاسي خليفة</option>
-                        <option value="حساني عبد الكريم">حساني عبد الكريم</option>
-                        <option value="دوار الماء">دوار الماء</option>
-                        <option value="سيدي عون">سيدي عون</option>
-                        <option value="طالب العربي">طالب العربي</option>
-                        <option value="عين الشوشة">عين الشوشة</option>
-                        <option value="قمار">قمار</option>
-                        <option value="كوينين">كوينين</option>
-                        <option value="وادي العلندة">وادي العلندة</option>
-                        <option value="ورماس">ورماس</option>
-                        <option value="وغلانة">وغلانة</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                     <div class="input-wrapper">
-                        <label for="address">العنوان (شارع، رقم، حي)</label>
-                        <input id="address" />
-                        <button type="button" class="btn mic-btn" data-target-id="address" aria-label="تسجيل صوتي"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="input-wrapper">
-                        <label for="phone">هاتف للتواصل</label>
-                        <input id="phone" />
-                        <button type="button" class="btn mic-btn" data-target-id="phone" aria-label="تسجيل صوتي"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <label for="itemType">نوع المستلم</label>
-                    <select id="itemType">
-                        <option value="دفتر صكوك">دفتر صكوك</option>
-                        <option value="بطاقة ذهبية">بطاقة ذهبية</option>
-                        <option value="حوالة بريدية">حوالة بريدية</option>
-                        <option value="رسالة">رسالة</option>
-                        <option value="أخرى">أخرى</option>
-                    </select>
-                </div>
-                <div class="col">
-                    <label for="date">تاريخ التسليم</label>
-                    <input id="date" type="text" placeholder="YYYY-MM-DD" />
-                </div>
-            </div>
-
-            <div class="input-wrapper">
-                <label for="notes">تفاصيل إضافية / ملاحظات</label>
-                <textarea id="notes" rows="2"></textarea>
-                <button type="button" class="btn mic-btn" data-target-id="notes" aria-label="تسجيل صوتي" style="transform: translateY(-8px);"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
+        <div id="mainView" class="container" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <h1>نظام تسجيل تسليم البريد</h1>
+                <button id="logoutBtn" class="btn btn-danger">خروج</button>
             </div>
             
-            <div class="input-wrapper">
-                <label for="communicationLog">سجل الاتصال (تم الاتصال / إرسال إشعار بتاريخ...)</label>
-                <textarea id="communicationLog" rows="2"></textarea>
-                <button type="button" class="btn mic-btn" data-target-id="communicationLog" aria-label="تسجيل صوتي" style="transform: translateY(-8px);"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
-            </div>
-
-            <div class="input-wrapper">
-                <label for="nonReceiptReason">سبب عدم الاستلام</label>
-                <textarea id="nonReceiptReason" rows="2"></textarea>
-                <button type="button" class="btn mic-btn" data-target-id="nonReceiptReason" aria-label="تسجيل صوتي" style="transform: translateY(-8px);"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg></button>
-            </div>
-
-            <div class="form-actions">
-                <button class="btn btn-primary" type="submit">حفظ السجل</button>
-                <button id="resetBtn" class="btn btn-ghost" type="button">تفريغ الحقول</button>
-                <div class="right-actions">
-                    <button id="showStatsBtn" class="btn btn-ghost" type="button">عرض الإحصائيات</button>
-                    <button id="manageUsersBtn" class="btn btn-ghost" type="button" style="display: none;">إدارة المستخدمين</button>
+            <form id="deliveryForm" autocomplete="off" style="margin-top: 20px;">
+                <div class="row">
+                    <div class="col"><label for="name">اسم الزبون</label><input id="name" required /></div>
+                    <div class="col"><label for="phone">هاتف للتواصل</label><input id="phone" /></div>
                 </div>
-            </div>
-        </form>
+                <div class="row">
+                    <div class="col"><label for="itemType">نوع المستلم</label><select id="itemType"><option value="دفتر صكوك">دفتر صكوك</option><option value="بطاقة ذهبية">بطاقة ذهبية</option><option value="حوالة بريدية">حوالة بريدية</option><option value="رسالة">رسالة</option><option value="أخرى">أخرى</option></select></div>
+                    <div class="col"><label for="counter">رقم الشباك</label><input id="counter" type="text" placeholder="مثال: 5" /></div>
+                </div>
+                 <div class="row">
+                    <div class="col"><label for="date">تاريخ التسليم</label><input id="date" type="text" placeholder="YYYY-MM-DD" /></div>
+                </div>
 
-        <div class="controls">
-            <input id="search" placeholder="بحث بالاسم أو الهاتف أو نوع الطرد..." style="flex:1;" />
-            <select id="filterType">
-                <option value="all">كل الأنواع</option>
-                <option value="دفتر صكوك">دفتر صكوك</option>
-                <option value="بطاقة ذهبية">بطاقة ذهبية</option>
-                <option value="حوالة بريدية">حوالة بريدية</option>
-                <option value="رسالة">رسالة</option>
-                <option value="أخرى">أخرى</option>
-            </select>
-            <div class="small muted">إجمالي السجلات: <span id="count">0</span></div>
-        </div>
-
-        <table id="recordsTable">
-            <thead>
-                <tr>
-                    <th>الاسم</th>
-                    <th>الهاتف</th>
-                    <th>النوع</th>
-                    <th>التاريخ</th>
-                    <th>سجل الاتصال</th>
-                    <th>سبب عدم الاستلام</th>
-                    <th>إجراءات</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-        <div class="small muted" style="margin-top:10px; text-align:center;">تطوير عيه زهير zinou</div>
-    </div>
-    
-    <div id="statsView" class="container" style="display: none;">
-        <div class="stats-container">
-            <h2>إحصائيات التسليم</h2>
-            <div id="dailyStats" class="stats-section"></div>
-            <div id="monthlyStats" class="stats-section"></div>
-            <button id="backToMainBtn" class="btn btn-primary" style="width: 100%; margin-top: 20px;">عودة للقائمة الرئيسية</button>
-        </div>
-    </div>
-
-    <!-- Generic Modal Structure -->
-    <div id="customModal" class="modal-overlay">
-        <div class="modal-content">
-            <div id="modalHeader" class="modal-header"></div>
-            <div id="modalBody" class="modal-body"></div>
-            <div id="modalFooter" class="modal-footer"></div>
-        </div>
-    </div>
-    
-    <!-- Call Modal -->
-    <div id="callModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>إجراء مكالمة آلية</span>
-                <button id="closeCallModal" class="btn btn-ghost" style="width:auto; padding: 4px 8px;">X</button>
-            </div>
-            <div class="modal-body">
-                <div id="call-recipient-info"></div>
-                <form id="callForm">
-                    <div>
-                        <label for="call-message">النص المراد تحويله إلى صوت</label>
-                        <textarea id="call-message" rows="4" required></textarea>
+                <div class="form-actions">
+                    <button class="btn btn-primary" type="submit">حفظ السجل</button>
+                    <button id="resetBtn" class="btn btn-ghost" type="button">تفريغ الحقول</button>
+                    <div class="right-actions">
+                        <button id="showSettingsBtn" class="btn btn-ghost" type="button">الإعدادات</button>
                     </div>
-                </form>
+                </div>
+            </form>
+
+            <div class="controls" style="margin-top: 24px;">
+                 <input id="search" placeholder="بحث بالاسم أو الهاتف..." style="flex:1;" />
             </div>
-            <div class="modal-footer">
-                <button id="cancelCallBtn" class="btn btn-ghost">إلغاء</button>
-                <button id="makeCallBtn" class="btn btn-primary">إجراء المكالمة</button>
-            </div>
+
+            <table id="recordsTable">
+                <thead><tr><th>الاسم</th><th>الهاتف</th><th>النوع</th><th>الشباك</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
-
-
-    <!-- User Management Modal -->
-    <div id="userManagementModal" class="modal-overlay">
+    
+    <!-- Customer Kiosk View -->
+    <div id="customerKioskView">
+        <div id="kiosk-main-view">
+            <h2>أهلاً بك</h2>
+            <h4 style="margin-top: 20px;">خدمات استلام الطرود</h4>
+            <ul id="kiosk-options-list"></ul>
+            <h4 style="margin-top: 40px;">خدمات مالية</h4>
+            <ul id="kiosk-financial-list">
+                <li id="startAmountConverterBtn">ارسال حوالة بريدية</li>
+                <li>ملئ صك (شاك)</li>
+            </ul>
+        </div>
+        
+        <div id="amountConverterView" style="display: none;">
+            <h2>مساعد تحويل المبلغ</h2>
+            <div>
+                <label for="amountInput" style="font-size: 1.2rem;">أدخل المبلغ بالأرقام</label>
+                <input id="amountInput" type="number" style="font-size: 2rem; text-align: center; padding: 15px;">
+            </div>
+            <div id="amountInWords"></div>
+            <div id="kiosk-video-view" style="display: none;">
+                <video id="instructionVideo" playsinline muted></video>
+            </div>
+            <button id="converter-back-btn" class="btn btn-ghost" style="margin-top: 20px;">عودة</button>
+        </div>
+        
+        <div id="kiosk-listening-view" style="display: none;">
+            <svg id="kiosk-mic-icon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 12a1 1 0 0 0-1 1a6 6 0 0 1-12 0a1 1 0 0 0-2 0a8 8 0 0 0 7 7.93V24h2v-3.07A8 8 0 0 0 20 13a1 1 0 0 0-1-1z"/></svg>
+            <p id="kiosk-status"></p>
+        </div>
+        <div id="kiosk-result-view" style="display: none;">
+            <p id="kiosk-result-text"></p>
+            <button id="kiosk-back-btn" class="btn btn-primary">عودة للقائمة الرئيسية</button>
+        </div>
+        <button id="kiosk-exit-btn" class="btn btn-danger" style="position: absolute; bottom: 20px; left: 20px;">خروج من وضع الزبون</button>
+    </div>
+    
+    <!-- Modals -->
+    <div id="settingsModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="modal-header">إدارة المستخدمين</div>
+            <div class="modal-header">الإعدادات</div>
             <div class="modal-body">
-                <h4>إضافة مستخدم جديد</h4>
-                <form id="addUserForm" autocomplete="off">
+                <h4>إعدادات واجهة الزبون</h4>
+                <form id="addRouteForm" autocomplete="off">
                     <div class="row">
-                        <div class="col">
-                            <label for="newUsername">اسم المستخدم</label>
-                            <input id="newUsername" type="text" required>
-                        </div>
-                        <div class="col">
-                            <label for="newPassword">كلمة المرور</label>
-                            <input id="newPassword" type="password" required>
-                        </div>
+                        <div class="col" style="flex: 0.3;"><label for="routeNumber">الرقم</label><input id="routeNumber" type="number" required></div>
+                        <div class="col"><label for="routeItemType">نوع المستلم</label><select id="routeItemType"><option value="دفتر صكوك">دفتر صكوك</option><option value="بطاقة ذهبية">بطاقة ذهبية</option><option value="حوالة بريدية">حوالة بريدية</option><option value="رسالة">رسالة</option><option value="أخرى">أخرى</option></select></div>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إنشاء مستخدم</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة</button>
                 </form>
                 <hr style="margin: 20px 0;">
-                <h4>المستخدمون الحاليون</h4>
-                <ul id="user-management-list">
-                    <!-- User list will be populated here -->
-                </ul>
+                <h4>القائمة الحالية</h4>
+                <ul id="route-list"></ul>
+                <hr style="margin: 20px 0;">
+                <h4>الفيديو التعليمي للحوالة</h4>
+                <p>ارفع الفيديو الذي سيتم عرضه للزبون.</p>
+                <input type="file" id="formVideoUpload" accept="video/*">
+                <p id="uploadStatus" style="font-size: 0.9rem; margin-top: 8px;"></p>
+                <video id="formVideoPreview" src="" style="max-width: 100%; border-radius: 8px; margin-top: 10px; display: none;" controls></video>
+                <hr style="margin: 20px 0;">
+                <button id="showCustomerViewBtn" class="btn btn-ghost" style="width: 100%;">عرض واجهة الزبون</button>
             </div>
-            <div class="modal-footer">
-                <button id="closeUserManagementModal" class="btn btn-ghost">إغلاق</button>
-            </div>
+            <div class="modal-footer"><button id="saveSettingsBtn" class="btn btn-primary">حفظ الإعدادات</button><button id="closeSettingsModal" class="btn btn-ghost">إغلاق</button></div>
         </div>
     </div>
     
     <script type="module">
-        // Import Firebase services
+        // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
         
-        let db, auth;
-        const DRAFT_KEY = 'postal_delivery_draft_v2';
-        
-        // --- View Elements ---
-        const loginView = document.getElementById('loginView');
-        const mainView = document.getElementById('mainView');
-        const statsView = document.getElementById('statsView');
-        const initErrorContainer = document.getElementById('init-error-container');
-        
-        // --- Login Elements ---
-        const loginForm = document.getElementById('loginForm');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
+        let db, auth, storage;
+        let records = [], routes = [];
+        let deliveriesCol, credentialsCol, routesCol, settingsDocRef;
+        let unsubscribeRecords = () => {}, unsubscribeRoutes = () => {}, unsubscribeSettings = () => {};
+        let formVideoUrl = null;
+        let selectedVideoFile = null;
+
+        const loginView = document.getElementById('loginView'), mainView = document.getElementById('mainView'), customerKioskView = document.getElementById('customerKioskView');
+        const loginForm = document.getElementById('loginForm'), usernameInput = document.getElementById('username'), passwordInput = document.getElementById('password');
         const logoutBtn = document.getElementById('logoutBtn');
-
-        // --- Main View Elements ---
-        const form = document.getElementById('deliveryForm');
-        const nameEl = document.getElementById('name');
-        const idEl = document.getElementById('idnum');
-        const idIssueDateEl = document.getElementById('idIssueDate');
-        const idIssuerEl = document.getElementById('idIssuer');
-        const addrEl = document.getElementById('address');
-        const phoneEl = document.getElementById('phone');
-        const typeEl = document.getElementById('itemType');
-        const dateEl = document.getElementById('date');
-        const notesEl = document.getElementById('notes');
-        const communicationLogEl = document.getElementById('communicationLog');
-        const nonReceiptReasonEl = document.getElementById('nonReceiptReason');
-        const tbody = document.querySelector('#recordsTable tbody');
-        const searchEl = document.getElementById('search');
-        const filterType = document.getElementById('filterType');
-        const countEl = document.getElementById('count');
+        const showSettingsBtn = document.getElementById('showSettingsBtn'), settingsModal = document.getElementById('settingsModal'), closeSettingsModal = document.getElementById('closeSettingsModal');
+        const addRouteForm = document.getElementById('addRouteForm'), routeNumberEl = document.getElementById('routeNumber'), routeItemTypeEl = document.getElementById('routeItemType');
+        const routeList = document.getElementById('route-list');
+        const showCustomerViewBtn = document.getElementById('showCustomerViewBtn'), kioskExitBtn = document.getElementById('kiosk-exit-btn');
+        const kioskOptionsList = document.getElementById('kiosk-options-list'), kioskMainView = document.getElementById('kiosk-main-view');
+        const kioskListeningView = document.getElementById('kiosk-listening-view'), kioskResultView = document.getElementById('kiosk-result-view');
+        const kioskStatus = document.getElementById('kiosk-status'), kioskResultText = document.getElementById('kiosk-result-text'), kioskBackBtn = document.getElementById('kiosk-back-btn');
+        const tbody = document.querySelector('#recordsTable tbody'), form = document.getElementById('deliveryForm');
+        const startAmountConverterBtn = document.getElementById('startAmountConverterBtn'), amountConverterView = document.getElementById('amountConverterView');
+        const amountInput = document.getElementById('amountInput'), amountInWords = document.getElementById('amountInWords');
+        const converterBackBtn = document.getElementById('converter-back-btn');
+        const formVideoUpload = document.getElementById('formVideoUpload'), uploadStatus = document.getElementById('uploadStatus'), formVideoPreview = document.getElementById('formVideoPreview');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        const kioskVideoView = document.getElementById('kiosk-video-view'), instructionVideo = document.getElementById('instructionVideo');
         
-        // --- Stats View Elements ---
-        const showStatsBtn = document.getElementById('showStatsBtn');
-        const backToMainBtn = document.getElementById('backToMainBtn');
-        const dailyStatsContainer = document.getElementById('dailyStats');
-        const monthlyStatsContainer = document.getElementById('monthlyStats');
-
-        // --- Modal elements ---
-        const modal = document.getElementById('customModal');
-        const modalHeader = document.getElementById('modalHeader');
-        const modalBody = document.getElementById('modalBody');
-        const modalFooter = document.getElementById('modalFooter');
-        
-        // --- Call Modal Elements ---
-        const callModal = document.getElementById('callModal');
-        const closeCallModalBtn = document.getElementById('closeCallModal');
-        const cancelCallBtn = document.getElementById('cancelCallBtn');
-        const makeCallBtn = document.getElementById('makeCallBtn');
-        const callForm = document.getElementById('callForm');
-        const callRecipientInfo = document.getElementById('call-recipient-info');
-        const callMessageEl = document.getElementById('call-message');
-        
-        // --- User Management Elements ---
-        const manageUsersBtn = document.getElementById('manageUsersBtn');
-        const userManagementModal = document.getElementById('userManagementModal');
-        const closeUserManagementModalBtn = document.getElementById('closeUserManagementModal');
-        const addUserForm = document.getElementById('addUserForm');
-        const newUsernameEl = document.getElementById('newUsername');
-        const newPasswordEl = document.getElementById('newPassword');
-        const userManagementList = document.getElementById('user-management-list');
-        
-        let records = [];
-        let editId = null;
-        let activeInputForSpeech = null;
-        let deliveriesCol;
-        let credentialsCol;
-        let unsubscribe = () => {};
-        let currentCallTarget = null;
-        
-        // --- Speech Recognition Setup ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
-
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.lang = 'ar-DZ';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-
-            recognition.onstart = function() {
-                const activeBtn = document.querySelector(`.mic-btn[data-target-id="${activeInputForSpeech.id}"]`);
-                if (activeBtn) activeBtn.classList.add('listening');
-            };
-
-            recognition.onend = function() {
-                const activeBtn = document.querySelector(`.mic-btn[data-target-id="${activeInputForSpeech.id}"]`);
-                if (activeBtn) activeBtn.classList.remove('listening');
-                activeInputForSpeech = null;
-            };
-
-            recognition.onresult = function(event) {
-                const speechResult = event.results[0][0].transcript;
-                if (activeInputForSpeech) {
-                    activeInputForSpeech.value = speechResult;
-                }
-            };
-
-            recognition.onerror = function(event) {
-                console.error('Speech recognition error', event.error);
-                showAlert('حدث خطأ أثناء التعرف على الصوت: ' + event.error);
-            };
-
-        } else {
-            console.log("Speech Recognition not supported in this browser.");
-            document.body.classList.add('no-speech-recognition');
-        }
-
-        // --- Draft Management Functions ---
-        const formInputs = [nameEl, idEl, idIssueDateEl, idIssuerEl, addrEl, phoneEl, typeEl, dateEl, notesEl, communicationLogEl, nonReceiptReasonEl];
-
-        function saveDraft() {
-            const draftData = {};
-            formInputs.forEach(el => {
-                draftData[el.id] = el.value;
-            });
-            sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
-        }
-
-        function loadDraft() {
-            const raw = sessionStorage.getItem(DRAFT_KEY);
-            if (!raw) return;
+        
+        function speak(text) {
             try {
-                const draftData = JSON.parse(raw);
-                formInputs.forEach(el => {
-                    if (draftData[el.id] !== undefined) {
-                        el.value = draftData[el.id];
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-SA';
+                speechSynthesis.speak(utterance);
+            } catch (e) { console.error("Speech synthesis failed", e); }
+        }
+
+        const escapeHtml = s => s ? String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : '';
+        const showLoginView = () => { loginView.style.display = 'block'; mainView.style.display = 'none'; customerKioskView.style.display = 'none'; };
+        const showMainView = () => { loginView.style.display = 'none'; mainView.style.display = 'block'; customerKioskView.style.display = 'none'; };
+        const showCustomerKiosk = () => { mainView.style.display = 'none'; customerKioskView.style.display = 'flex'; };
+        const closeModal = () => document.querySelectorAll('.modal-overlay.visible').forEach(m => m.classList.remove('visible'));
+        const showAlert = (message) => alert(message);
+        
+        const showKioskMain = () => {
+            kioskMainView.style.display = 'block';
+            amountConverterView.style.display = 'none';
+            kioskVideoView.style.display = 'none';
+            kioskListeningView.style.display = 'none';
+            kioskResultView.style.display = 'none';
+            instructionVideo.removeEventListener('ended', loopVideo);
+            instructionVideo.pause();
+        };
+        const showKioskListening = (status) => { kioskMainView.style.display = 'none'; kioskListeningView.style.display = 'block'; kioskResultView.style.display = 'none'; kioskStatus.textContent = status; };
+        const showKioskResult = (result) => { kioskMainView.style.display = 'none'; kioskListeningView.style.display = 'none'; kioskResultView.style.display = 'block'; kioskResultText.textContent = result; };
+        
+        function numberToArabicWords(number) {
+            const units = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"];
+            const tens = ["", "عشرة", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"];
+            const teens = ["عشرة", "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
+            if (number === 0) return "صفر";
+            let words = "";
+            function convertLessThanOneThousand(num) {
+                let currentWords = "";
+                if (num >= 100) {
+                    if (Math.floor(num / 100) === 1) currentWords += "مئة ";
+                    else if (Math.floor(num / 100) === 2) currentWords += "مئتان ";
+                    else currentWords += units[Math.floor(num / 100)] + "مئة ";
+                    num %= 100;
+                }
+                if (num > 0) {
+                    if (currentWords !== "") currentWords += " و ";
+                    if (num < 10) currentWords += units[num];
+                    else if (num < 20) currentWords += teens[num - 10];
+                    else {
+                        currentWords += units[num % 10] + (num % 10 !== 0 ? " و " : "") + tens[Math.floor(num / 10)];
                     }
-                });
-            } catch (e) {
-                console.error("Failed to load draft", e);
-                sessionStorage.removeItem(DRAFT_KEY);
+                }
+                return currentWords;
+            }
+            if (number >= 1000000) {
+                let millions = Math.floor(number / 1000000);
+                if (millions === 1) words += "مليون "; else if (millions === 2) words += "مليونان ";
+                else if (millions >= 3 && millions <= 10) words += convertLessThanOneThousand(millions) + " ملايين ";
+                else words += convertLessThanOneThousand(millions) + " مليون ";
+                number %= 1000000;
+            }
+            if (number >= 1000) {
+                let thousands = Math.floor(number / 1000);
+                if (words !== "") words += "و ";
+                if (thousands === 1) words += "ألف "; else if (thousands === 2) words += "ألفان ";
+                else if (thousands >= 3 && thousands <= 10) words += convertLessThanOneThousand(thousands) + " آلاف ";
+                else words += convertLessThanOneThousand(thousands) + " ألف ";
+                number %= 1000;
+            }
+            if (number > 0) {
+                if (words !== "") words += "و ";
+                words += convertLessThanOneThousand(number);
+            }
+            return words.trim();
+        }
+
+        async function uploadFormVideo(file, userId) {
+            if (!file) return;
+            saveSettingsBtn.textContent = 'جاري الحفظ...';
+            saveSettingsBtn.disabled = true;
+            uploadStatus.textContent = '';
+            const storageRef = ref(storage, `users/${userId}/kiosk/instruction_video`);
+            try {
+                await uploadBytes(storageRef, file);
+                const url = await getDownloadURL(storageRef);
+                await setDoc(settingsDocRef, { formVideoUrl: url }, { merge: true });
+                uploadStatus.textContent = 'تم الحفظ بنجاح!';
+                selectedVideoFile = null; 
+            } catch (error) {
+                console.error("Upload failed", error);
+                uploadStatus.textContent = 'فشل الحفظ.';
+            } finally {
+                saveSettingsBtn.textContent = 'حفظ الإعدادات';
+                saveSettingsBtn.disabled = true; // Disable again after saving is complete
+            }
+        }
+        
+        let loopCount = 0;
+        function loopVideo() {
+            loopCount++;
+            if (loopCount < 3) {
+                instructionVideo.currentTime = 0;
+                instructionVideo.play();
+            } else {
+                showKioskMain();
             }
         }
 
-        function clearDraft() {
-            sessionStorage.removeItem(DRAFT_KEY);
-        }
-
-
-        // --- View Management ---
-        function showLoginView() {
-            loginView.style.display = 'block';
-            mainView.style.display = 'none';
-            statsView.style.display = 'none';
-        }
-
-        function showMainView() {
-            loginView.style.display = 'none';
-            mainView.style.display = 'block';
-            statsView.style.display = 'none';
-        }
-
-        function showStatsView() {
-            loginView.style.display = 'none';
-            mainView.style.display = 'none';
-            statsView.style.display = 'block';
-        }
-
-
-        // --- Modal Functions ---
-        function showModal(header, body, buttons) {
-            modalHeader.textContent = header;
-            modalBody.innerHTML = ''; // Clear previous body
-            const p = document.createElement('p');
-            p.textContent = body;
-            modalBody.appendChild(p);
-
-            modalFooter.innerHTML = '';
-            buttons.forEach(btnInfo => {
-                const button = document.createElement('button');
-                button.textContent = btnInfo.text;
-                button.className = btnInfo.class;
-                button.addEventListener('click', () => {
-                    closeModal();
-                    if (btnInfo.onClick) {
-                        btnInfo.onClick();
-                    }
-                });
-                modalFooter.appendChild(button);
-            });
-            modal.classList.add('visible');
-        }
-
-        function closeModal() {
-            modal.classList.remove('visible');
-            userManagementModal.classList.remove('visible');
-            callModal.classList.remove('visible');
-        }
-
-        function showAlert(message, title = 'تنبيه') {
-            showModal(title, message, [{ text: 'موافق', class: 'btn btn-primary' }]);
-        }
-
-        function showConfirm(message, onConfirm, title = 'تأكيد الإجراء') {
-            showModal(title, message, [
-                { text: 'إلغاء', class: 'btn btn-ghost' },
-                { text: 'تأكيد', class: 'btn btn-danger', onClick: onConfirm }
-            ]);
-        }
-        
-        [modal, userManagementModal, callModal].forEach(m => {
-             m.addEventListener('click', (e) => {
-                if(e.target === m) {
-                    closeModal();
-                }
-            });
-        });
-
-
-        // --- Core App Functions (with Firebase) ---
-        function render() {
-            const q = (searchEl.value || '').trim().toLowerCase();
-            const typeFilter = filterType.value;
-            tbody.innerHTML = '';
-
-            const nameCounts = records.reduce((acc, record) => {
-                const name = (record.name || '').trim().toLowerCase();
-                if (name) {
-                    acc[name] = (acc[name] || 0) + 1;
-                }
-                return acc;
-            }, {});
-
-            const filtered = records.filter(r => {
-                if (typeFilter !== 'all' && r.itemType !== typeFilter) return false;
-                if (!q) return true;
-                return (r.name || '').toLowerCase().includes(q) ||
-                       (r.phone || '').toLowerCase().includes(q) ||
-                       (r.itemType || '').toLowerCase().includes(q);
-            });
+        function playInstructionVideo() {
+            if (!formVideoUrl) {
+                showAlert("لم يتم رفع فيديو تعليمي بعد.");
+                showKioskMain();
+                return;
+            }
+            kioskVideoView.style.display = 'block';
+            instructionVideo.src = formVideoUrl;
+            instructionVideo.currentTime = 0;
+            instructionVideo.muted = false;
+            instructionVideo.play();
             
-            filtered.forEach(r => {
-                const tr = document.createElement('tr');
-                
-                const recordName = (r.name || '').trim().toLowerCase();
-                if (nameCounts[recordName] >= 2) {
-                    tr.classList.add('highlight-row');
-                }
+            loopCount = 0;
+            instructionVideo.addEventListener('ended', loopVideo);
+        }
 
-                tr.innerHTML = `
-                    <td data-label="الاسم">${escapeHtml(r.name)}</td>
-                    <td data-label="الهاتف">${escapeHtml(r.phone || '')}</td>
-                    <td data-label="النوع">${escapeHtml(r.itemType)}</td>
-                    <td data-label="التاريخ">${escapeHtml(r.date || '')}</td>
-                    <td data-label="سجل الاتصال" class="small">${escapeHtml(r.communicationLog || '')}</td>
-                    <td data-label="سبب عدم الاستلام" class="small">${escapeHtml(r.nonReceiptReason || '')}</td>
-                    <td data-label="إجراءات" class="actions">
-                        <button data-id="${r.id}" class="btn btn-call">
-                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                        </button>
-                        <button data-id="${r.id}" class="btn btn-ghost btn-edit">تعديل</button>
-                        <button data-id="${r.id}" class="btn btn-danger btn-del">حذف</button>
-                    </td>`;
+        function render() {
+            tbody.innerHTML = '';
+            records.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.phone||'')}</td><td>${escapeHtml(r.itemType)}</td><td>${escapeHtml(r.counter||'')}</td><td>${escapeHtml(r.date||'')}</td>
+                                <td class="actions"><button data-id="${r.id}" class="btn btn-danger btn-del">حذف</button></td>`;
                 tbody.appendChild(tr);
             });
-
-            countEl.textContent = records.length;
         }
-
-        function escapeHtml(s) {
-            if (!s) return '';
-            return String(s).replace(/[&<>"']/g, m => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            }[m]));
+        function renderRoutesList() {
+            routeList.innerHTML = '';
+            [...routes].sort((a,b)=>a.number-b.number).forEach(r => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span><strong>${r.number}:</strong> ${escapeHtml(r.itemType)}</span><button data-id="${r.id}" class="btn btn-danger delete-route-btn">حذف</button>`;
+                routeList.appendChild(li);
+            });
         }
-
-        function clearForm() {
-            clearDraft();
-            form.reset();
-            editId = null;
-            dateEl.value = new Date().toISOString().slice(0, 10);
-            form.querySelector('button[type="submit"]').textContent = 'حفظ السجل';
-        }
-
-        async function addRecord(obj) {
-            try {
-                await addDoc(deliveriesCol, obj);
-            } catch (e) {
-                console.error("Error adding document: ", e);
-                showAlert("حدث خطأ أثناء حفظ السجل.");
-            }
-        }
-
-        async function updateRecord(id, obj) {
-            try {
-                const docRef = doc(db, deliveriesCol.path, id);
-                await updateDoc(docRef, obj);
-            } catch (e) {
-                console.error("Error updating document: ", e);
-                showAlert("حدث خطأ أثناء تحديث السجل.");
-            }
-        }
-
-        function deleteRecord(id) {
-            showConfirm('هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.', async () => {
-                 try {
-                    const docRef = doc(db, deliveriesCol.path, id);
-                    await deleteDoc(docRef);
-                } catch (e) {
-                    console.error("Error deleting document: ", e);
-                    showAlert("حدث خطأ أثناء حذف السجل.");
-                }
+        function renderKioskOptions() {
+            kioskOptionsList.innerHTML = '';
+            [...routes].sort((a,b)=>a.number-b.number).forEach(r => {
+                const li = document.createElement('li');
+                li.dataset.itemType = r.itemType;
+                li.innerHTML = `<span class="kiosk-item-type">${escapeHtml(r.itemType)}</span><span class="kiosk-number">${r.number}</span>`;
+                kioskOptionsList.appendChild(li);
             });
         }
         
-        // --- Stats Functions ---
-        function renderStatistics() {
-            const now = new Date();
-            const todayStr = now.toISOString().slice(0, 10);
-            const currentMonthStr = now.toISOString().slice(0, 7);
+        function startInquiry(itemType) { /* ... Inquiry logic ... */ }
 
-            const dailyCounts = {};
-            const monthlyCounts = {};
-            
-            const itemTypes = ["دفتر صكوك", "بطاقة ذهبية", "حوالة بريدية", "رسالة", "أخرى"];
-            itemTypes.forEach(type => {
-                dailyCounts[type] = 0;
-                monthlyCounts[type] = 0;
-            });
-
-            for (const record of records) {
-                if (record.date === todayStr) {
-                    dailyCounts[record.itemType] = (dailyCounts[record.itemType] || 0) + 1;
-                }
-                if (record.date && record.date.startsWith(currentMonthStr)) {
-                    monthlyCounts[record.itemType] = (monthlyCounts[record.itemType] || 0) + 1;
-                }
+        showSettingsBtn.addEventListener('click', () => {
+            uploadStatus.textContent = '';
+            saveSettingsBtn.disabled = true;
+            settingsModal.classList.add('visible');
+        });
+        closeSettingsModal.addEventListener('click', closeModal);
+        addRouteForm.addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(routesCol, { number: parseInt(routeNumberEl.value), itemType: routeItemTypeEl.value }); addRouteForm.reset(); });
+        routeList.addEventListener('click', (e) => { if (e.target.classList.contains('delete-route-btn')) deleteDoc(doc(db, routesCol.path, e.target.dataset.id)); });
+        showCustomerViewBtn.addEventListener('click', () => { closeModal(); renderKioskOptions(); showKioskMain(); showCustomerKiosk(); });
+        kioskExitBtn.addEventListener('click', showMainView);
+        kioskBackBtn.addEventListener('click', showKioskMain);
+        kioskOptionsList.addEventListener('click', (e) => { const li = e.target.closest('li'); if (li) startInquiry(li.dataset.itemType); });
+        startAmountConverterBtn.addEventListener('click', () => { kioskMainView.style.display = 'none'; amountConverterView.style.display = 'block'; });
+        converterBackBtn.addEventListener('click', showKioskMain);
+        
+        let debounceTimer;
+        amountInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            const num = parseInt(e.target.value, 10);
+            amountInWords.textContent = (!isNaN(num) && num > 0) ? numberToArabicWords(num) + " دينار جزائري" : '';
+            if (!isNaN(num) && num > 0) {
+                 debounceTimer = setTimeout(playInstructionVideo, 1500);
             }
-
-            // Render Daily Stats
-            let dailyHtml = `<h3>إحصائيات اليوم (${todayStr})</h3>`;
-            dailyHtml += '<table><thead><tr><th>النوع</th><th>العدد</th></tr></thead><tbody>';
-            let dailyTotal = 0;
-            for (const type in dailyCounts) {
-                dailyHtml += `<tr><td>${escapeHtml(type)}</td><td>${dailyCounts[type]}</td></tr>`;
-                dailyTotal += dailyCounts[type];
+        });
+        
+        formVideoUpload.addEventListener('change', (e) => {
+            selectedVideoFile = e.target.files[0];
+            if (selectedVideoFile) {
+                formVideoPreview.src = URL.createObjectURL(selectedVideoFile);
+                formVideoPreview.style.display = 'block';
+                saveSettingsBtn.disabled = false;
             }
-            dailyHtml += `<tr style="font-weight: bold;"><td>الإجمالي</td><td>${dailyTotal}</td></tr>`;
-            dailyHtml += '</tbody></table>';
-            dailyStatsContainer.innerHTML = dailyHtml;
-
-            // Render Monthly Stats
-            const monthName = now.toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
-            let monthlyHtml = `<h3>إحصائيات الشهر (${monthName})</h3>`;
-            monthlyHtml += '<table><thead><tr><th>النوع</th><th>العدد</th></tr></thead><tbody>';
-            let monthlyTotal = 0;
-            for (const type in monthlyCounts) {
-                monthlyHtml += `<tr><td>${escapeHtml(type)}</td><td>${monthlyCounts[type]}</td></tr>`;
-                monthlyTotal += monthlyCounts[type];
+        });
+        
+        saveSettingsBtn.addEventListener('click', () => {
+            const userId = sessionStorage.getItem('loggedInUser');
+            if (selectedVideoFile && userId) {
+                uploadFormVideo(selectedVideoFile, userId);
             }
-            monthlyHtml += `<tr style="font-weight: bold;"><td>الإجمالي</td><td>${monthlyTotal}</td></tr>`;
-            monthlyHtml += '</tbody></table>';
-            monthlyStatsContainer.innerHTML = monthlyHtml;
-        }
-
-
-        // --- Event Listeners ---
-        loginForm.addEventListener('submit', async function(e) {
+        });
+        
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const user = usernameInput.value.trim();
             const pass = passwordInput.value.trim();
-            
             if (!user || !pass) return;
-
             try {
-                const userDocRef = doc(credentialsCol, user);
-                const userDoc = await getDoc(userDocRef);
-
+                const userDoc = await getDoc(doc(credentialsCol, user));
                 if (userDoc.exists() && userDoc.data().password === pass) {
-                    sessionStorage.setItem('isLoggedIn', 'true');
                     sessionStorage.setItem('loggedInUser', user);
                     showMainView();
                     initializeAppData(user);
-                } else {
-                    showAlert('اسم المستخدم أو كلمة المرور غير صحيحة.');
-                }
-            } catch (error) {
-                console.error("Login failed:", error);
-                showAlert("فشل تسجيل الدخول. يرجى التحقق من اتصالك بالإنترنت.");
-            }
+                } else { showAlert('اسم المستخدم أو كلمة المرور غير صحيحة.'); }
+            } catch (error) { console.error("Login failed:", error); showAlert("فشل تسجيل الدخول."); }
         });
 
         logoutBtn.addEventListener('click', () => {
-            if (typeof unsubscribe === 'function') {
-                unsubscribe(); // Detach listener
-            }
-            sessionStorage.removeItem('isLoggedIn');
-            sessionStorage.removeItem('loggedInUser');
-            usernameInput.value = '';
-            passwordInput.value = '';
-            manageUsersBtn.style.display = 'none'; // Hide admin button
+            if(unsubscribeRecords) unsubscribeRecords();
+            if(unsubscribeRoutes) unsubscribeRoutes();
+            if(unsubscribeSettings) unsubscribeSettings();
+            sessionStorage.clear();
             showLoginView();
         });
-
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const payload = {
-                name: nameEl.value.trim(),
-                idnum: idEl.value.trim(),
-                idIssueDate: idIssueDateEl.value.trim(),
-                idIssuer: idIssuerEl.value.trim(),
-                address: addrEl.value.trim(),
-                phone: phoneEl.value.trim(),
-                itemType: typeEl.value,
-                date: dateEl.value || new Date().toISOString().slice(0, 10),
-                notes: notesEl.value.trim(),
-                communicationLog: communicationLogEl.value.trim(),
-                nonReceiptReason: nonReceiptReasonEl.value.trim()
-            };
-
-            if (!payload.name) {
-                showAlert('الرجاء إدخال اسم الزبون.');
-                nameEl.focus();
-                return;
-            }
-
-            if (editId) {
-                await updateRecord(editId, payload);
-            } else {
-                await addRecord(payload);
-            }
-            clearForm();
+        
+        form.addEventListener('submit', async (e) => {
+             e.preventDefault();
+             await addDoc(deliveriesCol, {
+                 name: form.name.value, phone: form.phone.value, itemType: form.itemType.value,
+                 counter: form.counter.value, date: form.date.value || new Date().toISOString().slice(0, 10),
+             });
+             form.reset();
         });
         
-        form.addEventListener('click', (e) => {
-            const micBtn = e.target.closest('.mic-btn');
-            if (!micBtn || !recognition) return;
-
-            if (micBtn.classList.contains('listening')) {
-                recognition.stop();
-                return;
-            }
-            
-            const targetId = micBtn.dataset.targetId;
-            activeInputForSpeech = document.getElementById(targetId);
-
-            if (activeInputForSpeech) {
-                try {
-                    recognition.start();
-                } catch(err) {
-                    console.error("Could not start recognition", err);
-                    showAlert('لا يمكن بدء التعرف على الصوت الآن.');
-                }
-            }
-        });
-
-        document.getElementById('resetBtn').addEventListener('click', clearForm);
-
-        tbody.addEventListener('click', function(e) {
-            const btn = e.target.closest('button');
-            if (!btn) return;
-            const id = btn.dataset.id;
-            const rec = records.find(x => x.id === id);
-            if (!rec) return;
-
-            if (btn.classList.contains('btn-edit')) {
-                nameEl.value = rec.name;
-                idEl.value = rec.idnum;
-                idIssueDateEl.value = rec.idIssueDate;
-                idIssuerEl.value = rec.idIssuer;
-                addrEl.value = rec.address;
-                phoneEl.value = rec.phone;
-                typeEl.value = rec.itemType;
-                dateEl.value = rec.date;
-                notesEl.value = rec.notes;
-                communicationLogEl.value = rec.communicationLog;
-                nonReceiptReasonEl.value = rec.nonReceiptReason;
-                editId = id;
-                form.querySelector('button[type="submit"]').textContent = 'تحديث السجل';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else if (btn.classList.contains('btn-del')) {
-                deleteRecord(id);
-            } else if (btn.classList.contains('btn-call')) {
-                openCallModal(rec);
-            }
-        });
+        tbody.addEventListener('click', (e) => { if (e.target.classList.contains('btn-del')) deleteDoc(doc(db, deliveriesCol.path, e.target.dataset.id)); });
         
-        // --- Call Modal Listeners ---
-        function openCallModal(record) {
-            if (!record.phone || record.phone.trim() === '') {
-                showAlert('لا يوجد رقم هاتف مسجل لهذا الزبون.');
-                return;
-            }
-            currentCallTarget = record;
-            callRecipientInfo.innerHTML = `إلى: <strong>${escapeHtml(record.name)}</strong> (${escapeHtml(record.phone)})`;
-            callMessageEl.value = `مرحبًا ${record.name}، لديك طرد (${record.itemType}) جاهز للاستلام. يرجى الحضور إلى مكتب البريد لاستلامه.`;
-            callModal.classList.add('visible');
-        }
-
-        [closeCallModalBtn, cancelCallBtn].forEach(btn => {
-            btn.addEventListener('click', () => {
-                callModal.classList.remove('visible');
-                currentCallTarget = null;
-            });
-        });
-
-        makeCallBtn.addEventListener('click', async () => {
-            const text = callMessageEl.value.trim();
-            const to = currentCallTarget.phone.trim();
-            
-            if (!text) {
-                showAlert('يرجى كتابة النص المراد تحويله إلى صوت.');
-                return;
-            }
-            
-            makeCallBtn.disabled = true;
-            makeCallBtn.textContent = 'جاري الاتصال...';
-
-            try {
-                // Construct absolute URL for the API endpoint
-                const apiUrl = new URL('/api/make-call', window.location.origin);
-                
-                const response = await window.fetch(apiUrl.href, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ to, text })
-                });
-
-                if (response.ok) {
-                    showAlert('تم إرسال طلب الاتصال إلى هاتفك بنجاح!', 'نجاح');
-                    closeModal();
-                } else {
-                     const contentType = response.headers.get("content-type");
-                    let errorMessage = 'خطأ غير معروف';
-                    if (contentType && contentType.indexOf("application/json") !== -1) {
-                        const errorData = await response.json();
-                        console.error('API Error:', errorData);
-                        errorMessage = errorData.error?.requestError?.serviceException?.text || JSON.stringify(errorData);
-                    } else {
-                        const textError = await response.text();
-                        console.error('Non-JSON error response from server:', textError);
-                        errorMessage = `فشل الخادم في الاستجابة بشكل صحيح (قد يكون مسار API غير موجود). الحالة: ${response.status}`;
-                    }
-                    showAlert(`فشل إجراء المكالمة: ${errorMessage}`);
-                }
-            } catch (error) {
-                console.error('Network or fetch error:', error);
-                showAlert('فشل الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت.');
-            } finally {
-                makeCallBtn.disabled = false;
-                makeCallBtn.textContent = 'إجراء المكالمة';
-            }
-        });
-
-
-        searchEl.addEventListener('input', render);
-        filterType.addEventListener('change', render);
-
-        // Navigation Listeners
-        showStatsBtn.addEventListener('click', () => {
-            showStatsView();
-            renderStatistics();
-        });
-
-        backToMainBtn.addEventListener('click', () => {
-            showMainView();
-        });
-        
-        // --- User Management Listeners ---
-        manageUsersBtn.addEventListener('click', async () => {
-            await renderUserList();
-            userManagementModal.classList.add('visible');
-        });
-
-        closeUserManagementModalBtn.addEventListener('click', () => {
-            userManagementModal.classList.remove('visible');
-        });
-
-        addUserForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newUsername = newUsernameEl.value.trim();
-            const newPassword = newPasswordEl.value.trim();
-
-            if (!newUsername || !newPassword) {
-                showAlert("الرجاء تعبئة جميع الحقول.");
-                return;
-            }
-            
-            const userDocRef = doc(credentialsCol, newUsername);
-            const userDoc = await getDoc(userDocRef);
-
-            if (userDoc.exists()) {
-                showAlert("اسم المستخدم هذا موجود بالفعل.");
-                return;
-            }
-
-            try {
-                await setDoc(userDocRef, { password: newPassword });
-                showAlert("تمت إضافة المستخدم بنجاح.", "نجاح");
-                addUserForm.reset();
-                await renderUserList();
-            } catch(err) {
-                console.error("Error adding user: ", err);
-                showAlert("حدث خطأ أثناء إضافة المستخدم.");
-            }
-        });
-
-        userManagementList.addEventListener('click', (e) => {
-            const delBtn = e.target.closest('.delete-user-btn');
-            if (!delBtn) return;
-            
-            const usernameToDelete = delBtn.dataset.username;
-            if (usernameToDelete === 'zinou') {
-                showAlert("لا يمكن حذف حساب المدير الرئيسي.");
-                return;
-            }
-
-            showConfirm(`هل أنت متأكد من حذف المستخدم "${usernameToDelete}"؟ سيتم حذف جميع بياناته.`, async () => {
-                try {
-                    await deleteDoc(doc(credentialsCol, usernameToDelete));
-                    showAlert("تم حذف المستخدم بنجاح.");
-                    await renderUserList();
-                } catch (err) {
-                    console.error("Error deleting user: ", err);
-                    showAlert("حدث خطأ أثناء حذف المستخدم.");
-                }
-            });
-        });
-
-        async function renderUserList() {
-            const usersSnapshot = await getDocs(credentialsCol);
-            userManagementList.innerHTML = '';
-            usersSnapshot.forEach(doc => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${escapeHtml(doc.id)}</span>
-                    <button class="btn btn-danger delete-user-btn" data-username="${escapeHtml(doc.id)}" style="padding: 4px 8px; font-size: 0.8rem;">حذف</button>
-                `;
-                userManagementList.appendChild(li);
-            });
-        }
-
-
-        // --- Initialization ---
         async function bootstrapAdminUser() {
             const zinouDocRef = doc(credentialsCol, 'zinou');
-            const zinouDoc = await getDoc(zinouDocRef);
-            if (!zinouDoc.exists()) {
+            if (!(await getDoc(zinouDocRef)).exists()) {
                 await setDoc(zinouDocRef, { password: 'zinou' });
-                console.log("Admin user 'zinou' created/verified.");
             }
         }
         
         function initializeAppData(loggedInAppUser) {
-            if(loggedInAppUser === 'zinou'){
-                manageUsersBtn.style.display = 'inline-block';
-            }
-            
-            // This path is now valid and structured for multi-user data isolation.
             deliveriesCol = collection(db, `user_data/${loggedInAppUser}/deliveries`);
-
-            // Set up real-time listener
-            unsubscribe = onSnapshot(query(deliveriesCol), (snapshot) => {
-                records = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                records.sort((a,b) => (b.date || '').localeCompare(a.date || '')); // Sort by date
-                render();
-            });
-
-            if (!dateEl.value) {
-                dateEl.value = new Date().toISOString().slice(0, 10);
-            }
-            loadDraft();
+            unsubscribeRecords = onSnapshot(query(deliveriesCol), snap => { records = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); });
+            routesCol = collection(db, `user_data/${loggedInAppUser}/customer_options`);
+            unsubscribeRoutes = onSnapshot(query(routesCol), snap => { routes = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRoutesList(); });
             
-            form.querySelectorAll('input, select, textarea').forEach(el => {
-                el.addEventListener('input', saveDraft);
+            settingsDocRef = doc(db, `user_data/${loggedInAppUser}/settings/kiosk`);
+            unsubscribeSettings = onSnapshot(settingsDocRef, (docSnap) => {
+                if (docSnap.exists() && docSnap.data().formVideoUrl) {
+                    formVideoUrl = docSnap.data().formVideoUrl;
+                    formVideoPreview.src = formVideoUrl;
+                    formVideoPreview.style.display = 'block';
+                } else {
+                    formVideoUrl = null;
+                    formVideoPreview.style.display = 'none';
+                }
             });
         }
         
         async function main() {
             try {
-                // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-                const firebaseConfig = {
-                  apiKey: "AIzaSyDIESGl6TXDRtzbP7NZtOHGJa9pRY83_oY",
-                  authDomain: "poste-b276e.firebaseapp.com",
-                  projectId: "poste-b276e",
-                  storageBucket: "poste-b276e.appspot.com", // Corrected to .appspot.com
-                  messagingSenderId: "855137728375",
-                  appId: "1:855137728375:web:1428c3132f9ba79375d372",
-                  measurementId: "G-H07GT7NJ7E"
-                };
-
+                const firebaseConfig = {"apiKey":"AIzaSyDIESGl6TXDRtzbP7NZtOHGJa9pRY83_oY","authDomain":"poste-b276e.firebaseapp.com","projectId":"poste-b276e","storageBucket":"poste-b276e.appspot.com","messagingSenderId":"855137728375","appId":"1:855137728375:web:1428c3132f9ba79375d372"};
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
-
+                storage = getStorage(app);
                 await signInAnonymously(auth);
-                console.log("Firebase Auth successful as anonymous user.");
-                
-                // This is a valid top-level collection reference.
                 credentialsCol = collection(db, 'credentials');
-
                 await bootstrapAdminUser();
                 
                 const loggedInUser = sessionStorage.getItem('loggedInUser');
-                if (sessionStorage.getItem('isLoggedIn') === 'true' && loggedInUser) {
+                if (loggedInUser) {
                     showMainView();
                     initializeAppData(loggedInUser);
-                } else {
-                    showLoginView();
-                }
-            } catch (e) {
-                console.error("Critical initialization failed:", e);
-                initErrorContainer.textContent = `فشل تهيئة Firebase. يرجى التأكد من صحة إعداداتك في الكود أو الاتصال بالدعم الفني. تلميح: تأكد من أن قواعد الأمان في Firestore تسمح بالوصول.`;
-                initErrorContainer.style.display = 'block';
-            }
+                } else { showLoginView(); }
+            } catch (e) { console.error("Critical initialization failed:", e); }
         }
-        
-        // --- PWA Service Worker ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration failed: ', error);
-                    });
-            });
-        }
-
-        main(); // Start the application.
-
+        main();
     </script>
 </body>
 </html>
