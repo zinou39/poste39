@@ -433,9 +433,9 @@
         }
 
         function uploadFormVideo() {
-            const userId = auth.currentUser ? auth.currentUser.uid : null;
-            if (!selectedVideoFile || !userId) {
-                showAlert("الرجاء اختيار ملف فيديو أولاً.");
+            const user = auth.currentUser;
+            if (!selectedVideoFile || !user) {
+                showAlert("الرجاء اختيار ملف فيديو أولاً أو التأكد من تسجيل الدخول.");
                 return;
             }
             
@@ -444,7 +444,7 @@
             uploadProgress.style.display = 'block';
             uploadProgress.value = 0;
             
-            const storageRef = ref(storage, `users/${userId}/kiosk/instruction_video`);
+            const storageRef = ref(storage, `users/${user.uid}/kiosk/instruction_video`);
             const uploadTask = uploadBytesResumable(storageRef, selectedVideoFile);
 
             uploadTask.on('state_changed', 
@@ -455,7 +455,7 @@
                 }, 
                 (error) => {
                     console.error("Upload failed", error);
-                    uploadStatus.textContent = 'فشل الرفع.';
+                    uploadStatus.textContent = 'فشل الرفع. يرجى التحقق من قواعد أمان التخزين في Firebase.';
                     saveSettingsBtn.disabled = false;
                     uploadProgress.style.display = 'none';
                 }, 
@@ -467,6 +467,7 @@
                         setTimeout(() => {
                            uploadProgress.style.display = 'none';
                            uploadStatus.textContent = '';
+                           saveSettingsBtn.disabled = true;
                         }, 2000);
                     });
                 }
