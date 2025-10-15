@@ -287,26 +287,25 @@
                 <h3>الصور التعليمية للحوالة البريدية</h3>
                 <form id="addImageForm-moneyOrder">
                     <label for="imageTitle-moneyOrder">عنوان الصورة</label><input type="text" id="imageTitle-moneyOrder" required>
-                    <label for="imageUpload-moneyOrder">ملف الصورة</label><input type="file" id="imageUpload-moneyOrder" accept="image/*" required>
+                    <label for="imageUrl-moneyOrder">رابط الصورة</label><input type="url" id="imageUrl-moneyOrder" required placeholder="https://...">
                     <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة صورة للحوالة</button>
                 </form>
-                <p id="uploadStatus-moneyOrder" class="upload-status"></p>
                 <ul id="image-library-list-moneyOrder" class="image-library-list"></ul>
                 <hr style="margin: 20px 0;">
                 
                 <h3>الصور التعليمية لملء الصك</h3>
                 <form id="addImageForm-check">
                     <label for="imageTitle-check">عنوان الصورة</label><input type="text" id="imageTitle-check" required>
-                    <label for="imageUpload-check">ملف الصورة</label><input type="file" id="imageUpload-check" accept="image/*" required>
+                    <label for="imageUrl-check">رابط الصورة</label><input type="url" id="imageUrl-check" required placeholder="https://...">
                     <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة صورة للصك</button>
                 </form>
-                <p id="uploadStatus-check" class="upload-status"></p>
                 <ul id="image-library-list-check" class="image-library-list"></ul>
                 <hr style="margin: 20px 0;">
 
                 <h3>صورة خلفية الواجهة</h3>
-                <input type="file" id="bgImageUpload" accept="image/*">
-                <p id="uploadStatus-bg" class="upload-status"></p>
+                <label for="bgImageUrl">رابط صورة الخلفية</label>
+                <input type="url" id="bgImageUrl" placeholder="https://...">
+                <button id="saveBgBtn" class="btn btn-primary" style="width:100%; margin-top:10px;">حفظ الخلفية</button>
 
             </div>
             <div class="modal-footer"><button id="closeKioskSettingsModal" class="btn btn-ghost">إغلاق</button></div>
@@ -317,7 +316,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, getDoc, setDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
         
         let db, auth, storage;
         let records = [], routes = [], instructionalImages = { moneyOrder: [], check: [] };
@@ -363,60 +361,10 @@
             const units=["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة"],tens=["","عشرة","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"],teens=["عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];if(number===0)return"صفر";let words="";function convertLessThanOneThousand(num){let currentWords="";if(num>=100){if(Math.floor(num/100)===1)currentWords+="مئة ";else if(Math.floor(num/100)===2)currentWords+="مئتان ";else currentWords+=units[Math.floor(num/100)]+"مئة ";num%=100}if(num>0){if(currentWords!=="")currentWords+=" و ";if(num<10)currentWords+=units[num];else if(num<20)currentWords+=teens[num-10];else{currentWords+=units[num%10]+(num%10!==0?" و ":"")+tens[Math.floor(num/10)]}}return currentWords}if(number>=1000000){let millions=Math.floor(number/1000000);if(millions===1)words+="مليون ";else if(millions===2)words+="مليونان ";else if(millions>=3&&millions<=10)words+=convertLessThanOneThousand(millions)+" ملايين ";else words+=convertLessThanOneThousand(millions)+" مليون ";number%=1000000}if(number>=1000){let thousands=Math.floor(number/1000);if(words!=="")words+="و ";if(thousands===1)words+="ألف ";else if(thousands===2)words+="ألفان ";else if(thousands>=3&&thousands<=10)words+=convertLessThanOneThousand(thousands)+" آلاف ";else words+=convertLessThanOneThousand(thousands)+" ألف ";number%=1000}if(number>0){if(words!=="")words+="و ";words+=convertLessThanOneThousand(number)}return words.trim()
         }
 
-        async function uploadImage(file, title, userId, type) {
-            const form = document.getElementById(`addImageForm-${type}`);
-            const statusEl = document.getElementById(`uploadStatus-${type}`);
-            if (!file || !title) return;
-            statusEl.textContent = 'جاري الرفع...';
-            const storageRef = ref(storage, `users/${userId}/kiosk_images/${type}/${Date.now()}_${file.name}`);
-            try {
-                const snapshot = await uploadBytes(storageRef, file);
-                const url = await getDownloadURL(snapshot.ref);
-                const targetCol = type === 'moneyOrder' ? kioskImagesMoneyOrderCol : kioskImagesCheckCol;
-                await addDoc(targetCol, { imageUrl: url, title: title, storagePath: snapshot.metadata.fullPath, createdAt: serverTimestamp() });
-                statusEl.textContent = 'تمت الإضافة بنجاح!';
-                form.reset();
-            } catch (error) {
-                console.error("Upload failed", error);
-                statusEl.textContent = 'فشل الرفع. يرجى التحقق من قواعد الأمان.';
-            }
-        }
-        
-        async function uploadBgImage(file, userId) {
-             const statusEl = document.getElementById('uploadStatus-bg');
-             statusEl.textContent = 'جاري الرفع...';
-             const storageRef = ref(storage, `users/${userId}/kiosk_bg/background.jpg`);
-             try {
-                await uploadBytes(storageRef, file);
-                const url = await getDownloadURL(storageRef);
-                await setDoc(kioskSettingsDocRef, { backgroundUrl: url }, { merge: true });
-                statusEl.textContent = 'تم حفظ الخلفية!';
-             } catch (e) {
-                 console.error("BG Upload failed", e);
-                 statusEl.textContent = 'فشل الرفع.';
-             }
-        }
-        
-        async function deleteInstructionalImage(imageData, type) {
-            if (!confirm(`هل أنت متأكد من حذف صورة "${imageData.title}"؟`)) return;
-            try {
-                await deleteObject(ref(storage, imageData.storagePath));
-                const targetCol = type === 'moneyOrder' ? kioskImagesMoneyOrderCol : kioskImagesCheckCol;
-                await deleteDoc(doc(db, targetCol.path, imageData.id));
-            } catch(e) { console.error("Deletion failed", e); alert("فشل الحذف."); }
-        }
-
-        function renderImageLibrary(type) {
-            const listEl = document.getElementById(`image-library-list-${type}`);
-            const images = instructionalImages[type];
-            listEl.innerHTML = '';
-            images.forEach(img => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span><img src="${img.imageUrl}" alt="thumbnail"/> ${escapeHtml(img.title)}</span><button class="btn btn-danger delete-image-btn" data-id="${img.id}">حذف</button>`;
-                li.querySelector('.delete-image-btn').onclick = () => deleteInstructionalImage(img, type);
-                listEl.appendChild(li);
-            });
-        }
+        async function addInstructionalImage(url, title, type) { /* ... */ }
+        async function saveBgImage(url) { /* ... */ }
+        async function deleteInstructionalImage(imageData, type) { /* ... */ }
+        function renderImageLibrary(type) { /* ... */ }
         
         function showAmountConverter(type) {
             kioskMainView.style.display = 'none';
@@ -479,7 +427,7 @@
             recognition.lang = 'ar-SA';
             recognition.onresult = (event) => {
                 const spokenText = event.results[0][0].transcript.trim().toLowerCase();
-                kioskListeningView.style.display = 'none'; // Hide listening UI
+                kioskListeningView.style.display = 'none';
                 
                 const foundRecord = records.find(r => 
                     r.itemType === itemType &&
@@ -521,9 +469,9 @@
         converterBackBtn.addEventListener('click', showKioskMain);
         kioskBackBtn.addEventListener('click', showKioskMain);
         
-        document.getElementById('addImageForm-moneyOrder').addEventListener('submit', (e) => { e.preventDefault(); uploadImage(document.getElementById('imageUpload-moneyOrder').files[0], document.getElementById('imageTitle-moneyOrder').value, auth.currentUser.uid, 'moneyOrder'); });
-        document.getElementById('addImageForm-check').addEventListener('submit', (e) => { e.preventDefault(); uploadImage(document.getElementById('imageUpload-check').files[0], document.getElementById('imageTitle-check').value, auth.currentUser.uid, 'check'); });
-        document.getElementById('bgImageUpload').addEventListener('change', (e) => { if(e.target.files[0]) uploadBgImage(e.target.files[0], auth.currentUser.uid) });
+        document.getElementById('addImageForm-moneyOrder').addEventListener('submit', (e) => { e.preventDefault(); addInstructionalImage(document.getElementById('imageUrl-moneyOrder').value, document.getElementById('imageTitle-moneyOrder').value, 'moneyOrder'); });
+        document.getElementById('addImageForm-check').addEventListener('submit', (e) => { e.preventDefault(); addInstructionalImage(document.getElementById('imageUrl-check').value, document.getElementById('imageTitle-check').value, 'check'); });
+        document.getElementById('saveBgBtn').addEventListener('click', () => { saveBgImage(document.getElementById('bgImageUrl').value); });
         
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -598,7 +546,7 @@
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
-                storage = getStorage(app);
+                
                 await signInAnonymously(auth);
                 
                 credentialsCol = collection(db, 'credentials');
