@@ -19,6 +19,8 @@
             --background-color: #f6f7fb;
             --surface-color: #fff;
             --shadow-color: rgba(11, 18, 32, 0.07);
+            --success-color: #1e8e3e;
+            --danger-color: #d93025;
         }
 
         body {
@@ -69,12 +71,14 @@
         
         .row {
             display: flex;
+            flex-wrap: wrap;
             gap: 16px;
             margin-top: 12px;
         }
 
         .col {
             flex: 1;
+            min-width: 200px;
         }
 
         .btn {
@@ -85,12 +89,13 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 0.95rem;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.1s;
         }
+        .btn:active { transform: scale(0.98); }
         .btn:disabled { cursor: not-allowed; opacity: 0.7; }
         .btn-primary { background: var(--primary-color); color: #fff; }
         .btn-ghost { background: var(--light-primary-color); color: var(--primary-color); border: 1px solid #dbe7ff; }
-        .btn-danger { background: #fce8e8; color: #d93025; border: 1px solid #f9d0d0; }
+        .btn-danger { background: #fce8e8; color: var(--danger-color); border: 1px solid #f9d0d0; }
         
         .form-actions {
             margin-top: 20px;
@@ -100,12 +105,12 @@
             align-items: center;
         }
         .form-actions .right-actions {
-            margin-left: auto;
+            margin-right: auto;
             display: flex;
             gap: 8px;
         }
 
-        /* Modal Styles */
+        /* Modal & Toast Styles */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
@@ -115,16 +120,38 @@
         .modal-content {
             background: var(--surface-color); padding: 24px; border-radius: 12px;
             width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto;
+            transform: scale(0.95); transition: transform 0.3s;
+        }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-header, .modal-footer { padding: 10px 0; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+        #toast-container {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 3000; display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .toast {
+            padding: 12px 20px; border-radius: 8px; color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0; animation: fadeInOut 5s ease-in-out forwards;
+            font-weight: 500;
+        }
+        .toast.success { background-color: var(--success-color); }
+        .toast.error { background-color: var(--danger-color); }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; transform: translateY(-20px); }
+            10%, 90% { opacity: 1; transform: translateY(0); }
         }
         
-        .image-library-list, #route-list { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; }
+        .image-library-list, #route-list { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
         .image-library-list li, #route-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); }
+        .image-library-list li:last-child, #route-list li:last-child { border-bottom: none; }
         .image-library-list img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-left: 10px; }
         
         /* Customer Kiosk View Styles */
         #customerKioskView {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--background-color) center/cover no-repeat; 
+            background: var(--background-color) center/cover no-repeat;  
             z-index: 2000; display: none;
             flex-direction: column; align-items: center; justify-content: flex-start;
             padding: 24px; box-sizing: border-box; overflow-y: auto;
@@ -134,10 +161,14 @@
             background: var(--surface-color); margin-bottom: 16px; padding: 20px;
             border-radius: 16px; box-shadow: 0 8px 24px var(--shadow-color);
             display: flex; justify-content: space-between; align-items: center;
-            font-size: 2rem; font-weight: 700; cursor: pointer;
+            font-size: 2rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
         }
+        #kiosk-options-list li:hover, #kiosk-financial-list li:hover {
+            transform: translateY(-5px); box-shadow: 0 12px 28px var(--shadow-color);
+        }
+
         .kiosk-number { color: var(--primary-color); font-size: 2.5rem; margin-left: 24px; }
-        #kiosk-financial-list li { justify-content: center; font-size: 1.8rem; }
+        #kiosk-financial-list li { font-size: 1.8rem; }
         
         #amountConverterView {
             width: 100%;
@@ -179,7 +210,6 @@
             to { opacity: 1; }
         }
 
-        #loginView { max-width: 400px; margin: 8vh auto 0 auto; }
         #kiosk-listening-view, #kiosk-result-view { text-align: center; }
         #kiosk-mic-icon { width: 120px; height: 120px; fill: var(--primary-color); animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
@@ -192,24 +222,16 @@
     </style>
 </head>
 <body>
+    <div id="toast-container"></div>
 
     <div id="appContainer">
-        <div id="loginView" class="container">
-            <h1>تسجيل الدخول</h1>
-            <form id="loginForm" autocomplete="off">
-                <div><label for="username">اسم المستخدم</label><input id="username" type="text" required></div>
-                <div style="margin-top: 12px;"><label for="password">كلمة المرور</label><input id="password" type="password" required></div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">دخول</button>
-            </form>
-        </div>
-
-        <div id="mainView" class="container" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div id="mainView" class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 16px;">
                 <h1>نظام تسجيل تسليم البريد</h1>
-                <button id="logoutBtn" class="btn btn-danger">خروج</button>
+                <div id="userInfo" style="font-size: 0.8rem; color: var(--muted-text-color); text-align: left; word-break: break-all;"></div>
             </div>
             
-            <form id="deliveryForm" autocomplete="off" style="margin-top: 20px;">
+            <form id="deliveryForm" autocomplete="off">
                 <div class="row">
                     <div class="col"><label for="name">اسم الزبون</label><input id="name" required /></div>
                     <div class="col"><label for="phone">هاتف للتواصل</label><input id="phone" /></div>
@@ -217,23 +239,21 @@
                 <div class="row">
                     <div class="col"><label for="itemType">نوع المستلم</label><select id="itemType"><option value="دفتر صكوك">دفتر صكوك</option><option value="بطاقة ذهبية">بطاقة ذهبية</option><option value="حوالة بريدية">حوالة بريدية</option><option value="رسالة">رسالة</option><option value="أخرى">أخرى</option></select></div>
                     <div class="col"><label for="counter">رقم الشباك</label><input id="counter" type="text" placeholder="مثال: 5" /></div>
-                </div>
-                 <div class="row">
-                    <div class="col"><label for="date">تاريخ التسليم</label><input id="date" type="text" placeholder="YYYY-MM-DD" /></div>
+                    <div class="col"><label for="date">تاريخ التسليم</label><input id="date" type="date" /></div>
                 </div>
 
                 <div class="form-actions">
                     <button class="btn btn-primary" type="submit">حفظ السجل</button>
                     <button id="resetBtn" class="btn btn-ghost" type="button">تفريغ الحقول</button>
                     <div class="right-actions">
-                        <button id="showKioskSettingsBtn" class="btn btn-ghost">إعدادات واجهة الزبون</button>
-                        <button id="showCustomerViewBtn" class="btn btn-primary">عرض واجهة الزبون</button>
+                        <button id="showKioskSettingsBtn" class="btn btn-ghost" type="button">إعدادات واجهة الزبون</button>
+                        <button id="showCustomerViewBtn" class="btn btn-primary" type="button">عرض واجهة الزبون</button>
                     </div>
                 </div>
             </form>
 
             <div class="controls" style="margin-top: 24px;">
-                 <input id="search" placeholder="بحث بالاسم أو الهاتف..." style="flex:1;" />
+                <input id="search" placeholder="بحث بالاسم أو الهاتف..." style="width: 100%; box-sizing: border-box;" />
             </div>
 
             <table id="recordsTable">
@@ -251,8 +271,8 @@
             <ul id="kiosk-options-list"></ul>
             <h4 style="margin-top: 40px;">خدمات مالية</h4>
             <ul id="kiosk-financial-list">
-                <li data-form-type="moneyOrder">ارسال حوالة بريدية</li>
-                <li data-form-type="check">ملئ صك (شاك)</li>
+                <li data-form-type="moneyOrder">ارسال حوالة بريدية<span class="kiosk-number">8</span></li>
+                <li data-form-type="check">ملئ صك (شاك)<span class="kiosk-number">9</span></li>
             </ul>
         </div>
         
@@ -282,22 +302,21 @@
     <!-- Modals -->
     <div id="kioskSettingsModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="modal-header">إعدادات واجهة الزبون</div>
+            <div class="modal-header"><h3>إعدادات واجهة الزبون</h3></div>
             <div class="modal-body">
-                <h3>خدمات استلام الطرود</h3>
+                <h4>خدمات استلام الطرود</h4>
                 <form id="addRouteForm" autocomplete="off">
                      <div class="row">
-                        <div class="col" style="flex: 0.3;"><label for="routeNumber">الرقم</label><input id="routeNumber" type="number" required></div>
-                        <div class="col"><label for="routeItemType">نوع المستلم</label><select id="routeItemType"><option value="دفتر صكوك">دفتر صكوك</option><option value="بطاقة ذهبية">بطاقة ذهبية</option><option value="حوالة بريدية">حوالة بريدية</option><option value="رسالة">رسالة</option><option value="أخرى">أخرى</option></select></div>
+                         <div class="col" style="flex: 0.3;"><label for="routeNumber">الرقم</label><input id="routeNumber" type="number" required></div>
+                         <div class="col"><label for="routeItemType">نوع المستلم</label><select id="routeItemType"><option value="دفتر صكوك">دفتر صكوك</option><option value="بطاقة ذهبية">بطاقة ذهبية</option><option value="حوالة بريدية">حوالة بريدية</option><option value="رسالة">رسالة</option><option value="أخرى">أخرى</option></select></div>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة خدمة</button>
                 </form>
-                <hr style="margin: 20px 0;">
-                <h4>القائمة الحالية</h4>
+                <h4 style="margin-top: 20px;">القائمة الحالية</h4>
                 <ul id="route-list"></ul>
                 <hr style="margin: 20px 0;">
 
-                <h3>الصور التعليمية للحوالة البريدية</h3>
+                <h4>الصور التعليمية للحوالة البريدية</h4>
                 <form id="addImageForm-moneyOrder">
                     <label for="imageTitle-moneyOrder">عنوان الصورة</label><input type="text" id="imageTitle-moneyOrder" required>
                     <label for="imageUrl-moneyOrder">رابط الصورة</label><input type="url" id="imageUrl-moneyOrder" required placeholder="https://...">
@@ -306,7 +325,7 @@
                 <ul id="image-library-list-moneyOrder" class="image-library-list"></ul>
                 <hr style="margin: 20px 0;">
                 
-                <h3>الصور التعليمية لملء الصك</h3>
+                <h4>الصور التعليمية لملء الصك</h4>
                 <form id="addImageForm-check">
                     <label for="imageTitle-check">عنوان الصورة</label><input type="text" id="imageTitle-check" required>
                     <label for="imageUrl-check">رابط الصورة</label><input type="url" id="imageUrl-check" required placeholder="https://...">
@@ -315,7 +334,7 @@
                 <ul id="image-library-list-check" class="image-library-list"></ul>
                 <hr style="margin: 20px 0;">
 
-                <h3>صورة خلفية الواجهة</h3>
+                <h4>صورة خلفية الواجهة</h4>
                 <label for="bgImageUrl">رابط صورة الخلفية</label>
                 <input type="url" id="bgImageUrl" placeholder="https://...">
                 <button id="saveBgBtn" class="btn btn-primary" style="width:100%; margin-top:10px;">حفظ الخلفية</button>
@@ -324,45 +343,86 @@
             <div class="modal-footer"><button id="closeKioskSettingsModal" class="btn btn-ghost">إغلاق</button></div>
         </div>
     </div>
+
+    <div id="confirmationModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header"><h3 id="confirmTitle">تأكيد الإجراء</h3></div>
+            <div class="modal-body"><p id="confirmMessage"></p></div>
+            <div class="modal-footer">
+                <button id="confirmCancelBtn" class="btn btn-ghost">إلغاء</button>
+                <button id="confirmOkBtn" class="btn btn-danger">تأكيد</button>
+            </div>
+        </div>
+    </div>
     
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, getDoc, setDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        // Firebase 11.6.1 Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, setDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
+        // --- Global Variables & App State ---
         let db, auth;
         let records = [], routes = [], instructionalImages = { moneyOrder: [], check: [] };
-        let deliveriesCol, credentialsCol, routesCol, kioskImagesMoneyOrderCol, kioskImagesCheckCol, kioskSettingsDocRef;
-        let unsubscribeRecords = () => {}, unsubscribeRoutes = () => {}, unsubscribeImagesMoneyOrder = () => {}, unsubscribeImagesCheck = () => {}, unsubscribeSettings = () => {};
-        
-        const loginView = document.getElementById('loginView'), mainView = document.getElementById('mainView'), customerKioskView = document.getElementById('customerKioskView');
+        let deliveriesCol, routesCol, kioskImagesMoneyOrderCol, kioskImagesCheckCol, kioskSettingsDocRef;
+        let unsubscribeListeners = [];
+
+        // --- DOM Element Cache ---
+        const mainView = document.getElementById('mainView'), customerKioskView = document.getElementById('customerKioskView');
         const showKioskSettingsBtn = document.getElementById('showKioskSettingsBtn'), kioskSettingsModal = document.getElementById('kioskSettingsModal'), closeKioskSettingsModal = document.getElementById('closeKioskSettingsModal');
         const showCustomerViewBtn = document.getElementById('showCustomerViewBtn'), kioskExitBtn = document.getElementById('kiosk-exit-btn');
-        const amountConverterView = document.getElementById('amountConverterView');
-        const kioskMainView = document.getElementById('kiosk-main-view');
+        const amountConverterView = document.getElementById('amountConverterView'), kioskMainView = document.getElementById('kiosk-main-view');
         const amountInput = document.getElementById('amountInput'), amountInWords = document.getElementById('amountInWords');
         const converterBackBtn = document.getElementById('converter-back-btn');
-        const loginForm = document.getElementById('loginForm'), usernameInput = document.getElementById('username'), passwordInput = document.getElementById('password');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const kioskFinancialList = document.getElementById('kiosk-financial-list');
-        const kioskSlideshowView = document.getElementById('kiosk-slideshow-view');
-        const converterTitle = document.getElementById('converterTitle');
-        const kioskOptionsList = document.getElementById('kiosk-options-list');
+        const kioskFinancialList = document.getElementById('kiosk-financial-list'), kioskSlideshowView = document.getElementById('kiosk-slideshow-view');
+        const converterTitle = document.getElementById('converterTitle'), kioskOptionsList = document.getElementById('kiosk-options-list');
         const kioskListeningView = document.getElementById('kiosk-listening-view'), kioskResultView = document.getElementById('kiosk-result-view');
         const kioskStatus = document.getElementById('kiosk-status'), kioskResultText = document.getElementById('kiosk-result-text'), kioskBackBtn = document.getElementById('kiosk-back-btn');
         const tbody = document.querySelector('#recordsTable tbody'), form = document.getElementById('deliveryForm');
+        const searchInput = document.getElementById('search');
         const addRouteForm = document.getElementById('addRouteForm'), routeNumberEl = document.getElementById('routeNumber'), routeItemTypeEl = document.getElementById('routeItemType'), routeList = document.getElementById('route-list');
-        
+
+        // --- Speech Recognition ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
-        function speak(text) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ar-SA'; speechSynthesis.speak(u); } catch (e) { console.error(e); } }
+        function speak(text) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ar-SA'; speechSynthesis.speak(u); } catch (e) { console.error("Speech Synthesis Error:", e); } }
 
+        // --- Utility Functions ---
         const escapeHtml = s => s ? String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : '';
-        const showLoginView = () => { loginView.style.display = 'block'; mainView.style.display = 'none'; customerKioskView.style.display = 'none'; };
-        const showMainView = () => { loginView.style.display = 'none'; mainView.style.display = 'block'; customerKioskView.style.display = 'none'; };
-        const showCustomerKiosk = () => { mainView.style.display = 'none'; customerKioskView.style.display = 'flex'; };
-        const closeModal = () => document.querySelectorAll('.modal-overlay.visible').forEach(m => m.classList.remove('visible'));
         
+        const showToast = (message, isError = false) => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : 'success'}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        };
+        
+        const showConfirmation = (message, onConfirm) => {
+            const modal = document.getElementById('confirmationModal');
+            document.getElementById('confirmMessage').textContent = message;
+            modal.classList.add('visible');
+
+            const okBtn = document.getElementById('confirmOkBtn');
+            const cancelBtn = document.getElementById('confirmCancelBtn');
+
+            const close = () => modal.classList.remove('visible');
+            
+            const onOkClick = () => {
+                close();
+                onConfirm();
+            };
+
+            okBtn.onclick = onOkClick;
+            cancelBtn.onclick = close;
+        };
+        
+        // --- View Management ---
+        const showCustomerKiosk = () => { mainView.style.display = 'none'; customerKioskView.style.display = 'flex'; };
+        const showMainView = () => { mainView.style.display = 'block'; customerKioskView.style.display = 'none'; };
+        const closeModal = (modalId) => document.getElementById(modalId)?.classList.remove('visible');
+
         function showKioskMain() {
             kioskMainView.style.display = 'block';
             amountConverterView.style.display = 'none';
@@ -387,8 +447,70 @@
             kioskResultText.textContent = result;
         };
 
+        function showAmountConverter(type) {
+            kioskMainView.style.display = 'none';
+            amountConverterView.style.display = 'block';
+            converterTitle.textContent = type === 'moneyOrder' ? "مساعد إرسال حوالة" : "مساعد ملء صك";
+            amountInput.value = '';
+            amountInWords.textContent = '';
+            startSlideshow(type);
+            setTimeout(() => amountInput.focus(), 50); 
+        }
+
+        // --- Core Application Logic ---
         function numberToArabicWords(number) {
-            const units=["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة"],tens=["","عشرة","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"],teens=["عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];if(number===0)return"صفر";let words="";function convertLessThanOneThousand(num){let currentWords="";if(num>=100){if(Math.floor(num/100)===1)currentWords+="مئة ";else if(Math.floor(num/100)===2)currentWords+="مئتان ";else currentWords+=units[Math.floor(num/100)]+"مئة ";num%=100}if(num>0){if(currentWords!=="")currentWords+=" و ";if(num<10)currentWords+=units[num];else if(num<20)currentWords+=teens[num-10];else{currentWords+=units[num%10]+(num%10!==0?" و ":"")+tens[Math.floor(num/10)]}}return currentWords}if(number>=1000000){let millions=Math.floor(number/1000000);if(millions===1)words+="مليون ";else if(millions===2)words+="مليونان ";else if(millions>=3&&millions<=10)words+=convertLessThanOneThousand(millions)+" ملايين ";else words+=convertLessThanOneThousand(millions)+" مليون ";number%=1000000}if(number>=1000){let thousands=Math.floor(number/1000);if(words!=="")words+="و ";if(thousands===1)words+="ألف ";else if(thousands===2)words+="ألفان ";else if(thousands>=3&&thousands<=10)words+=convertLessThanOneThousand(thousands)+" آلاف ";else words+=convertLessThanOneThousand(thousands)+" ألف ";number%=1000}if(number>0){if(words!=="")words+="و ";words+=convertLessThanOneThousand(number)}return words.trim()
+            if (typeof number !== 'number' || isNaN(number)) return '';
+            if (number === 0) return "صفر";
+
+            const units = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"];
+            const tens = ["", "عشرة", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"];
+            const teens = ["عشرة", "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
+
+            let words = "";
+
+            function convertLessThanOneThousand(num) {
+                let currentWords = "";
+                if (num >= 100) {
+                    if (Math.floor(num / 100) === 1) currentWords += "مئة ";
+                    else if (Math.floor(num / 100) === 2) currentWords += "مئتان ";
+                    else currentWords += units[Math.floor(num / 100)] + "مئة ";
+                    num %= 100;
+                }
+                if (num > 0) {
+                    if (currentWords !== "") currentWords += " و ";
+                    if (num < 10) currentWords += units[num];
+                    else if (num < 20) currentWords += teens[num - 10];
+                    else {
+                        currentWords += units[num % 10] + (num % 10 !== 0 ? " و " : "") + tens[Math.floor(num / 10)];
+                    }
+                }
+                return currentWords;
+            }
+
+            if (number >= 1000000) {
+                let millions = Math.floor(number / 1000000);
+                if (millions === 1) words += "مليون ";
+                else if (millions === 2) words += "مليونان ";
+                else if (millions >= 3 && millions <= 10) words += convertLessThanOneThousand(millions) + " ملايين ";
+                else words += convertLessThanOneThousand(millions) + " مليون ";
+                number %= 1000000;
+            }
+
+            if (number >= 1000) {
+                let thousands = Math.floor(number / 1000);
+                if (words !== "") words += "و ";
+                if (thousands === 1) words += "ألف ";
+                else if (thousands === 2) words += "ألفان ";
+                else if (thousands >= 3 && thousands <= 10) words += convertLessThanOneThousand(thousands) + " آلاف ";
+                else words += convertLessThanOneThousand(thousands) + " ألف ";
+                number %= 1000;
+            }
+
+            if (number > 0) {
+                if (words !== "") words += "و ";
+                words += convertLessThanOneThousand(number);
+            }
+            return words.trim();
         }
 
         async function addInstructionalImage(url, title, type) {
@@ -398,50 +520,39 @@
                 const targetCol = type === 'moneyOrder' ? kioskImagesMoneyOrderCol : kioskImagesCheckCol;
                 await addDoc(targetCol, { imageUrl: url, title: title, createdAt: serverTimestamp() });
                 form.reset();
-            } catch (error) { console.error("Save failed", error); alert('فشل الحفظ.'); }
+                showToast('تمت إضافة الصورة بنجاح.');
+            } catch (error) { console.error("Save failed", error); showToast('فشل حفظ الصورة.', true); }
         }
         
         async function saveBgImage(url) {
             if (!url) return;
             try {
                 await setDoc(kioskSettingsDocRef, { backgroundUrl: url }, { merge: true });
-                alert('تم حفظ الخلفية بنجاح!');
-            } catch (e) { console.error("BG Save failed", e); alert('فشل حفظ الخلفية.'); }
+                showToast('تم حفظ الخلفية بنجاح!');
+            } catch (e) { console.error("BG Save failed", e); showToast('فشل حفظ الخلفية.', true); }
         }
         
         async function deleteInstructionalImage(imageData, type) {
-            if (!confirm(`هل أنت متأكد من حذف صورة "${imageData.title}"؟`)) return;
-            try {
-                const targetCol = type === 'moneyOrder' ? kioskImagesMoneyOrderCol : kioskImagesCheckCol;
-                await deleteDoc(doc(db, targetCol.path, imageData.id));
-            } catch(e) { console.error("Deletion failed", e); alert("فشل الحذف."); }
+            showConfirmation(`هل أنت متأكد من حذف صورة "${imageData.title}"؟`, async () => {
+                 try {
+                    const targetCol = type === 'moneyOrder' ? kioskImagesMoneyOrderCol : kioskImagesCheckCol;
+                    await deleteDoc(doc(db, targetCol.path, imageData.id));
+                    showToast('تم الحذف بنجاح.');
+                } catch(e) { console.error("Deletion failed", e); showToast("فشل الحذف.", true); }
+            });
         }
-
+        
+        // --- Rendering Functions ---
         function renderImageLibrary(type) {
             const listEl = document.getElementById(`image-library-list-${type}`);
             const images = instructionalImages[type];
             listEl.innerHTML = '';
             images.forEach(img => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span><img src="${img.imageUrl}" alt="thumbnail"/> ${escapeHtml(img.title)}</span><button class="btn btn-danger delete-image-btn" data-id="${img.id}">حذف</button>`;
+                li.innerHTML = `<span><img src="${escapeHtml(img.imageUrl)}" alt="thumbnail"/> ${escapeHtml(img.title)}</span><button class="btn btn-danger delete-image-btn" data-id="${img.id}">حذف</button>`;
                 li.querySelector('.delete-image-btn').onclick = () => deleteInstructionalImage(img, type);
                 listEl.appendChild(li);
             });
-        }
-        
-        function showAmountConverter(type) {
-            kioskMainView.style.display = 'none';
-            amountConverterView.style.display = 'block';
-            converterTitle.textContent = type === 'moneyOrder' ? "مساعد إرسال حوالة" : "مساعد ملء صك";
-            amountInput.value = '';
-            amountInWords.textContent = '';
-            kioskSlideshowView.innerHTML = '';
-            
-            amountInput.oninput = () => {
-                const num = parseInt(amountInput.value, 10);
-                amountInWords.textContent = (!isNaN(num) && num > 0) ? numberToArabicWords(num) + " دينار جزائري" : '';
-                startSlideshow(type);
-            };
         }
         
         let slideshowTimeout;
@@ -454,18 +565,18 @@
             if (images.length === 0) return;
             let currentIndex = 0;
             function showNextImage() {
-                if (currentIndex >= images.length) { showKioskMain(); return; }
+                if (currentIndex >= images.length) { currentIndex = 0; } // Loop slideshow
                 const imgData = images[currentIndex];
-                kioskSlideshowView.innerHTML = `<figure class="slideshow-item active"><img src="${imgData.imageUrl}" alt="${escapeHtml(imgData.title)}"><figcaption>${escapeHtml(imgData.title)}</figcaption></figure>`;
+                kioskSlideshowView.innerHTML = `<figure class="slideshow-item active"><img src="${escapeHtml(imgData.imageUrl)}" alt="${escapeHtml(imgData.title)}"><figcaption>${escapeHtml(imgData.title)}</figcaption></figure>`;
                 currentIndex++;
                 slideshowTimeout = setTimeout(showNextImage, 5000);
             }
             showNextImage();
         }
 
-        function render() {
+        function renderRecords(recordsToDisplay) {
             tbody.innerHTML = '';
-            records.forEach(r => {
+            recordsToDisplay.forEach(r => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.phone||'')}</td><td>${escapeHtml(r.itemType)}</td><td>${escapeHtml(r.counter||'')}</td><td>${escapeHtml(r.date||'')}</td>
                                 <td class="actions"><button data-id="${r.id}" class="btn btn-danger btn-del">حذف</button></td>`;
@@ -491,17 +602,19 @@
         }
         
         function startInquiry(itemType) {
-            if (!SpeechRecognition) { return alert("البحث الصوتي غير مدعوم."); }
+            if (!SpeechRecognition) { return showToast("البحث الصوتي غير مدعوم في هذا المتصفح.", true); }
+            if (recognition && kioskListeningView.style.display === 'block') { return; }
+
             showKioskListening("جاري الاستماع... يرجى ذكر اسمك الكامل أو رقم هاتفك.");
             speak("يرجى ذكر اسمك الكامل أو رقم هاتفك.");
             
             recognition = new SpeechRecognition();
             recognition.lang = 'ar-SA';
+            recognition.continuous = false;
+            
             recognition.onresult = (event) => {
                 const spokenText = event.results[0][0].transcript.trim().toLowerCase();
-                kioskListeningView.style.display = 'none';
-                
-                const foundRecord = records.find(r => 
+                const foundRecord = records.find(r =>  
                     r.itemType === itemType &&
                     (r.name.toLowerCase().includes(spokenText) || (r.phone && r.phone.includes(spokenText)))
                 );
@@ -509,128 +622,207 @@
                 let resultText = foundRecord ? `نعم يا ${foundRecord.name}، لديك ${itemType} جاهز للاستلام. يرجى التوجه إلى الشباك رقم ${foundRecord.counter || 'المخصص'}.`
                                              : `عذرًا، لم نجد أي ${itemType} مسجل بالمعلومات التي قدمتها.`;
                 
-                kioskResultView.style.display = 'block';
-                kioskResultText.textContent = resultText;
+                showKioskResult(resultText);
                 speak(resultText);
             };
-            recognition.onerror = () => {
-                const errorText = "عذرًا، حدث خطأ. يرجى المحاولة مرة أخرى.";
-                kioskResultView.style.display = 'block';
-                kioskResultText.textContent = errorText;
+
+            recognition.onerror = (event) => {
+                console.error("Speech Recognition Error:", event.error);
+                let errorText;
+                if (event.error === 'no-speech') {
+                    errorText = "لم يتم اكتشاف أي صوت. يرجى المحاولة مرة أخرى والتحدث بوضوح.";
+                } else {
+                    errorText = "عذرًا، حدث خطأ في التعرف على الصوت. يرجى المحاولة مرة أخرى.";
+                }
+                showKioskResult(errorText);
                 speak(errorText);
             };
+
+            recognition.onend = () => {
+                setTimeout(() => {
+                    if (customerKioskView.style.display === 'flex' && (kioskResultView.style.display === 'block' || kioskListeningView.style.display === 'block')) {
+                        showKioskMain();
+                    }
+                }, 4000);
+            };
+            
             recognition.start();
         }
 
-        showKioskSettingsBtn.addEventListener('click', () => kioskSettingsModal.classList.add('visible'));
-        closeKioskSettingsModal.addEventListener('click', closeModal);
-        addRouteForm.addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(routesCol, { number: parseInt(routeNumberEl.value), itemType: routeItemTypeEl.value }); addRouteForm.reset(); });
-        routeList.addEventListener('click', (e) => { if (e.target.classList.contains('delete-route-btn')) deleteDoc(doc(db, routesCol.path, e.target.dataset.id)); });
-        showCustomerViewBtn.addEventListener('click', () => { showCustomerKiosk(); showKioskMain(); renderKioskOptions(); });
-        kioskExitBtn.addEventListener('click', showMainView);
-        kioskFinancialList.addEventListener('click', (e) => {
-            const li = e.target.closest('li');
-            if(li && li.dataset.formType) {
-                showAmountConverter(li.dataset.formType);
-            }
-        });
-        kioskOptionsList.addEventListener('click', (e) => { 
-            const li = e.target.closest('li');
-            if (li && li.dataset.itemType) startInquiry(li.dataset.itemType);
-        });
-        converterBackBtn.addEventListener('click', showKioskMain);
-        kioskBackBtn.addEventListener('click', showKioskMain);
-        
-        document.getElementById('addImageForm-moneyOrder').addEventListener('submit', (e) => { e.preventDefault(); addInstructionalImage(document.getElementById('imageUrl-moneyOrder').value, document.getElementById('imageTitle-moneyOrder').value, 'moneyOrder'); });
-        document.getElementById('addImageForm-check').addEventListener('submit', (e) => { e.preventDefault(); addInstructionalImage(document.getElementById('imageUrl-check').value, document.getElementById('imageTitle-check').value, 'check'); });
-        document.getElementById('saveBgBtn').addEventListener('click', () => { saveBgImage(document.getElementById('bgImageUrl').value); });
-        
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const user = usernameInput.value.trim();
-            const pass = passwordInput.value.trim();
-            if (!user || !pass) return;
-            try {
-                const userDoc = await getDoc(doc(credentialsCol, user));
-                if (userDoc.exists() && userDoc.data().password === pass) {
-                    sessionStorage.setItem('loggedInUser', user);
-                    showMainView();
-                    initializeAppData(user);
-                } else {
-                    alert('اسم المستخدم أو كلمة المرور غير صحيحة.');
+        // --- Event Listeners Setup ---
+        function setupEventListeners() {
+            showKioskSettingsBtn.addEventListener('click', () => kioskSettingsModal.classList.add('visible'));
+            closeKioskSettingsModal.addEventListener('click', () => closeModal('kioskSettingsModal'));
+            
+            addRouteForm.addEventListener('submit', async (e) => { 
+                e.preventDefault(); 
+                await addDoc(routesCol, { number: parseInt(routeNumberEl.value), itemType: routeItemTypeEl.value }); 
+                addRouteForm.reset(); 
+            });
+            
+            routeList.addEventListener('click', (e) => { if (e.target.classList.contains('delete-route-btn')) deleteDoc(doc(db, routesCol.path, e.target.dataset.id)); });
+            
+            showCustomerViewBtn.addEventListener('click', () => { showCustomerKiosk(); showKioskMain(); renderKioskOptions(); });
+            kioskExitBtn.addEventListener('click', showMainView);
+            
+            kioskFinancialList.addEventListener('click', (e) => {
+                const li = e.target.closest('li');
+                if (li && li.dataset.formType) {
+                    showAmountConverter(li.dataset.formType);
                 }
-            } catch (error) {
-                console.error("Login Error:", error);
-                alert("فشل تسجيل الدخول. تحقق من اتصالك بالانترنت وقواعد الأمان.");
-            }
-        });
+            });
 
-        logoutBtn.addEventListener('click', () => { 
-            if(unsubscribeRecords) unsubscribeRecords();
-            if(unsubscribeRoutes) unsubscribeRoutes();
-            if(unsubscribeImagesMoneyOrder) unsubscribeImagesMoneyOrder();
-            if(unsubscribeImagesCheck) unsubscribeImagesCheck();
-            if(unsubscribeSettings) unsubscribeSettings();
-            sessionStorage.clear();
-            showLoginView();
-         });
-        
-        form.addEventListener('submit', async (e) => {
-             e.preventDefault();
-             await addDoc(deliveriesCol, {
-                 name: form.name.value, phone: form.phone.value, itemType: form.itemType.value,
-                 counter: form.counter.value, date: form.date.value || new Date().toISOString().slice(0, 10),
+            amountInput.addEventListener('input', () => {
+                const num = parseInt(amountInput.value, 10);
+                amountInWords.textContent = (!isNaN(num) && num > 0) ? numberToArabicWords(num) + " دينار جزائري" : '';
+            });
+
+            kioskOptionsList.addEventListener('click', (e) => {  
+                const li = e.target.closest('li');
+                if (li && li.dataset.itemType) startInquiry(li.dataset.itemType);
+            });
+            
+            converterBackBtn.addEventListener('click', showKioskMain);
+            kioskBackBtn.addEventListener('click', showKioskMain);
+            
+            document.getElementById('addImageForm-moneyOrder').addEventListener('submit', (e) => { e.preventDefault(); addInstructionalImage(document.getElementById('imageUrl-moneyOrder').value, document.getElementById('imageTitle-moneyOrder').value, 'moneyOrder'); });
+            document.getElementById('addImageForm-check').addEventListener('submit', (e) => { e.preventDefault(); addInstructionalImage(document.getElementById('imageUrl-check').value, document.getElementById('imageTitle-check').value, 'check'); });
+            document.getElementById('saveBgBtn').addEventListener('click', () => { saveBgImage(document.getElementById('bgImageUrl').value); });
+            
+            form.addEventListener('submit', async (e) => {
+                 e.preventDefault();
+                 await addDoc(deliveriesCol, {
+                     name: form.name.value, phone: form.phone.value, itemType: form.itemType.value,
+                     counter: form.counter.value, date: form.date.value || new Date().toISOString().slice(0, 10),
+                     createdAt: serverTimestamp()
+                 });
+                 form.reset();
+                 document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+                 showToast('تم حفظ السجل بنجاح.');
+            });
+            
+            tbody.addEventListener('click', (e) => { 
+                if (e.target.classList.contains('btn-del')) {
+                    const recordId = e.target.dataset.id;
+                    showConfirmation('هل أنت متأكد من حذف هذا السجل؟', () => {
+                        deleteDoc(doc(db, deliveriesCol.path, recordId));
+                    });
+                }
              });
-             form.reset();
-             document.getElementById('date').value = new Date().toISOString().slice(0, 10);
-        });
-        
-        tbody.addEventListener('click', (e) => { if (e.target.classList.contains('btn-del')) deleteDoc(doc(db, deliveriesCol.path, e.target.dataset.id)); });
-        
-        async function bootstrapAdminUser() {
-            const zinouDocRef = doc(credentialsCol, 'zinou');
-            if (!(await getDoc(zinouDocRef)).exists()) {
-                await setDoc(zinouDocRef, { password: 'zinou' });
-            }
+
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                if (!searchTerm) {
+                    renderRecords(records);
+                    return;
+                }
+                const filteredRecords = records.filter(r => 
+                    r.name.toLowerCase().includes(searchTerm) || (r.phone && r.phone.includes(searchTerm))
+                );
+                renderRecords(filteredRecords);
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                form.reset();
+                document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+            });
+
+            // Keyboard navigation for kiosk view
+            window.addEventListener('keydown', (e) => {
+                if (customerKioskView.style.display === 'flex' && kioskMainView.style.display === 'block') {
+                    const key = e.key;
+                    if (!isNaN(key) && key >= '0' && key <= '9') {
+                        e.preventDefault(); 
+
+                        const deliveryOption = [...kioskOptionsList.querySelectorAll('li')].find(li => {
+                            const numberEl = li.querySelector('.kiosk-number');
+                            return numberEl && numberEl.textContent.trim() === key;
+                        });
+
+                        if (deliveryOption && deliveryOption.dataset.itemType) {
+                            startInquiry(deliveryOption.dataset.itemType);
+                            return;
+                        }
+
+                        const financialOption = [...kioskFinancialList.querySelectorAll('li')].find(li => {
+                             const numberEl = li.querySelector('.kiosk-number');
+                             return numberEl && numberEl.textContent.trim() === key;
+                        });
+
+                        if (financialOption && financialOption.dataset.formType) {
+                            showAmountConverter(financialOption.dataset.formType);
+                            return;
+                        }
+                    }
+                }
+            });
         }
         
-        function initializeAppData(loggedInAppUser) {
-            const user = auth.currentUser;
-            if (!user) return;
-            
-            credentialsCol = collection(db, 'credentials');
-            deliveriesCol = collection(db, `user_data/${loggedInAppUser}/deliveries`);
-            routesCol = collection(db, `user_data/${loggedInAppUser}/customer_options`);
-            kioskImagesMoneyOrderCol = collection(db, `user_data/${loggedInAppUser}/kiosk_images/moneyOrder/images`);
-            kioskImagesCheckCol = collection(db, `user_data/${loggedInAppUser}/kiosk_images/check/images`);
-            kioskSettingsDocRef = doc(db, `user_data/${loggedInAppUser}/kiosk_settings/display`);
+        // --- Firebase Initialization and Data Loading ---
+        function clearListeners() {
+            unsubscribeListeners.forEach(unsubscribe => unsubscribe());
+            unsubscribeListeners = [];
+        }
 
-            unsubscribeRecords = onSnapshot(query(deliveriesCol), snap => { records = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); });
-            unsubscribeRoutes = onSnapshot(query(routesCol), snap => { routes = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRoutesList(); });
-            unsubscribeImagesMoneyOrder = onSnapshot(query(kioskImagesMoneyOrderCol, orderBy("createdAt")), snap => { instructionalImages.moneyOrder = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderImageLibrary('moneyOrder'); });
-            unsubscribeImagesCheck = onSnapshot(query(kioskImagesCheckCol, orderBy("createdAt")), snap => { instructionalImages.check = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderImageLibrary('check'); });
-            unsubscribeSettings = onSnapshot(kioskSettingsDocRef, (docSnap) => { if (docSnap.exists() && docSnap.data().backgroundUrl) customerKioskView.style.backgroundImage = `url(${docSnap.data().backgroundUrl})`; });
+        function initializeAppData(userId) {
+            clearListeners();
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            
+            // Define collection paths based on the new structure
+            const basePath = `artifacts/${appId}/users/${userId}`;
+            deliveriesCol = collection(db, `${basePath}/deliveries`);
+            routesCol = collection(db, `${basePath}/customer_options`);
+            kioskImagesMoneyOrderCol = collection(db, `${basePath}/kiosk_images_moneyOrder`);
+            kioskImagesCheckCol = collection(db, `${basePath}/kiosk_images_check`);
+            kioskSettingsDocRef = doc(db, `${basePath}/kiosk_settings/display`);
+            document.getElementById('userInfo').textContent = `معرف المستخدم: ${userId}`;
+
+            // Setup real-time listeners
+            unsubscribeListeners.push(onSnapshot(query(deliveriesCol, orderBy("createdAt", "desc")), snap => { records = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRecords(records); }));
+            unsubscribeListeners.push(onSnapshot(query(routesCol), snap => { routes = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRoutesList(); renderKioskOptions(); }));
+            unsubscribeListeners.push(onSnapshot(query(kioskImagesMoneyOrderCol, orderBy("createdAt")), snap => { instructionalImages.moneyOrder = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderImageLibrary('moneyOrder'); }));
+            unsubscribeListeners.push(onSnapshot(query(kioskImagesCheckCol, orderBy("createdAt")), snap => { instructionalImages.check = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderImageLibrary('check'); }));
+            unsubscribeListeners.push(onSnapshot(kioskSettingsDocRef, (docSnap) => { if (docSnap.exists() && docSnap.data().backgroundUrl) customerKioskView.style.backgroundImage = `url(${docSnap.data().backgroundUrl})`; }));
         }
         
         async function main() {
+            // --- These variables are expected to be injected by the environment ---
+            const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{"projectId":"poste-b276e"}';
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
             try {
-                const firebaseConfig = {"apiKey":"AIzaSyDIESGl6TXDRtzbP7NZtOHGJa9pRY83_oY","authDomain":"poste-b276e.firebaseapp.com","projectId":"poste-b276e","storageBucket":"poste-b276e.appspot.com"};
+                const firebaseConfig = JSON.parse(firebaseConfigStr);
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
                 
-                await signInAnonymously(auth);
+                onAuthStateChanged(auth, user => {
+                    if (user) {
+                        // User is signed in. Initialize their data.
+                        initializeAppData(user.uid);
+                    } else {
+                        // User is signed out. Attempt to sign them in.
+                        if (initialAuthToken) {
+                            signInWithCustomToken(auth, initialAuthToken).catch(error => {
+                                console.error("Custom token sign-in failed:", error);
+                                signInAnonymously(auth); // Fallback to anonymous
+                            });
+                        } else {
+                            signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
+                        }
+                    }
+                });
+
+                // Set initial UI state
+                document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+                setupEventListeners();
                 
-                credentialsCol = collection(db, 'credentials');
-                await bootstrapAdminUser();
-                
-                const loggedInUser = sessionStorage.getItem('loggedInUser');
-                if (loggedInUser) {
-                    showMainView();
-                    initializeAppData(loggedInUser);
-                } else { showLoginView(); }
-            } catch (e) { console.error("Critical initialization failed:", e); }
+            } catch (e) {
+                console.error("Critical initialization failed:", e);
+                document.body.innerHTML = `<h1>فشل تهيئة التطبيق. يرجى مراجعة وحدة التحكم.</h1><pre>${e.message}</pre>`;
+            }
         }
+        
         main();
     </script>
 </body>
