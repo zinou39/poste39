@@ -21,6 +21,7 @@
             --shadow-color: rgba(11, 18, 32, 0.07);
             --success-color: #1e8e3e;
             --danger-color: #d93025;
+            --warning-color: #f9ab00;
         }
 
         body {
@@ -144,10 +145,10 @@
             10%, 90% { opacity: 1; transform: translateY(0); }
         }
         
-        .image-library-list, #route-list, #item-type-list { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
-        .image-library-list li, #route-list li, #item-type-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); }
-        .image-library-list li:last-child, #route-list li:last-child, #item-type-list li:last-child { border-bottom: none; }
-        .image-library-list img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-left: 10px; }
+        .list-container { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
+        .list-container li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); }
+        .list-container li:last-child { border-bottom: none; }
+        .list-container img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-left: 10px; }
         
         /* Customer Kiosk View Styles */
         #customerKioskView {
@@ -181,63 +182,33 @@
             font-size: 1.5rem; font-weight: 600; color: var(--primary-color); min-height: 50px;
         }
 
-        #kiosk-slideshow-view {
-            margin-top: 24px;
-            width: 100%;
-        }
         .slideshow-item {
-            display: none;
-            width: 100%;
-            text-align: center;
-            animation: fadeIn 0.5s;
+            display: none; width: 100%; text-align: center; animation: fadeIn 0.5s;
         }
-        .slideshow-item.active {
-            display: block;
-        }
+        .slideshow-item.active { display: block; }
         .slideshow-item img {
-            width: 100%;
-            max-height: 60vh;
-            object-fit: contain;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px var(--shadow-color);
+            width: 100%; max-height: 60vh; object-fit: contain;
+            border-radius: 12px; box-shadow: 0 8px 24px var(--shadow-color);
         }
-        .slideshow-item figcaption {
-            margin-top: 16px;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        .slideshow-item figcaption { margin-top: 16px; font-size: 1.5rem; font-weight: 600; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         #kiosk-listening-view, #kiosk-result-view { text-align: center; }
         #kiosk-mic-icon { width: 120px; height: 120px; fill: var(--primary-color); animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         #kiosk-status { font-size: 1.5rem; font-weight: 500; margin-top: 24px; color: var(--muted-text-color); }
         #kiosk-result-text {
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 32px;
-            background: var(--surface-color);
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px var(--shadow-color);
-            color: var(--primary-color);
-            max-width: 90%;
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.5;
+            font-size: 2rem; font-weight: 600; margin-bottom: 16px; background: var(--surface-color);
+            padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px var(--shadow-color);
+            color: var(--primary-color); max-width: 90%; margin: 0 auto 16px auto; line-height: 1.5;
         }
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: auto; }
         th, td { padding: 12px; border-bottom: 1px solid #eef0f6; text-align: right; white-space: nowrap; }
         th { background: #fbfcff; font-weight: 700; font-size: 0.9rem; }
-        .delivered-row {
-            text-decoration: line-through;
-            color: var(--muted-text-color);
-            background-color: #fafafa;
-        }
+        
+        .delivered-row { text-decoration: line-through; color: var(--muted-text-color); background-color: #fafafa; }
+        .confirmed-row { background-color: #fffbe6; font-weight: 600; color: #b47409;}
     </style>
 </head>
 <body>
@@ -276,8 +247,21 @@
                     </div>
                 </div>
             </form>
+            
+            <div id="confirmed-section" style="margin-top: 32px;">
+                <h3 style="color: var(--warning-color); border-color: var(--warning-color);">قائمة الحاضرين 
+                    <button id="clearConfirmationsBtn" class="btn btn-danger" type="button" style="float: left; font-size: 0.8rem; padding: 6px 10px;">مسح القائمة</button>
+                </h3>
+                <div style="overflow-x: auto;">
+                    <table id="confirmedRecordsTable">
+                        <thead><tr><th>الاسم</th><th>النوع</th><th>الشباك</th><th>إجراءات</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
 
-            <div class="controls" style="margin-top: 24px;">
+            <h3 style="margin-top: 32px;">جميع السجلات</h3>
+            <div class="controls" style="margin-top: 12px;">
                 <input id="search" placeholder="بحث بالاسم أو الهاتف..." style="width: 100%; box-sizing: border-box;" />
             </div>
 
@@ -290,7 +274,6 @@
         </div>
     </div>
     
-    <!-- Customer Kiosk View -->
     <div id="customerKioskView">
         <div id="kiosk-main-view">
             <h2>أهلاً بك</h2>
@@ -320,6 +303,7 @@
         </div>
         <div id="kiosk-result-view" style="display: none;">
             <p id="kiosk-result-text"></p>
+            <button id="kiosk-confirm-presence-btn" class="btn btn-success" style="display: none; margin-right: 10px;">للاستلام اضغط على 1</button>
             <button id="kiosk-back-btn" class="btn btn-primary">عودة للقائمة الرئيسية</button>
         </div>
 
@@ -340,7 +324,7 @@
                     <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة خدمة</button>
                 </form>
                 <h4 style="margin-top: 20px;">القائمة الحالية</h4>
-                <ul id="route-list"></ul>
+                <ul id="route-list" class="list-container"></ul>
                 <hr style="margin: 20px 0;">
                 
                 <h4>إدارة أنواع المستلم</h4>
@@ -350,7 +334,7 @@
                     <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة نوع</button>
                 </form>
                 <h4 style="margin-top: 20px;">الأنواع المضافة</h4>
-                <ul id="item-type-list"></ul>
+                <ul id="item-type-list" class="list-container"></ul>
                 <hr style="margin: 20px 0;">
 
                 <h4>الصور التعليمية للحوالة البريدية</h4>
@@ -359,7 +343,7 @@
                     <label for="imageUrl-moneyOrder">رابط الصورة</label><input type="url" id="imageUrl-moneyOrder" required placeholder="https://...">
                     <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة صورة للحوالة</button>
                 </form>
-                <ul id="image-library-list-moneyOrder" class="image-library-list"></ul>
+                <ul id="image-library-list-moneyOrder" class="list-container"></ul>
                 <hr style="margin: 20px 0;">
                 
                 <h4>الصور التعليمية لملء الصك</h4>
@@ -368,14 +352,13 @@
                     <label for="imageUrl-check">رابط الصورة</label><input type="url" id="imageUrl-check" required placeholder="https://...">
                     <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة صورة للصك</button>
                 </form>
-                <ul id="image-library-list-check" class="image-library-list"></ul>
+                <ul id="image-library-list-check" class="list-container"></ul>
                 <hr style="margin: 20px 0;">
 
                 <h4>صورة خلفية الواجهة</h4>
                 <label for="bgImageUrl">رابط صورة الخلفية</label>
                 <input type="url" id="bgImageUrl" placeholder="https://...">
                 <button id="saveBgBtn" class="btn btn-primary" style="width:100%; margin-top:10px;">حفظ الخلفية</button>
-
             </div>
             <div class="modal-footer"><button id="closeKioskSettingsModal" class="btn btn-ghost">إغلاق</button></div>
         </div>
@@ -393,18 +376,15 @@
     </div>
     
     <script type="module">
-        // Firebase 11.6.1 Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, setDoc, serverTimestamp, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, setDoc, serverTimestamp, orderBy, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
-        // --- Global Variables & App State ---
         let db, auth;
         let records = [], routes = [], instructionalImages = { moneyOrder: [], check: [] }, customItemTypes = [];
         let deliveriesCol, routesCol, kioskImagesMoneyOrderCol, kioskImagesCheckCol, kioskSettingsDocRef, itemTypesCol;
         let unsubscribeListeners = [];
 
-        // --- DOM Element Cache ---
         const mainView = document.getElementById('mainView'), customerKioskView = document.getElementById('customerKioskView');
         const showKioskSettingsBtn = document.getElementById('showKioskSettingsBtn'), kioskSettingsModal = document.getElementById('kioskSettingsModal'), closeKioskSettingsModal = document.getElementById('closeKioskSettingsModal');
         const showCustomerViewBtn = document.getElementById('showCustomerViewBtn'), kioskExitBtn = document.getElementById('kiosk-exit-btn');
@@ -414,15 +394,16 @@
         const kioskFinancialList = document.getElementById('kiosk-financial-list'), kioskSlideshowView = document.getElementById('kiosk-slideshow-view');
         const converterTitle = document.getElementById('converterTitle'), kioskOptionsList = document.getElementById('kiosk-options-list');
         const kioskListeningView = document.getElementById('kiosk-listening-view'), kioskResultView = document.getElementById('kiosk-result-view');
-        const kioskStatus = document.getElementById('kiosk-status'), kioskResultText = document.getElementById('kiosk-result-text'), kioskBackBtn = document.getElementById('kiosk-back-btn');
+        const kioskStatus = document.getElementById('kiosk-status'), kioskResultText = document.getElementById('kiosk-result-text'), kioskBackBtn = document.getElementById('kiosk-back-btn'), kioskConfirmPresenceBtn = document.getElementById('kiosk-confirm-presence-btn');
         const tbody = document.querySelector('#recordsTable tbody'), form = document.getElementById('deliveryForm');
+        const confirmedTbody = document.querySelector('#confirmedRecordsTable tbody');
         const searchInput = document.getElementById('search');
         const downloadExcelBtn = document.getElementById('downloadExcelBtn');
         const addRouteForm = document.getElementById('addRouteForm'), routeNumberEl = document.getElementById('routeNumber'), routeItemTypeEl = document.getElementById('routeItemType'), routeList = document.getElementById('route-list');
         const addItemTypeForm = document.getElementById('addItemTypeForm');
         const itemTypeListContainer = document.getElementById('item-type-list');
+        const clearConfirmationsBtn = document.getElementById('clearConfirmationsBtn');
 
-        // --- Speech Recognition & Synthesis ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
 
@@ -432,15 +413,10 @@
                 voicesPromise = new Promise(resolve => {
                     const checkVoices = () => {
                         const voices = speechSynthesis.getVoices();
-                        if (voices.length > 0) {
-                            resolve(voices);
-                        }
+                        if (voices.length > 0) resolve(voices);
                     };
-                    if (speechSynthesis.getVoices().length > 0) {
-                        resolve(speechSynthesis.getVoices());
-                    } else {
-                        speechSynthesis.onvoiceschanged = checkVoices;
-                    }
+                    if (speechSynthesis.getVoices().length > 0) resolve(speechSynthesis.getVoices());
+                    else speechSynthesis.onvoiceschanged = checkVoices;
                 });
             }
             return voicesPromise;
@@ -449,49 +425,24 @@
         async function speak(text) {
             try {
                 if (!window.speechSynthesis) {
-                    console.error("Speech Synthesis not supported by this browser.");
-                    showToast('النطق الصوتي غير مدعوم في هذا المتصفح.', true);
-                    return;
+                    console.error("Speech Synthesis not supported."); showToast('النطق الصوتي غير مدعوم.', true); return;
                 }
-
-                if (speechSynthesis.paused) {
-                    speechSynthesis.resume();
-                }
-                
+                if (speechSynthesis.paused) speechSynthesis.resume();
                 const voices = await getVoices();
-                
-                speechSynthesis.cancel(); 
-
+                speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'ar-SA';
-
-                const arabicVoice = voices.find(voice => voice.lang === 'ar-SA');
-                
-                if (arabicVoice) {
-                    utterance.voice = arabicVoice;
-                } else {
-                    console.warn('Arabic (ar-SA) voice not found. The system will use the default voice.');
-                }
-
-                utterance.onerror = (event) => {
-                    console.error('SpeechSynthesisUtterance.onerror:', event);
-                    let errorMsg = 'حدث خطأ أثناء محاولة نطق النص.';
-                    if (event.error) {
-                       errorMsg += ` (Error: ${event.error})`;
-                    }
-                    showToast(errorMsg, true);
+                utterance.voice = voices.find(v => v.lang === 'ar-SA') || null;
+                utterance.onerror = (e) => {
+                    console.error('SpeechSynthesisUtterance.onerror:', e);
+                    showToast(`حدث خطأ أثناء نطق النص: ${e.error}`, true);
                 };
-                
                 speechSynthesis.speak(utterance);
-
             } catch (e) {
-                console.error("Speech Synthesis Error:", e);
-                showToast('فشل تشغيل الصوت.', true);
+                console.error("Speech Synthesis Error:", e); showToast('فشل تشغيل الصوت.', true);
             }
         }
 
-
-        // --- Utility Functions ---
         const escapeHtml = s => s ? String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : '';
         
         const showToast = (message, isError = false) => {
@@ -507,165 +458,70 @@
             const modal = document.getElementById('confirmationModal');
             document.getElementById('confirmMessage').textContent = message;
             modal.classList.add('visible');
-
             const okBtn = document.getElementById('confirmOkBtn');
             const cancelBtn = document.getElementById('confirmCancelBtn');
-
             const close = () => modal.classList.remove('visible');
-            
-            const onOkClick = () => {
-                close();
-                onConfirm();
-            };
-
-            okBtn.onclick = onOkClick;
+            okBtn.onclick = () => { close(); onConfirm(); };
             cancelBtn.onclick = close;
         };
         
-        // --- View Management ---
         const showCustomerKiosk = () => { mainView.style.display = 'none'; customerKioskView.style.display = 'flex'; };
         const showMainView = () => { mainView.style.display = 'block'; customerKioskView.style.display = 'none'; };
         const closeModal = (modalId) => document.getElementById(modalId)?.classList.remove('visible');
 
         function showKioskMain() {
             kioskMainView.style.display = 'block';
-            amountConverterView.style.display = 'none';
-            kioskListeningView.style.display = 'none';
-            kioskResultView.style.display = 'none';
+            [amountConverterView, kioskListeningView, kioskResultView].forEach(v => v.style.display = 'none');
             stopSlideshow();
         }
         
         const showKioskListening = (status) => {
-            kioskMainView.style.display = 'none';
-            amountConverterView.style.display = 'none';
+            [kioskMainView, amountConverterView, kioskResultView].forEach(v => v.style.display = 'none');
             kioskListeningView.style.display = 'block';
-            kioskResultView.style.display = 'none';
             kioskStatus.textContent = status;
         };
         
-        const showKioskResult = (result) => {
-            kioskMainView.style.display = 'none';
-            amountConverterView.style.display = 'none';
-            kioskListeningView.style.display = 'none';
+        const showKioskResult = (result, recordId = null) => {
+            [kioskMainView, amountConverterView, kioskListeningView].forEach(v => v.style.display = 'none');
             kioskResultView.style.display = 'block';
             kioskResultText.textContent = result;
+            if (recordId) {
+                kioskConfirmPresenceBtn.style.display = 'inline-block';
+                kioskConfirmPresenceBtn.dataset.id = recordId;
+            } else {
+                kioskConfirmPresenceBtn.style.display = 'none';
+            }
         };
 
         function showAmountConverter(type) {
             kioskMainView.style.display = 'none';
             amountConverterView.style.display = 'block';
             converterTitle.textContent = type === 'moneyOrder' ? "مساعد إرسال حوالة" : "مساعد ملء صك";
-            amountInput.value = '';
-            amountInWords.textContent = '';
+            amountInput.value = ''; amountInWords.textContent = '';
             startSlideshow(type);
             setTimeout(() => amountInput.focus(), 50); 
         }
 
-        // --- Core Application Logic ---
         function numberToArabicWords(number) {
             if (typeof number !== 'number' || isNaN(number)) return '';
             if (number === 0) return "صفر";
-
-            const units = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"];
-            const tens = ["", "عشرة", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"];
-            const teens = ["عشرة", "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
-
-            let words = "";
-
-            function convertLessThanOneThousand(num) {
-                let currentWords = "";
-                if (num >= 100) {
-                    if (Math.floor(num / 100) === 1) currentWords += "مئة ";
-                    else if (Math.floor(num / 100) === 2) currentWords += "مئتان ";
-                    else currentWords += units[Math.floor(num / 100)] + "مئة ";
-                    num %= 100;
-                }
-                if (num > 0) {
-                    if (currentWords !== "") currentWords += " و ";
-                    if (num < 10) currentWords += units[num];
-                    else if (num < 20) currentWords += teens[num - 10];
-                    else {
-                        currentWords += units[num % 10] + (num % 10 !== 0 ? " و " : "") + tens[Math.floor(num / 10)];
-                    }
-                }
-                return currentWords;
-            }
-
-            if (number >= 1000000) {
-                let millions = Math.floor(number / 1000000);
-                if (millions === 1) words += "مليون ";
-                else if (millions === 2) words += "مليونان ";
-                else if (millions >= 3 && millions <= 10) words += convertLessThanOneThousand(millions) + " ملايين ";
-                else words += convertLessThanOneThousand(millions) + " مليون ";
-                number %= 1000000;
-            }
-
-            if (number >= 1000) {
-                let thousands = Math.floor(number / 1000);
-                if (words !== "") words += "و ";
-                if (thousands === 1) words += "ألف ";
-                else if (thousands === 2) words += "ألفان ";
-                else if (thousands >= 3 && thousands <= 10) words += convertLessThanOneThousand(thousands) + " آلاف ";
-                else words += convertLessThanOneThousand(thousands) + " ألف ";
-                number %= 1000;
-            }
-
-            if (number > 0) {
-                if (words !== "") words += "و ";
-                words += convertLessThanOneThousand(number);
-            }
-            return words.trim();
+            const units=["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة"],tens=["","عشرة","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"],teens=["عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];let words="";function convert(num){let str="";if(num>=100){if(Math.floor(num/100)===1)str+="مئة ";else if(Math.floor(num/100)===2)str+="مئتان ";else str+=units[Math.floor(num/100)]+"مئة ";num%=100}if(num>0){if(str!=="")str+=" و ";if(num<10)str+=units[num];else if(num<20)str+=teens[num-10];else{str+=units[num%10]+(num%10!==0?" و ":"")+tens[Math.floor(num/10)]}}return str}if(number>=1000000){let m=Math.floor(number/1000000);if(m===1)words+="مليون ";else if(m===2)words+="مليونان ";else if(m>=3&&m<=10)words+=convert(m)+" ملايين ";else words+=convert(m)+" مليون ";number%=1000000}if(number>=1000){if(words!=="")words+="و ";let t=Math.floor(number/1000);if(t===1)words+="ألف ";else if(t===2)words+="ألفان ";else if(t>=3&&t<=10)words+=convert(t)+" آلاف ";else words+=convert(t)+" ألف ";number%=1000}if(number>0){if(words!=="")words+="و ";words+=convert(number)}return words.trim()
         }
 
-        async function addInstructionalImage(url, title, type) {
-            const form = document.getElementById(`addImageForm-${type}`);
-            if (!url || !title) return;
-            try {
-                const targetCol = type === 'moneyOrder' ? kioskImagesMoneyOrderCol : kioskImagesCheckCol;
-                await addDoc(targetCol, { imageUrl: url, title: title, createdAt: serverTimestamp() });
-                form.reset();
-                showToast('تمت إضافة الصورة بنجاح.');
-            } catch (error) { console.error("Save failed", error); showToast('فشل حفظ الصورة.', true); }
-        }
-        
-        async function saveBgImage(url) {
-            if (!url) return;
-            try {
-                await setDoc(kioskSettingsDocRef, { backgroundUrl: url }, { merge: true });
-                showToast('تم حفظ الخلفية بنجاح!');
-            } catch (e) { console.error("BG Save failed", e); showToast('فشل حفظ الخلفية.', true); }
-        }
-        
-        async function deleteInstructionalImage(imageData, type) {
-            showConfirmation(`هل أنت متأكد من حذف صورة "${imageData.title}"؟`, async () => {
-                 try {
-                    const targetCol = type === 'moneyOrder' ? kioskImagesMoneyOrderCol : kioskImagesCheckCol;
-                    await deleteDoc(doc(db, targetCol.path, imageData.id));
-                    showToast('تم الحذف بنجاح.');
-                } catch(e) { console.error("Deletion failed", e); showToast("فشل الحذف.", true); }
-            });
-        }
-        
-        // --- Rendering Functions ---
         function populateAllItemTypeDropdowns() {
             const defaultTypes = ["دفتر صكوك", "بطاقة ذهبية", "حوالة بريدية", "رسالة", "ارسال طرد", "أخرى"];
             const customTypeNames = customItemTypes.map(item => item.name);
             const allTypes = [...new Set([...defaultTypes, ...customTypeNames])].sort();
-
             const selects = [document.getElementById('itemType'), document.getElementById('routeItemType')];
-            
             selects.forEach(selectEl => {
                 const selectedValue = selectEl.value;
                 selectEl.innerHTML = '';
                 allTypes.forEach(type => {
                     const option = document.createElement('option');
-                    option.value = type;
-                    option.textContent = type;
+                    option.value = type; option.textContent = type;
                     selectEl.appendChild(option);
                 });
-                if (allTypes.includes(selectedValue)) {
-                    selectEl.value = selectedValue;
-                }
+                if (allTypes.includes(selectedValue)) selectEl.value = selectedValue;
             });
         }
 
@@ -678,48 +534,32 @@
             });
         }
 
+        function renderRecords(allRecords) {
+            const confirmedRecords = allRecords.filter(r => r.status === 'confirmed');
+            const otherRecords = allRecords.filter(r => r.status !== 'confirmed');
 
-        function renderImageLibrary(type) {
-            const listEl = document.getElementById(`image-library-list-${type}`);
-            const images = instructionalImages[type];
-            listEl.innerHTML = '';
-            images.forEach(img => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span><img src="${escapeHtml(img.imageUrl)}" alt="thumbnail"/> ${escapeHtml(img.title)}</span><button class="btn btn-danger delete-image-btn" data-id="${img.id}">حذف</button>`;
-                li.querySelector('.delete-image-btn').onclick = () => deleteInstructionalImage(img, type);
-                listEl.appendChild(li);
-            });
-        }
-        
-        let slideshowTimeout;
-        function stopSlideshow() { clearTimeout(slideshowTimeout); }
-        
-        function startSlideshow(type) {
-            stopSlideshow();
-            kioskSlideshowView.innerHTML = '';
-            const images = instructionalImages[type];
-            if (images.length === 0) return;
-            let currentIndex = 0;
-            function showNextImage() {
-                if (currentIndex >= images.length) { currentIndex = 0; } // Loop slideshow
-                const imgData = images[currentIndex];
-                kioskSlideshowView.innerHTML = `<figure class="slideshow-item active"><img src="${escapeHtml(imgData.imageUrl)}" alt="${escapeHtml(imgData.title)}"><figcaption>${escapeHtml(imgData.title)}</figcaption></figure>`;
-                currentIndex++;
-                slideshowTimeout = setTimeout(showNextImage, 5000);
-            }
-            showNextImage();
-        }
-
-        function renderRecords(recordsToDisplay) {
-            tbody.innerHTML = '';
-            recordsToDisplay.forEach(r => {
+            confirmedTbody.innerHTML = '';
+            confirmedRecords.forEach(r => {
                 const tr = document.createElement('tr');
-                if (r.isDelivered) {
-                    tr.classList.add('delivered-row');
-                }
-                const statusText = r.isDelivered ? 'تم التسليم' : 'قيد الانتظار';
-                const toggleButtonText = r.isDelivered ? 'إلغاء' : 'تسليم';
-                const toggleButtonClass = r.isDelivered ? 'btn-ghost' : 'btn-success';
+                tr.classList.add('confirmed-row');
+                tr.innerHTML = `<td>${escapeHtml(r.name)}</td>
+                                <td>${escapeHtml(r.itemType)}</td>
+                                <td>${escapeHtml(r.counter||'')}</td>
+                                <td class="actions">
+                                    <button data-id="${r.id}" class="btn btn-success btn-toggle-status">تسليم</button>
+                                </td>`;
+                confirmedTbody.appendChild(tr);
+            });
+            document.getElementById('confirmed-section').style.display = confirmedRecords.length > 0 ? 'block' : 'none';
+
+            tbody.innerHTML = '';
+            otherRecords.forEach(r => {
+                const tr = document.createElement('tr');
+                if (r.status === 'delivered') tr.classList.add('delivered-row');
+                
+                const statusText = r.status === 'pending' ? 'قيد الانتظار' : (r.status === 'delivered' ? 'تم التسليم' : r.status);
+                const toggleButtonText = r.status === 'delivered' ? 'إلغاء' : 'تسليم';
+                const toggleButtonClass = r.status === 'delivered' ? 'btn-ghost' : 'btn-success';
 
                 tr.innerHTML = `<td>${escapeHtml(r.name)}</td>
                                 <td>${escapeHtml(r.phone||'')}</td>
@@ -737,6 +577,7 @@
                 tbody.appendChild(tr);
             });
         }
+
         function renderRoutesList() {
             routeList.innerHTML = '';
             [...routes].sort((a,b)=>a.number-b.number).forEach(r => {
@@ -756,8 +597,8 @@
         }
         
         function startInquiry(itemType) {
-            if (!SpeechRecognition) { return showToast("البحث الصوتي غير مدعوم في هذا المتصفح.", true); }
-            if (recognition && kioskListeningView.style.display === 'block') { return; }
+            if (!SpeechRecognition) { return showToast("البحث الصوتي غير مدعوم.", true); }
+            if (recognition && kioskListeningView.style.display === 'block') return;
 
             const promptText = "يرجى ذكر اسمك الكامل، رقم هاتفك، أو رقم حسابك.";
             showKioskListening(`جاري الاستماع... ${promptText}`);
@@ -769,32 +610,28 @@
             
             recognition.onresult = (event) => {
                 const spokenText = event.results[0][0].transcript.trim().toLowerCase().replace(/\s/g, ''); 
-                const pendingRecords = records.filter(r => !r.isDelivered);
+                const pendingRecords = records.filter(r => r.status === 'pending');
                 
                 const foundRecord = pendingRecords.find(r =>  
-                    r.itemType === itemType &&
-                    (
-                        r.name.toLowerCase().includes(spokenText) || 
-                        (r.phone && r.phone.replace(/\s/g, '').includes(spokenText)) ||
-                        (r.accountNumber && r.accountNumber.replace(/\s/g, '').includes(spokenText))
-                    )
+                    r.itemType === itemType && (r.name.toLowerCase().includes(spokenText) || 
+                    (r.phone && r.phone.replace(/\s/g, '').includes(spokenText)) ||
+                    (r.accountNumber && r.accountNumber.replace(/\s/g, '').includes(spokenText)))
                 );
                 
-                let resultText = foundRecord ? `نعم يا ${foundRecord.name}، لديك ${itemType} جاهز للاستلام. يرجى التوجه إلى الشباك رقم ${foundRecord.counter || 'المخصص'}.`
-                                             : `عذرًا، لم نجد أي ${itemType} مسجل باسمك وهو قيد الانتظار.`;
-                
-                showKioskResult(resultText);
-                speak(resultText);
+                if (foundRecord) {
+                    const resultText = `نعم يا ${foundRecord.name}، لديك ${itemType} جاهز للاستلام. يرجى تأكيد حضورك للتوجه إلى الشباك رقم ${foundRecord.counter || 'المخصص'}.`;
+                    showKioskResult(resultText, foundRecord.id);
+                    speak(resultText);
+                } else {
+                    const resultText = `عذرًا، لم نجد أي ${itemType} مسجل باسمك وهو قيد الانتظار.`;
+                    showKioskResult(resultText);
+                    speak(resultText);
+                }
             };
 
             recognition.onerror = (event) => {
                 console.error("Speech Recognition Error:", event.error);
-                let errorText;
-                if (event.error === 'no-speech') {
-                    errorText = "لم يتم اكتشاف أي صوت. يرجى المحاولة مرة أخرى والتحدث بوضوح.";
-                } else {
-                    errorText = "عذرًا، حدث خطأ في التعرف على الصوت. يرجى المحاولة مرة أخرى.";
-                }
+                let errorText = event.error === 'no-speech' ? "لم يتم اكتشاف أي صوت. يرجى المحاولة مرة أخرى." : "عذرًا، حدث خطأ في التعرف على الصوت.";
                 showKioskResult(errorText);
                 speak(errorText);
             };
@@ -811,111 +648,79 @@
         }
 
         function downloadAsExcel() {
-            if (records.length === 0) {
-                showToast('لا توجد بيانات لتنزيلها.', true);
-                return;
-            }
-
+            if (records.length === 0) { showToast('لا توجد بيانات لتنزيلها.', true); return; }
             const headers = ["الاسم", "الهاتف", "رقم الحساب", "النوع", "رقم بطاقة التعريف", "تاريخ الإصدار", "مكان الإصدار", "الشباك", "الحالة"];
-            
             const sanitizeCell = (cellData) => {
                 const data = String(cellData || '');
-                if (data.includes(',') || data.includes('"')) {
-                    return `"${data.replace(/"/g, '""')}"`;
-                }
-                return data;
+                return data.includes(',') || data.includes('"') ? `"${data.replace(/"/g, '""')}"` : data;
             };
-
             let csvContent = headers.join(',') + '\r\n';
-
-            records.forEach(record => {
-                const row = [
-                    record.name,
-                    record.phone,
-                    record.accountNumber,
-                    record.itemType,
-                    record.idCardNumber,
-                    record.idCardIssueDate,
-                    record.idCardIssuePlace,
-                    record.counter,
-                    record.isDelivered ? 'تم التسليم' : 'قيد الانتظار'
-                ].map(sanitizeCell).join(',');
+            records.forEach(r => {
+                const row = [r.name, r.phone, r.accountNumber, r.itemType, r.idCardNumber, r.idCardIssueDate, r.idCardIssuePlace, r.counter, r.status].map(sanitizeCell).join(',');
                 csvContent += row + '\r\n';
             });
-
-            const bom = new Uint8Array([0xEF, 0xBB, 0xBF]); // BOM for UTF-8
+            const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
             const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
-
             const link = document.createElement("a");
-            if (link.download !== undefined) { 
-                const url = URL.createObjectURL(blob);
-                const date = new Date().toISOString().slice(0, 10);
-                link.setAttribute("href", url);
-                link.setAttribute("download", `records-${date}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `records-${new Date().toISOString().slice(0, 10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
-
-        // --- Event Listeners Setup ---
         function setupEventListeners() {
             showKioskSettingsBtn.addEventListener('click', () => kioskSettingsModal.classList.add('visible'));
             closeKioskSettingsModal.addEventListener('click', () => closeModal('kioskSettingsModal'));
             
-            addRouteForm.addEventListener('submit', async (e) => { 
-                e.preventDefault(); 
-                await addDoc(routesCol, { number: parseInt(routeNumberEl.value), itemType: routeItemTypeEl.value }); 
-                addRouteForm.reset(); 
-            });
-            
+            addRouteForm.addEventListener('submit', async (e) => { e.preventDefault(); await addDoc(routesCol, { number: parseInt(routeNumberEl.value), itemType: routeItemTypeEl.value }); addRouteForm.reset(); });
             routeList.addEventListener('click', (e) => { if (e.target.classList.contains('delete-route-btn')) deleteDoc(doc(db, routesCol.path, e.target.dataset.id)); });
             
             addItemTypeForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const newItemTypeNameInput = document.getElementById('newItemTypeName');
-                const newName = newItemTypeNameInput.value.trim();
+                const newName = document.getElementById('newItemTypeName').value.trim();
                 if (newName) {
                     await addDoc(itemTypesCol, { name: newName });
-                    newItemTypeNameInput.value = '';
-                    showToast('تمت إضافة النوع بنجاح.');
+                    document.getElementById('newItemTypeName').value = ''; showToast('تمت إضافة النوع بنجاح.');
                 }
             });
 
             itemTypeListContainer.addEventListener('click', (e) => {
                 if (e.target.classList.contains('delete-item-type-btn')) {
-                    const typeId = e.target.dataset.id;
-                    showConfirmation('هل أنت متأكد من حذف هذا النوع؟ سيتم حذفه نهائياً.', () => {
-                        deleteDoc(doc(db, itemTypesCol.path, typeId));
-                    });
+                    showConfirmation('هل أنت متأكد من حذف هذا النوع؟', () => deleteDoc(doc(db, itemTypesCol.path, e.target.dataset.id)));
                 }
+            });
+            
+            clearConfirmationsBtn.addEventListener('click', () => {
+                showConfirmation('هل أنت متأكد من مسح قائمة الحاضرين؟ ستعود كل السجلات إلى "قيد الانتظار".', async () => {
+                    const confirmed = records.filter(r => r.status === 'confirmed');
+                    if (confirmed.length > 0) {
+                        const batch = writeBatch(db);
+                        confirmed.forEach(rec => batch.update(doc(db, deliveriesCol.path, rec.id), { status: 'pending' }));
+                        await batch.commit();
+                        showToast('تم مسح قائمة الحاضرين بنجاح.');
+                    }
+                });
             });
 
             downloadExcelBtn.addEventListener('click', downloadAsExcel);
             showCustomerViewBtn.addEventListener('click', () => { showCustomerKiosk(); showKioskMain(); renderKioskOptions(); });
             kioskExitBtn.addEventListener('click', showMainView);
             
-            kioskFinancialList.addEventListener('click', (e) => {
-                const li = e.target.closest('li');
-                if (li && li.dataset.formType) {
-                    showAmountConverter(li.dataset.formType);
-                }
-            });
-
-            amountInput.addEventListener('input', () => {
-                const num = parseInt(amountInput.value, 10);
-                amountInWords.textContent = (!isNaN(num) && num > 0) ? numberToArabicWords(num) + " دينار جزائري" : '';
-            });
-
-            kioskOptionsList.addEventListener('click', (e) => {  
-                const li = e.target.closest('li');
-                if (li && li.dataset.itemType) startInquiry(li.dataset.itemType);
-            });
-            
+            kioskFinancialList.addEventListener('click', (e) => { if (e.target.closest('li')?.dataset.formType) showAmountConverter(e.target.closest('li').dataset.formType); });
+            amountInput.addEventListener('input', () => { const num = parseInt(amountInput.value, 10); amountInWords.textContent = (!isNaN(num) && num > 0) ? numberToArabicWords(num) + " دينار جزائري" : ''; });
+            kioskOptionsList.addEventListener('click', (e) => { if (e.target.closest('li')?.dataset.itemType) startInquiry(e.target.closest('li').dataset.itemType); });
             converterBackBtn.addEventListener('click', showKioskMain);
             kioskBackBtn.addEventListener('click', showKioskMain);
+            
+            kioskConfirmPresenceBtn.addEventListener('click', async (e) => {
+                const recordId = e.target.dataset.id;
+                if (recordId) {
+                    await updateDoc(doc(db, deliveriesCol.path, recordId), { status: 'confirmed' });
+                    showKioskResult('تم تأكيد حضورك. يرجى الانتظار.', null);
+                    speak('تم تأكيد حضورك. يرجى الانتظار.');
+                }
+            });
             
             document.getElementById('addImageForm-moneyOrder').addEventListener('submit', (e) => { e.preventDefault(); addInstructionalImage(document.getElementById('imageUrl-moneyOrder').value, document.getElementById('imageTitle-moneyOrder').value, 'moneyOrder'); });
             document.getElementById('addImageForm-check').addEventListener('submit', (e) => { e.preventDefault(); addInstructionalImage(document.getElementById('imageUrl-check').value, document.getElementById('imageTitle-check').value, 'check'); });
@@ -924,72 +729,57 @@
             form.addEventListener('submit', async (e) => {
                  e.preventDefault();
                  await addDoc(deliveriesCol, {
-                    name: form.name.value, 
-                    phone: form.phone.value, 
-                    accountNumber: form.accountNumber.value,
-                    itemType: form.itemType.value,
-                    counter: form.counter.value, 
-                    idCardNumber: form.idCardNumber.value,
-                    idCardIssueDate: form.idCardIssueDate.value,
-                    idCardIssuePlace: form.idCardIssuePlace.value,
-                    createdAt: serverTimestamp(),
-                    isDelivered: false
+                    name: form.name.value, phone: form.phone.value, accountNumber: form.accountNumber.value, itemType: form.itemType.value, counter: form.counter.value, 
+                    idCardNumber: form.idCardNumber.value, idCardIssueDate: form.idCardIssueDate.value, idCardIssuePlace: form.idCardIssuePlace.value,
+                    createdAt: serverTimestamp(), status: 'pending'
                  });
-                 form.reset();
-                 document.getElementById('idCardIssueDate').value = new Date().toISOString().slice(0, 10);
-                 showToast('تم حفظ السجل بنجاح.');
+                 form.reset(); document.getElementById('idCardIssueDate').value = new Date().toISOString().slice(0, 10); showToast('تم حفظ السجل بنجاح.');
             });
             
-            tbody.addEventListener('click', async (e) => { 
+            const handleTableClick = async (e) => { 
                 const target = e.target;
                 if (target.classList.contains('btn-del')) {
-                    const recordId = target.dataset.id;
-                    showConfirmation('هل أنت متأكد من حذف هذا السجل؟', () => {
-                        deleteDoc(doc(db, deliveriesCol.path, recordId));
-                    });
+                    showConfirmation('هل أنت متأكد من حذف هذا السجل؟', () => deleteDoc(doc(db, deliveriesCol.path, target.dataset.id)));
                 } else if (target.classList.contains('btn-toggle-status')) {
-                    const recordId = target.dataset.id;
-                    const record = records.find(r => r.id === recordId);
+                    const record = records.find(r => r.id === target.dataset.id);
                     if (record) {
-                        const newStatus = !record.isDelivered;
-                        await updateDoc(doc(db, deliveriesCol.path, recordId), { isDelivered: newStatus });
-                        showToast(newStatus ? 'تم تحديد السجل كمُسلّم.' : 'تمت إعادة السجل إلى قيد الانتظار.');
+                        const newStatus = record.status === 'delivered' ? (record.status = 'confirmed' ? 'pending' : 'pending') : 'delivered';
+                        await updateDoc(doc(db, deliveriesCol.path, target.dataset.id), { status: newStatus });
+                        showToast(newStatus === 'delivered' ? 'تم تحديد السجل كمُسلّم.' : 'تمت إعادة السجل إلى قيد الانتظار.');
                     }
                 }
-             });
+            };
+            tbody.addEventListener('click', handleTableClick);
+            confirmedTbody.addEventListener('click', handleTableClick);
 
             searchInput.addEventListener('input', (e) => {
                 const searchTerm = e.target.value.toLowerCase();
-                if (!searchTerm) {
-                    renderRecords(records);
-                    return;
-                }
-                const filteredRecords = records.filter(r => 
-                    r.name.toLowerCase().includes(searchTerm) || (r.phone && r.phone.includes(searchTerm))
-                );
-                renderRecords(filteredRecords);
+                renderRecords(searchTerm ? records.filter(r => r.name.toLowerCase().includes(searchTerm) || (r.phone && r.phone.includes(searchTerm))) : records);
             });
 
-            document.getElementById('resetBtn').addEventListener('click', () => {
-                form.reset();
-                document.getElementById('idCardIssueDate').value = new Date().toISOString().slice(0, 10);
-            });
+            document.getElementById('resetBtn').addEventListener('click', () => { form.reset(); document.getElementById('idCardIssueDate').value = new Date().toISOString().slice(0, 10); });
 
             window.addEventListener('keydown', (e) => {
-                if (customerKioskView.style.display === 'flex' && kioskMainView.style.display === 'block') {
-                    const key = e.key;
-                    if (!isNaN(key) && key >= '0' && key <= '9') {
-                        e.preventDefault(); 
-                        const deliveryOption = [...kioskOptionsList.querySelectorAll('li')].find(li => li.querySelector('.kiosk-number')?.textContent.trim() === key);
-                        if (deliveryOption) { startInquiry(deliveryOption.dataset.itemType); return; }
-                        const financialOption = [...kioskFinancialList.querySelectorAll('li')].find(li => li.querySelector('.kiosk-number')?.textContent.trim() === key);
-                        if (financialOption) { showAmountConverter(financialOption.dataset.formType); return; }
+                if (customerKioskView.style.display === 'flex') {
+                    if (kioskMainView.style.display === 'block') {
+                        const key = e.key;
+                        if (!isNaN(key) && key >= '0' && key <= '9') {
+                            e.preventDefault(); 
+                            const deliveryOption = [...kioskOptionsList.querySelectorAll('li')].find(li => li.querySelector('.kiosk-number')?.textContent.trim() === key);
+                            if (deliveryOption) { startInquiry(deliveryOption.dataset.itemType); return; }
+                            const financialOption = [...kioskFinancialList.querySelectorAll('li')].find(li => li.querySelector('.kiosk-number')?.textContent.trim() === key);
+                            if (financialOption) { showAmountConverter(financialOption.dataset.formType); return; }
+                        }
+                    } else if (kioskResultView.style.display === 'block') {
+                        if (e.key === '1' && kioskConfirmPresenceBtn.style.display !== 'none') {
+                            e.preventDefault();
+                            kioskConfirmPresenceBtn.click();
+                        }
                     }
                 }
             });
         }
         
-        // --- Firebase Initialization and Data Loading ---
         function clearListeners() {
             unsubscribeListeners.forEach(unsubscribe => unsubscribe());
             unsubscribeListeners = [];
@@ -998,27 +788,22 @@
         function initializeAppData(userId) {
             clearListeners();
             const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            
             const basePath = `artifacts/${appId}/users/${userId}`;
+            
             deliveriesCol = collection(db, `${basePath}/deliveries`);
             routesCol = collection(db, `${basePath}/customer_options`);
             itemTypesCol = collection(db, `${basePath}/custom_item_types`);
             kioskImagesMoneyOrderCol = collection(db, `${basePath}/kiosk_images_moneyOrder`);
             kioskImagesCheckCol = collection(db, `${basePath}/kiosk_images_check`);
             kioskSettingsDocRef = doc(db, `${basePath}/kiosk_settings/display`);
+            
             document.getElementById('userInfo').textContent = `معرف المستخدم: ${userId}`;
 
             unsubscribeListeners.push(onSnapshot(query(deliveriesCol, orderBy("createdAt", "desc")), snap => { records = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRecords(records); }));
             unsubscribeListeners.push(onSnapshot(query(routesCol), snap => { routes = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRoutesList(); renderKioskOptions(); }));
-            
-            unsubscribeListeners.push(onSnapshot(query(itemTypesCol, orderBy("name")), snap => { 
-                customItemTypes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                populateAllItemTypeDropdowns();
-                renderCustomItemTypesSettingsList();
-            }));
-
-            unsubscribeListeners.push(onSnapshot(query(kioskImagesMoneyOrderCol, orderBy("createdAt")), snap => { instructionalImages.moneyOrder = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderImageLibrary('moneyOrder'); }));
-            unsubscribeListeners.push(onSnapshot(query(kioskImagesCheckCol, orderBy("createdAt")), snap => { instructionalImages.check = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderImageLibrary('check'); }));
+            unsubscribeListeners.push(onSnapshot(query(itemTypesCol, orderBy("name")), snap => { customItemTypes = snap.docs.map(d => ({ id: d.id, ...d.data() })); populateAllItemTypeDropdowns(); renderCustomItemTypesSettingsList(); }));
+            unsubscribeListeners.push(onSnapshot(query(kioskImagesMoneyOrderCol, orderBy("createdAt")), snap => { instructionalImages.moneyOrder = snap.docs.map(d => ({ id: d.id, ...d.data() })); }));
+            unsubscribeListeners.push(onSnapshot(query(kioskImagesCheckCol, orderBy("createdAt")), snap => { instructionalImages.check = snap.docs.map(d => ({ id: d.id, ...d.data() })); }));
             unsubscribeListeners.push(onSnapshot(kioskSettingsDocRef, (docSnap) => { if (docSnap.exists() && docSnap.data().backgroundUrl) customerKioskView.style.backgroundImage = `url(${docSnap.data().backgroundUrl})`; }));
         }
         
@@ -1033,7 +818,7 @@
                     projectId: "poste-b276e",
                     storageBucket: "poste-b276e.appspot.com",
                     messagingSenderId: "855137728375",
-                    appId: "1:855137728375:web:YOUR_APP_ID" // يمكنك استبدال هذا بمعرف التطبيق الفعلي إذا لزم الأمر
+                    appId: "1:855137728375:web:5f1c3f2d2b1e2a0f3d6c7b"
                 };
 
             try {
