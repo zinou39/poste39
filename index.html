@@ -149,21 +149,35 @@
             font-size: 1.5rem; font-weight: 600; color: var(--primary-color); min-height: 50px;
         }
 
-        #kiosk-image-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
+        #kiosk-slideshow-view {
             margin-top: 24px;
             width: 100%;
         }
-        .gallery-item {
-            background: var(--surface-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px var(--shadow-color);
-            overflow: hidden;
+        .slideshow-item {
+            display: none;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 0.5s;
         }
-        .gallery-item img { width: 100%; height: auto; display: block; }
-        .gallery-item figcaption { padding: 12px; font-size: 1rem; font-weight: 500; text-align: center; }
+        .slideshow-item.active {
+            display: block;
+        }
+        .slideshow-item img {
+            width: 100%;
+            max-height: 60vh;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px var(--shadow-color);
+        }
+        .slideshow-item figcaption {
+            margin-top: 16px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
         #loginView { max-width: 400px; margin: 8vh auto 0 auto; }
         #kiosk-listening-view, #kiosk-result-view { text-align: center; }
@@ -249,7 +263,7 @@
                 <input id="amountInput" type="number" style="font-size: 2rem; text-align: center; padding: 15px;">
             </div>
             <div id="amountInWords"></div>
-            <div id="kiosk-image-gallery"></div>
+            <div id="kiosk-slideshow-view"></div>
             <button id="converter-back-btn" class="btn btn-ghost" style="margin-top: 20px;">عودة</button>
         </div>
         
@@ -331,7 +345,7 @@
         const loginForm = document.getElementById('loginForm'), usernameInput = document.getElementById('username'), passwordInput = document.getElementById('password');
         const logoutBtn = document.getElementById('logoutBtn');
         const kioskFinancialList = document.getElementById('kiosk-financial-list');
-        const kioskImageGallery = document.getElementById('kiosk-image-gallery');
+        const kioskSlideshowView = document.getElementById('kiosk-slideshow-view');
         const converterTitle = document.getElementById('converterTitle');
         const kioskOptionsList = document.getElementById('kiosk-options-list');
         const kioskListeningView = document.getElementById('kiosk-listening-view'), kioskResultView = document.getElementById('kiosk-result-view');
@@ -354,6 +368,7 @@
             amountConverterView.style.display = 'none';
             kioskListeningView.style.display = 'none';
             kioskResultView.style.display = 'none';
+            stopSlideshow();
         }
         
         const showKioskListening = (status) => {
@@ -420,23 +435,32 @@
             converterTitle.textContent = type === 'moneyOrder' ? "مساعد إرسال حوالة" : "مساعد ملء صك";
             amountInput.value = '';
             amountInWords.textContent = '';
-            kioskImageGallery.innerHTML = '';
+            kioskSlideshowView.innerHTML = '';
             
             amountInput.oninput = () => {
                 const num = parseInt(amountInput.value, 10);
                 amountInWords.textContent = (!isNaN(num) && num > 0) ? numberToArabicWords(num) + " دينار جزائري" : '';
-                showImageGallery(type);
+                startSlideshow(type);
             };
         }
         
-        function showImageGallery(type) {
-            kioskImageGallery.innerHTML = '';
-            instructionalImages[type].forEach(img => {
-                const figure = document.createElement('figure');
-                figure.className = 'gallery-item';
-                figure.innerHTML = `<img src="${img.imageUrl}" alt="${escapeHtml(img.title)}"><figcaption>${escapeHtml(img.title)}</figcaption>`;
-                kioskImageGallery.appendChild(figure);
-            });
+        let slideshowTimeout;
+        function stopSlideshow() { clearTimeout(slideshowTimeout); }
+        
+        function startSlideshow(type) {
+            stopSlideshow();
+            kioskSlideshowView.innerHTML = '';
+            const images = instructionalImages[type];
+            if (images.length === 0) return;
+            let currentIndex = 0;
+            function showNextImage() {
+                if (currentIndex >= images.length) { showKioskMain(); return; }
+                const imgData = images[currentIndex];
+                kioskSlideshowView.innerHTML = `<figure class="slideshow-item active"><img src="${imgData.imageUrl}" alt="${escapeHtml(imgData.title)}"><figcaption>${escapeHtml(imgData.title)}</figcaption></figure>`;
+                currentIndex++;
+                slideshowTimeout = setTimeout(showNextImage, 5000);
+            }
+            showNextImage();
         }
 
         function render() {
