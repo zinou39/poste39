@@ -436,11 +436,9 @@
                             resolve(voices);
                         }
                     };
-                    // Check if voices are already loaded
                     if (speechSynthesis.getVoices().length > 0) {
                         resolve(speechSynthesis.getVoices());
                     } else {
-                        // Otherwise, wait for the event
                         speechSynthesis.onvoiceschanged = checkVoices;
                     }
                 });
@@ -456,20 +454,17 @@
                     return;
                 }
 
-                // Resume the audio context in case it was suspended by the browser.
                 if (speechSynthesis.paused) {
                     speechSynthesis.resume();
                 }
                 
-                // Ensure voices are loaded before trying to speak.
                 const voices = await getVoices();
                 
-                speechSynthesis.cancel(); // Cancel any currently speaking utterance to avoid overlaps.
+                speechSynthesis.cancel(); 
 
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'ar-SA';
 
-                // Find a suitable Arabic voice.
                 const arabicVoice = voices.find(voice => voice.lang === 'ar-SA');
                 
                 if (arabicVoice) {
@@ -825,7 +820,6 @@
             
             const sanitizeCell = (cellData) => {
                 const data = String(cellData || '');
-                // Escape double quotes by doubling them and wrap the whole cell in double quotes if it contains a comma or a double quote.
                 if (data.includes(',') || data.includes('"')) {
                     return `"${data.replace(/"/g, '""')}"`;
                 }
@@ -1029,11 +1023,22 @@
         }
         
         async function main() {
-            const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{"projectId":"poste-b276e"}';
             const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
+            // !! هام جداً: عند نشر التطبيق على خادم خارجي، يجب استبدال القيم أدناه بالقيم الحقيقية من مشروعك على Firebase
+            const firebaseConfig = typeof __firebase_config !== 'undefined' 
+                ? JSON.parse(__firebase_config) 
+                : {
+                    // استبدل هذه القيم بالقيم الصحيحة من إعدادات مشروعك في Firebase
+                    apiKey: "YOUR_API_KEY",
+                    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+                    projectId: "YOUR_PROJECT_ID",
+                    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+                    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+                    appId: "YOUR_APP_ID"
+                };
+
             try {
-                const firebaseConfig = JSON.parse(firebaseConfigStr);
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
