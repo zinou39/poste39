@@ -153,7 +153,7 @@
         .list-container { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
         .list-container li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); }
         .list-container li:last-child { border-bottom: none; }
-        .list-container img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-left: 10px; }
+        .image-library-list img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-left: 10px; }
         
         /* Customer Kiosk View Styles */
         #customerKioskView {
@@ -201,7 +201,18 @@
         #kiosk-listening-view, #kiosk-result-view { text-align: center; }
         #kiosk-mic-icon { width: 120px; height: 120px; fill: var(--primary-color); animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        #kiosk-status { font-size: 1.5rem; font-weight: 500; margin-top: 24px; color: var(--muted-text-color); }
+        #kiosk-status {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: var(--surface-color);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            color: var(--muted-text-color);
+            max-width: 90%;
+            margin: 24px auto 32px auto;
+            line-height: 1.5;
+        }
         #kiosk-result-text {
             font-size: 2rem; font-weight: 600; margin-bottom: 16px; background: var(--surface-color);
             padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px var(--shadow-color);
@@ -358,7 +369,7 @@
                     <label for="imageUrl-moneyOrder">رابط الصورة</label><input type="url" id="imageUrl-moneyOrder" required placeholder="https://...">
                     <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة صورة للحوالة</button>
                 </form>
-                <ul id="image-library-list-moneyOrder" class="list-container"></ul>
+                <ul id="image-library-list-moneyOrder" class="list-container image-library-list"></ul>
                 <hr style="margin: 20px 0;">
                 
                 <h4>الصور التعليمية لملء الصك</h4>
@@ -367,7 +378,7 @@
                     <label for="imageUrl-check">رابط الصورة</label><input type="url" id="imageUrl-check" required placeholder="https://...">
                     <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة صورة للصك</button>
                 </form>
-                <ul id="image-library-list-check" class="list-container"></ul>
+                <ul id="image-library-list-check" class="list-container image-library-list"></ul>
                 <hr style="margin: 20px 0;">
 
                 <h4>صورة خلفية الواجهة</h4>
@@ -399,6 +410,7 @@
         let records = [], routes = [], instructionalImages = { moneyOrder: [], check: [] }, customItemTypes = [];
         let deliveriesCol, routesCol, kioskImagesMoneyOrderCol, kioskImagesCheckCol, kioskSettingsDocRef, itemTypesCol, credentialsCol;
         let unsubscribeListeners = [];
+        let amountConverterTimeout;
 
         const loginView = document.getElementById('loginView');
         const mainView = document.getElementById('mainView');
@@ -490,6 +502,7 @@
         const closeModal = (modalId) => document.getElementById(modalId)?.classList.remove('visible');
 
         function showKioskMain() {
+            clearTimeout(amountConverterTimeout);
             kioskMainView.style.display = 'block';
             [amountConverterView, kioskListeningView, kioskResultView].forEach(v => v.style.display = 'none');
             stopSlideshow();
@@ -514,18 +527,60 @@
         };
 
         function showAmountConverter(type) {
+            clearTimeout(amountConverterTimeout);
             kioskMainView.style.display = 'none';
             amountConverterView.style.display = 'block';
             converterTitle.textContent = type === 'moneyOrder' ? "مساعد إرسال حوالة" : "مساعد ملء صك";
             amountInput.value = ''; amountInWords.textContent = '';
             startSlideshow(type);
             setTimeout(() => amountInput.focus(), 50); 
+            amountConverterTimeout = setTimeout(showKioskMain, 30000);
         }
 
         function numberToArabicWords(number) {
             if (typeof number !== 'number' || isNaN(number)) return '';
             if (number === 0) return "صفر";
             const units=["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة"],tens=["","عشرة","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"],teens=["عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];let words="";function convert(num){let str="";if(num>=100){if(Math.floor(num/100)===1)str+="مئة ";else if(Math.floor(num/100)===2)str+="مئتان ";else str+=units[Math.floor(num/100)]+"مئة ";num%=100}if(num>0){if(str!=="")str+=" و ";if(num<10)str+=units[num];else if(num<20)str+=teens[num-10];else{str+=units[num%10]+(num%10!==0?" و ":"")+tens[Math.floor(num/10)]}}return str}if(number>=1000000){let m=Math.floor(number/1000000);if(m===1)words+="مليون ";else if(m===2)words+="مليونان ";else if(m>=3&&m<=10)words+=convert(m)+" ملايين ";else words+=convert(m)+" مليون ";number%=1000000}if(number>=1000){if(words!=="")words+="و ";let t=Math.floor(number/1000);if(t===1)words+="ألف ";else if(t===2)words+="ألفان ";else if(t>=3&&t<=10)words+=convert(t)+" آلاف ";else words+=convert(t)+" ألف ";number%=1000}if(number>0){if(words!=="")words+="و ";words+=convert(number)}return words.trim()
+        }
+        
+        async function addInstructionalImage(url, title, type) {
+            const form = document.getElementById(`addImageForm-${type}`);
+            if (!url || !title) return;
+            try {
+                const targetCol = type === 'moneyOrder' ? kioskImagesMoneyOrderCol : kioskImagesCheckCol;
+                await addDoc(targetCol, { imageUrl: url, title: title, createdAt: serverTimestamp() });
+                form.reset();
+                showToast('تمت إضافة الصورة بنجاح.');
+            } catch (error) { console.error("Save failed", error); showToast('فشل حفظ الصورة.', true); }
+        }
+        
+        async function saveBgImage(url) {
+            if (!url) return;
+            try {
+                await setDoc(kioskSettingsDocRef, { backgroundUrl: url }, { merge: true });
+                showToast('تم حفظ الخلفية بنجاح!');
+            } catch (e) { console.error("BG Save failed", e); showToast('فشل حفظ الخلفية.', true); }
+        }
+        
+        async function deleteInstructionalImage(imageData, type) {
+            showConfirmation(`هل أنت متأكد من حذف صورة "${imageData.title}"؟`, async () => {
+                 try {
+                    const targetCol = type === 'moneyOrder' ? kioskImagesMoneyOrderCol : kioskImagesCheckCol;
+                    await deleteDoc(doc(db, targetCol.path, imageData.id));
+                    showToast('تم الحذف بنجاح.');
+                } catch(e) { console.error("Deletion failed", e); showToast("فشل الحذف.", true); }
+            });
+        }
+        
+        function renderImageLibrary(type) {
+            const listEl = document.getElementById(`image-library-list-${type}`);
+            listEl.innerHTML = '';
+            instructionalImages[type].forEach(img => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span><img src="${escapeHtml(img.imageUrl)}" alt="thumbnail"/> ${escapeHtml(img.title)}</span><button class="btn btn-danger delete-image-btn" data-id="${img.id}">حذف</button>`;
+                li.querySelector('.delete-image-btn').onclick = () => deleteInstructionalImage(img, type);
+                listEl.appendChild(li);
+            });
         }
 
         function populateAllItemTypeDropdowns() {
@@ -689,6 +744,26 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
+        let slideshowTimeout;
+        function stopSlideshow() { clearTimeout(slideshowTimeout); }
+        
+        function startSlideshow(type) {
+            stopSlideshow();
+            const slideshowView = document.getElementById('kiosk-slideshow-view');
+            slideshowView.innerHTML = '';
+            const images = instructionalImages[type];
+            if (!images || images.length === 0) return;
+            let currentIndex = 0;
+            function showNextImage() {
+                if (currentIndex >= images.length) currentIndex = 0; 
+                const imgData = images[currentIndex];
+                slideshowView.innerHTML = `<figure class="slideshow-item active"><img src="${escapeHtml(imgData.imageUrl)}" alt="${escapeHtml(imgData.title)}"><figcaption>${escapeHtml(imgData.title)}</figcaption></figure>`;
+                currentIndex++;
+                slideshowTimeout = setTimeout(showNextImage, 5000);
+            }
+            showNextImage();
+        }
+
         function setupEventListeners() {
             showKioskSettingsBtn.addEventListener('click', () => kioskSettingsModal.classList.add('visible'));
             closeKioskSettingsModal.addEventListener('click', () => closeModal('kioskSettingsModal'));
@@ -845,8 +920,8 @@
             unsubscribeListeners.push(onSnapshot(query(deliveriesCol, orderBy("createdAt", "desc")), snap => { records = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRecords(records); }));
             unsubscribeListeners.push(onSnapshot(query(routesCol), snap => { routes = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRoutesList(); renderKioskOptions(); }));
             unsubscribeListeners.push(onSnapshot(query(itemTypesCol, orderBy("name")), snap => { customItemTypes = snap.docs.map(d => ({ id: d.id, ...d.data() })); populateAllItemTypeDropdowns(); renderCustomItemTypesSettingsList(); }));
-            unsubscribeListeners.push(onSnapshot(query(kioskImagesMoneyOrderCol, orderBy("createdAt")), snap => { instructionalImages.moneyOrder = snap.docs.map(d => ({ id: d.id, ...d.data() })); }));
-            unsubscribeListeners.push(onSnapshot(query(kioskImagesCheckCol, orderBy("createdAt")), snap => { instructionalImages.check = snap.docs.map(d => ({ id: d.id, ...d.data() })); }));
+            unsubscribeListeners.push(onSnapshot(query(kioskImagesMoneyOrderCol, orderBy("createdAt")), snap => { instructionalImages.moneyOrder = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderImageLibrary('moneyOrder'); }));
+            unsubscribeListeners.push(onSnapshot(query(kioskImagesCheckCol, orderBy("createdAt")), snap => { instructionalImages.check = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderImageLibrary('check'); }));
             unsubscribeListeners.push(onSnapshot(kioskSettingsDocRef, (docSnap) => { if (docSnap.exists() && docSnap.data().backgroundUrl) customerKioskView.style.backgroundImage = `url(${docSnap.data().backgroundUrl})`; }));
         }
 
