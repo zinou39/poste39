@@ -40,6 +40,11 @@
             border-radius: 12px;
             box-shadow: 0 8px 24px var(--shadow-color);
         }
+        
+        #loginView {
+            max-width: 400px;
+            margin: 10vh auto;
+        }
 
         h1, h2, h3, h4 {
             color: var(--primary-color);
@@ -215,10 +220,20 @@
     <div id="toast-container"></div>
 
     <div id="appContainer">
-        <div id="mainView" class="container">
+
+        <div id="loginView" class="container">
+            <h1>تسجيل الدخول</h1>
+            <form id="loginForm" autocomplete="off">
+                <div><label for="username">اسم المستخدم</label><input id="username" type="text" required></div>
+                <div style="margin-top: 12px;"><label for="password">كلمة المرور</label><input id="password" type="password" required></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">دخول</button>
+            </form>
+        </div>
+
+        <div id="mainView" class="container" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 16px;">
                 <h1>نظام تسجيل تسليم البريد</h1>
-                <div id="userInfo" style="font-size: 0.8rem; color: var(--muted-text-color); text-align: left; word-break: break-all;"></div>
+                <button id="logoutBtn" class="btn btn-danger">خروج</button>
             </div>
             
             <form id="deliveryForm" autocomplete="off">
@@ -248,7 +263,7 @@
                 </div>
             </form>
             
-            <div id="confirmed-section" style="margin-top: 32px;">
+            <div id="confirmed-section" style="margin-top: 32px; display: none;">
                 <h3 style="color: var(--warning-color); border-color: var(--warning-color);">قائمة الحاضرين 
                     <button id="clearConfirmationsBtn" class="btn btn-danger" type="button" style="float: left; font-size: 0.8rem; padding: 6px 10px;">مسح القائمة</button>
                 </h3>
@@ -377,15 +392,17 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, setDoc, serverTimestamp, orderBy, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, setDoc, serverTimestamp, orderBy, updateDoc, writeBatch, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
         let db, auth;
         let records = [], routes = [], instructionalImages = { moneyOrder: [], check: [] }, customItemTypes = [];
-        let deliveriesCol, routesCol, kioskImagesMoneyOrderCol, kioskImagesCheckCol, kioskSettingsDocRef, itemTypesCol;
+        let deliveriesCol, routesCol, kioskImagesMoneyOrderCol, kioskImagesCheckCol, kioskSettingsDocRef, itemTypesCol, credentialsCol;
         let unsubscribeListeners = [];
 
-        const mainView = document.getElementById('mainView'), customerKioskView = document.getElementById('customerKioskView');
+        const loginView = document.getElementById('loginView');
+        const mainView = document.getElementById('mainView');
+        const customerKioskView = document.getElementById('customerKioskView');
         const showKioskSettingsBtn = document.getElementById('showKioskSettingsBtn'), kioskSettingsModal = document.getElementById('kioskSettingsModal'), closeKioskSettingsModal = document.getElementById('closeKioskSettingsModal');
         const showCustomerViewBtn = document.getElementById('showCustomerViewBtn'), kioskExitBtn = document.getElementById('kiosk-exit-btn');
         const amountConverterView = document.getElementById('amountConverterView'), kioskMainView = document.getElementById('kiosk-main-view');
@@ -403,6 +420,8 @@
         const addItemTypeForm = document.getElementById('addItemTypeForm');
         const itemTypeListContainer = document.getElementById('item-type-list');
         const clearConfirmationsBtn = document.getElementById('clearConfirmationsBtn');
+        const loginForm = document.getElementById('loginForm'), usernameInput = document.getElementById('username'), passwordInput = document.getElementById('password');
+        const logoutBtn = document.getElementById('logoutBtn');
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
@@ -465,8 +484,9 @@
             cancelBtn.onclick = close;
         };
         
+        const showLoginView = () => { loginView.style.display = 'block'; mainView.style.display = 'none'; customerKioskView.style.display = 'none'; };
+        const showMainView = () => { loginView.style.display = 'none'; mainView.style.display = 'block'; customerKioskView.style.display = 'none'; };
         const showCustomerKiosk = () => { mainView.style.display = 'none'; customerKioskView.style.display = 'flex'; };
-        const showMainView = () => { mainView.style.display = 'block'; customerKioskView.style.display = 'none'; };
         const closeModal = (modalId) => document.getElementById(modalId)?.classList.remove('visible');
 
         function showKioskMain() {
@@ -778,6 +798,32 @@
                     }
                 }
             });
+            
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const user = usernameInput.value.trim();
+                const pass = passwordInput.value.trim();
+                if (!user || !pass) return;
+                try {
+                    const userDoc = await getDoc(doc(credentialsCol, user));
+                    if (userDoc.exists() && userDoc.data().password === pass) {
+                        sessionStorage.setItem('loggedInUser', user);
+                        initializeAppData(user);
+                        showMainView();
+                    } else {
+                        showToast('اسم المستخدم أو كلمة المرور غير صحيحة.', true);
+                    }
+                } catch (error) {
+                    console.error("Login Error:", error);
+                    showToast("فشل تسجيل الدخول. تحقق من الاتصال.", true);
+                }
+            });
+
+            logoutBtn.addEventListener('click', () => {
+                clearListeners();
+                sessionStorage.clear();
+                showLoginView();
+            });
         }
         
         function clearListeners() {
@@ -785,10 +831,9 @@
             unsubscribeListeners = [];
         }
 
-        function initializeAppData(userId) {
+        function initializeAppData(loggedInUser) {
             clearListeners();
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            const basePath = `artifacts/${appId}/users/${userId}`;
+            const basePath = `user_data/${loggedInUser}`;
             
             deliveriesCol = collection(db, `${basePath}/deliveries`);
             routesCol = collection(db, `${basePath}/customer_options`);
@@ -797,8 +842,6 @@
             kioskImagesCheckCol = collection(db, `${basePath}/kiosk_images_check`);
             kioskSettingsDocRef = doc(db, `${basePath}/kiosk_settings/display`);
             
-            document.getElementById('userInfo').textContent = `معرف المستخدم: ${userId}`;
-
             unsubscribeListeners.push(onSnapshot(query(deliveriesCol, orderBy("createdAt", "desc")), snap => { records = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRecords(records); }));
             unsubscribeListeners.push(onSnapshot(query(routesCol), snap => { routes = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRoutesList(); renderKioskOptions(); }));
             unsubscribeListeners.push(onSnapshot(query(itemTypesCol, orderBy("name")), snap => { customItemTypes = snap.docs.map(d => ({ id: d.id, ...d.data() })); populateAllItemTypeDropdowns(); renderCustomItemTypesSettingsList(); }));
@@ -806,41 +849,42 @@
             unsubscribeListeners.push(onSnapshot(query(kioskImagesCheckCol, orderBy("createdAt")), snap => { instructionalImages.check = snap.docs.map(d => ({ id: d.id, ...d.data() })); }));
             unsubscribeListeners.push(onSnapshot(kioskSettingsDocRef, (docSnap) => { if (docSnap.exists() && docSnap.data().backgroundUrl) customerKioskView.style.backgroundImage = `url(${docSnap.data().backgroundUrl})`; }));
         }
+
+        async function bootstrapAdminUser() {
+            const zinouDocRef = doc(credentialsCol, 'zinou');
+            if (!(await getDoc(zinouDocRef)).exists()) {
+                await setDoc(zinouDocRef, { password: 'zinou' });
+            }
+        }
         
         async function main() {
-            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-            const firebaseConfig = typeof __firebase_config !== 'undefined' 
-                ? JSON.parse(__firebase_config) 
-                : {
-                    apiKey: "AIzaSyDIESGl6TXDRtzbP7NZtOHGJa9pRY83_oY",
-                    authDomain: "poste-b276e.firebaseapp.com",
-                    projectId: "poste-b276e",
-                    storageBucket: "poste-b276e.appspot.com",
-                    messagingSenderId: "855137728375",
-                    appId: "1:855137728375:web:5f1c3f2d2b1e2a0f3d6c7b"
-                };
+            const firebaseConfig = {
+                apiKey: "AIzaSyDIESGl6TXDRtzbP7NZtOHGJa9pRY83_oY",
+                authDomain: "poste-b276e.firebaseapp.com",
+                projectId: "poste-b276e",
+                storageBucket: "poste-b276e.appspot.com",
+                messagingSenderId: "855137728375",
+                appId: "1:855137728375:web:5f1c3f2d2b1e2a0f3d6c7b"
+            };
 
             try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
                 
-                onAuthStateChanged(auth, user => {
-                    if (user) {
-                        initializeAppData(user.uid);
-                    } else {
-                        if (initialAuthToken) {
-                            signInWithCustomToken(auth, initialAuthToken).catch(error => {
-                                console.error("Custom token sign-in failed:", error);
-                                signInAnonymously(auth);
-                            });
-                        } else {
-                            signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
-                        }
-                    }
-                });
+                await signInAnonymously(auth); // Sign in for basic access
+                
+                credentialsCol = collection(db, 'credentials');
+                await bootstrapAdminUser(); // Ensure default user exists
 
+                const loggedInUser = sessionStorage.getItem('loggedInUser');
+                if (loggedInUser) {
+                    initializeAppData(loggedInUser);
+                    showMainView();
+                } else {
+                    showLoginView();
+                }
+                
                 document.getElementById('idCardIssueDate').value = new Date().toISOString().slice(0, 10);
                 setupEventListeners();
                 
