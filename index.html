@@ -67,11 +67,6 @@
             font-family: 'Cairo', sans-serif;
         }
         
-        progress {
-            width: 100%;
-            margin-top: 5px;
-        }
-
         .row {
             display: flex;
             gap: 16px;
@@ -176,6 +171,10 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         #kiosk-status, #kiosk-result-text { font-size: 1.5rem; font-weight: 500; margin-top: 24px; color: var(--muted-text-color); }
         #kiosk-result-text { font-size: 2rem; font-weight: 600; margin-bottom: 32px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eef0f6; text-align: right; }
+        th { background: #fbfcff; font-weight: 700; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -317,7 +316,7 @@
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, getDoc, setDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         
-        let db, auth, storage;
+        let db, auth;
         let records = [], routes = [], instructionalImages = { moneyOrder: [], check: [] };
         let deliveriesCol, credentialsCol, routesCol, kioskImagesMoneyOrderCol, kioskImagesCheckCol, kioskSettingsDocRef;
         let unsubscribeRecords = () => {}, unsubscribeRoutes = () => {}, unsubscribeImagesMoneyOrder = () => {}, unsubscribeImagesCheck = () => {}, unsubscribeSettings = () => {};
@@ -357,14 +356,63 @@
             kioskResultView.style.display = 'none';
         }
         
+        const showKioskListening = (status) => {
+            kioskMainView.style.display = 'none';
+            amountConverterView.style.display = 'none';
+            kioskListeningView.style.display = 'block';
+            kioskResultView.style.display = 'none';
+            kioskStatus.textContent = status;
+        };
+        
+        const showKioskResult = (result) => {
+            kioskMainView.style.display = 'none';
+            amountConverterView.style.display = 'none';
+            kioskListeningView.style.display = 'none';
+            kioskResultView.style.display = 'block';
+            kioskResultText.textContent = result;
+        };
+
         function numberToArabicWords(number) {
             const units=["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة"],tens=["","عشرة","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"],teens=["عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];if(number===0)return"صفر";let words="";function convertLessThanOneThousand(num){let currentWords="";if(num>=100){if(Math.floor(num/100)===1)currentWords+="مئة ";else if(Math.floor(num/100)===2)currentWords+="مئتان ";else currentWords+=units[Math.floor(num/100)]+"مئة ";num%=100}if(num>0){if(currentWords!=="")currentWords+=" و ";if(num<10)currentWords+=units[num];else if(num<20)currentWords+=teens[num-10];else{currentWords+=units[num%10]+(num%10!==0?" و ":"")+tens[Math.floor(num/10)]}}return currentWords}if(number>=1000000){let millions=Math.floor(number/1000000);if(millions===1)words+="مليون ";else if(millions===2)words+="مليونان ";else if(millions>=3&&millions<=10)words+=convertLessThanOneThousand(millions)+" ملايين ";else words+=convertLessThanOneThousand(millions)+" مليون ";number%=1000000}if(number>=1000){let thousands=Math.floor(number/1000);if(words!=="")words+="و ";if(thousands===1)words+="ألف ";else if(thousands===2)words+="ألفان ";else if(thousands>=3&&thousands<=10)words+=convertLessThanOneThousand(thousands)+" آلاف ";else words+=convertLessThanOneThousand(thousands)+" ألف ";number%=1000}if(number>0){if(words!=="")words+="و ";words+=convertLessThanOneThousand(number)}return words.trim()
         }
 
-        async function addInstructionalImage(url, title, type) { /* ... */ }
-        async function saveBgImage(url) { /* ... */ }
-        async function deleteInstructionalImage(imageData, type) { /* ... */ }
-        function renderImageLibrary(type) { /* ... */ }
+        async function addInstructionalImage(url, title, type) {
+            const form = document.getElementById(`addImageForm-${type}`);
+            if (!url || !title) return;
+            try {
+                const targetCol = type === 'moneyOrder' ? kioskImagesMoneyOrderCol : kioskImagesCheckCol;
+                await addDoc(targetCol, { imageUrl: url, title: title, createdAt: serverTimestamp() });
+                form.reset();
+            } catch (error) { console.error("Save failed", error); alert('فشل الحفظ.'); }
+        }
+        
+        async function saveBgImage(url) {
+            if (!url) return;
+            try {
+                await setDoc(kioskSettingsDocRef, { backgroundUrl: url }, { merge: true });
+                alert('تم حفظ الخلفية بنجاح!');
+            } catch (e) { console.error("BG Save failed", e); alert('فشل حفظ الخلفية.'); }
+        }
+        
+        async function deleteInstructionalImage(imageData, type) {
+            if (!confirm(`هل أنت متأكد من حذف صورة "${imageData.title}"؟`)) return;
+            try {
+                const targetCol = type === 'moneyOrder' ? kioskImagesMoneyOrderCol : kioskImagesCheckCol;
+                await deleteDoc(doc(db, targetCol.path, imageData.id));
+            } catch(e) { console.error("Deletion failed", e); alert("فشل الحذف."); }
+        }
+
+        function renderImageLibrary(type) {
+            const listEl = document.getElementById(`image-library-list-${type}`);
+            const images = instructionalImages[type];
+            listEl.innerHTML = '';
+            images.forEach(img => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span><img src="${img.imageUrl}" alt="thumbnail"/> ${escapeHtml(img.title)}</span><button class="btn btn-danger delete-image-btn" data-id="${img.id}">حذف</button>`;
+                li.querySelector('.delete-image-btn').onclick = () => deleteInstructionalImage(img, type);
+                listEl.appendChild(li);
+            });
+        }
         
         function showAmountConverter(type) {
             kioskMainView.style.display = 'none';
