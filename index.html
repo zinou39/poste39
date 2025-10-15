@@ -32,7 +32,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px; /* Increased width to accommodate new column */
             margin: 0 auto;
             background: var(--surface-color);
             padding: 24px;
@@ -94,6 +94,7 @@
         .btn:active { transform: scale(0.98); }
         .btn:disabled { cursor: not-allowed; opacity: 0.7; }
         .btn-primary { background: var(--primary-color); color: #fff; }
+        .btn-success { background: var(--success-color); color: #fff; }
         .btn-ghost { background: var(--light-primary-color); color: var(--primary-color); border: 1px solid #dbe7ff; }
         .btn-danger { background: #fce8e8; color: var(--danger-color); border: 1px solid #f9d0d0; }
         
@@ -143,9 +144,9 @@
             10%, 90% { opacity: 1; transform: translateY(0); }
         }
         
-        .image-library-list, #route-list { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
-        .image-library-list li, #route-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); }
-        .image-library-list li:last-child, #route-list li:last-child { border-bottom: none; }
+        .image-library-list, #route-list, #item-type-list { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
+        .image-library-list li, #route-list li, #item-type-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); }
+        .image-library-list li:last-child, #route-list li:last-child, #item-type-list li:last-child { border-bottom: none; }
         .image-library-list img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-left: 10px; }
         
         /* Customer Kiosk View Styles */
@@ -213,12 +214,30 @@
         #kiosk-listening-view, #kiosk-result-view { text-align: center; }
         #kiosk-mic-icon { width: 120px; height: 120px; fill: var(--primary-color); animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        #kiosk-status, #kiosk-result-text { font-size: 1.5rem; font-weight: 500; margin-top: 24px; color: var(--muted-text-color); }
-        #kiosk-result-text { font-size: 2rem; font-weight: 600; margin-bottom: 32px; }
+        #kiosk-status { font-size: 1.5rem; font-weight: 500; margin-top: 24px; color: var(--muted-text-color); }
+        #kiosk-result-text {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 32px;
+            background: var(--surface-color);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            color: var(--primary-color);
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
+        }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eef0f6; text-align: right; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: auto; }
+        th, td { padding: 12px; border-bottom: 1px solid #eef0f6; text-align: right; white-space: nowrap; }
         th { background: #fbfcff; font-weight: 700; font-size: 0.9rem; }
+        .delivered-row {
+            text-decoration: line-through;
+            color: var(--muted-text-color);
+            background-color: #fafafa;
+        }
     </style>
 </head>
 <body>
@@ -234,18 +253,24 @@
             <form id="deliveryForm" autocomplete="off">
                 <div class="row">
                     <div class="col"><label for="name">اسم الزبون</label><input id="name" required /></div>
+                    <div class="col"><label for="accountNumber">رقم حساب</label><input id="accountNumber" /></div>
                     <div class="col"><label for="phone">هاتف للتواصل</label><input id="phone" /></div>
                 </div>
                 <div class="row">
-                    <div class="col"><label for="itemType">نوع المستلم</label><select id="itemType"><option value="دفتر صكوك">دفتر صكوك</option><option value="بطاقة ذهبية">بطاقة ذهبية</option><option value="حوالة بريدية">حوالة بريدية</option><option value="رسالة">رسالة</option><option value="أخرى">أخرى</option></select></div>
+                    <div class="col"><label for="idCardNumber">رقم بطاقة التعريف</label><input id="idCardNumber" /></div>
+                    <div class="col"><label for="idCardIssuePlace">مكان اصدار البطاقة</label><input id="idCardIssuePlace" /></div>
+                    <div class="col"><label for="idCardIssueDate">تاريخ اصدار بطاقة التعريف</label><input id="idCardIssueDate" type="date" /></div>
+                </div>
+                <div class="row">
+                    <div class="col"><label for="itemType">نوع المستلم</label><select id="itemType"></select></div>
                     <div class="col"><label for="counter">رقم الشباك</label><input id="counter" type="text" placeholder="مثال: 5" /></div>
-                    <div class="col"><label for="date">تاريخ التسليم</label><input id="date" type="date" /></div>
                 </div>
 
                 <div class="form-actions">
                     <button class="btn btn-primary" type="submit">حفظ السجل</button>
                     <button id="resetBtn" class="btn btn-ghost" type="button">تفريغ الحقول</button>
                     <div class="right-actions">
+                        <button id="downloadExcelBtn" class="btn btn-success" type="button">تنزيل كملف Excel</button>
                         <button id="showKioskSettingsBtn" class="btn btn-ghost" type="button">إعدادات واجهة الزبون</button>
                         <button id="showCustomerViewBtn" class="btn btn-primary" type="button">عرض واجهة الزبون</button>
                     </div>
@@ -256,10 +281,12 @@
                 <input id="search" placeholder="بحث بالاسم أو الهاتف..." style="width: 100%; box-sizing: border-box;" />
             </div>
 
-            <table id="recordsTable">
-                <thead><tr><th>الاسم</th><th>الهاتف</th><th>النوع</th><th>الشباك</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <div style="overflow-x: auto;">
+                <table id="recordsTable">
+                    <thead><tr><th>الاسم</th><th>الهاتف</th><th>رقم الحساب</th><th>النوع</th><th>رقم بطاقة التعريف</th><th>تاريخ الإصدار</th><th>مكان الإصدار</th><th>الشباك</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
     
@@ -308,12 +335,22 @@
                 <form id="addRouteForm" autocomplete="off">
                      <div class="row">
                          <div class="col" style="flex: 0.3;"><label for="routeNumber">الرقم</label><input id="routeNumber" type="number" required></div>
-                         <div class="col"><label for="routeItemType">نوع المستلم</label><select id="routeItemType"><option value="دفتر صكوك">دفتر صكوك</option><option value="بطاقة ذهبية">بطاقة ذهبية</option><option value="حوالة بريدية">حوالة بريدية</option><option value="رسالة">رسالة</option><option value="أخرى">أخرى</option></select></div>
+                         <div class="col"><label for="routeItemType">نوع المستلم</label><select id="routeItemType"></select></div>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة خدمة</button>
                 </form>
                 <h4 style="margin-top: 20px;">القائمة الحالية</h4>
                 <ul id="route-list"></ul>
+                <hr style="margin: 20px 0;">
+                
+                <h4>إدارة أنواع المستلم</h4>
+                <form id="addItemTypeForm" autocomplete="off">
+                    <label for="newItemTypeName">اسم النوع الجديد</label>
+                    <input id="newItemTypeName" type="text" required placeholder="مثال: طرد سريع">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">إضافة نوع</button>
+                </form>
+                <h4 style="margin-top: 20px;">الأنواع المضافة</h4>
+                <ul id="item-type-list"></ul>
                 <hr style="margin: 20px 0;">
 
                 <h4>الصور التعليمية للحوالة البريدية</h4>
@@ -358,13 +395,13 @@
     <script type="module">
         // Firebase 11.6.1 Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, setDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, setDoc, serverTimestamp, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
         // --- Global Variables & App State ---
         let db, auth;
-        let records = [], routes = [], instructionalImages = { moneyOrder: [], check: [] };
-        let deliveriesCol, routesCol, kioskImagesMoneyOrderCol, kioskImagesCheckCol, kioskSettingsDocRef;
+        let records = [], routes = [], instructionalImages = { moneyOrder: [], check: [] }, customItemTypes = [];
+        let deliveriesCol, routesCol, kioskImagesMoneyOrderCol, kioskImagesCheckCol, kioskSettingsDocRef, itemTypesCol;
         let unsubscribeListeners = [];
 
         // --- DOM Element Cache ---
@@ -380,12 +417,84 @@
         const kioskStatus = document.getElementById('kiosk-status'), kioskResultText = document.getElementById('kiosk-result-text'), kioskBackBtn = document.getElementById('kiosk-back-btn');
         const tbody = document.querySelector('#recordsTable tbody'), form = document.getElementById('deliveryForm');
         const searchInput = document.getElementById('search');
+        const downloadExcelBtn = document.getElementById('downloadExcelBtn');
         const addRouteForm = document.getElementById('addRouteForm'), routeNumberEl = document.getElementById('routeNumber'), routeItemTypeEl = document.getElementById('routeItemType'), routeList = document.getElementById('route-list');
+        const addItemTypeForm = document.getElementById('addItemTypeForm');
+        const itemTypeListContainer = document.getElementById('item-type-list');
 
-        // --- Speech Recognition ---
+        // --- Speech Recognition & Synthesis ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
-        function speak(text) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ar-SA'; speechSynthesis.speak(u); } catch (e) { console.error("Speech Synthesis Error:", e); } }
+
+        let voicesPromise = null;
+        function getVoices() {
+            if (!voicesPromise) {
+                voicesPromise = new Promise(resolve => {
+                    const checkVoices = () => {
+                        const voices = speechSynthesis.getVoices();
+                        if (voices.length > 0) {
+                            resolve(voices);
+                        }
+                    };
+                    // Check if voices are already loaded
+                    if (speechSynthesis.getVoices().length > 0) {
+                        resolve(speechSynthesis.getVoices());
+                    } else {
+                        // Otherwise, wait for the event
+                        speechSynthesis.onvoiceschanged = checkVoices;
+                    }
+                });
+            }
+            return voicesPromise;
+        }
+
+        async function speak(text) {
+            try {
+                if (!window.speechSynthesis) {
+                    console.error("Speech Synthesis not supported by this browser.");
+                    showToast('النطق الصوتي غير مدعوم في هذا المتصفح.', true);
+                    return;
+                }
+
+                // Resume the audio context in case it was suspended by the browser.
+                if (speechSynthesis.paused) {
+                    speechSynthesis.resume();
+                }
+                
+                // Ensure voices are loaded before trying to speak.
+                const voices = await getVoices();
+                
+                speechSynthesis.cancel(); // Cancel any currently speaking utterance to avoid overlaps.
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-SA';
+
+                // Find a suitable Arabic voice.
+                const arabicVoice = voices.find(voice => voice.lang === 'ar-SA');
+                
+                if (arabicVoice) {
+                    utterance.voice = arabicVoice;
+                } else {
+                    console.warn('Arabic (ar-SA) voice not found. The system will use the default voice.');
+                }
+
+                utterance.onerror = (event) => {
+                    console.error('SpeechSynthesisUtterance.onerror:', event);
+                    let errorMsg = 'حدث خطأ أثناء محاولة نطق النص.';
+                    if (event.error) {
+                       errorMsg += ` (Error: ${event.error})`;
+                    }
+                    showToast(errorMsg, true);
+                };
+                
+                speechSynthesis.speak(utterance);
+
+            } catch (e) {
+                console.error("Speech Synthesis Error:", e);
+                showToast('فشل تشغيل الصوت.', true);
+            }
+        }
+
 
         // --- Utility Functions ---
         const escapeHtml = s => s ? String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : '';
@@ -543,6 +652,38 @@
         }
         
         // --- Rendering Functions ---
+        function populateAllItemTypeDropdowns() {
+            const defaultTypes = ["دفتر صكوك", "بطاقة ذهبية", "حوالة بريدية", "رسالة", "ارسال طرد", "أخرى"];
+            const customTypeNames = customItemTypes.map(item => item.name);
+            const allTypes = [...new Set([...defaultTypes, ...customTypeNames])].sort();
+
+            const selects = [document.getElementById('itemType'), document.getElementById('routeItemType')];
+            
+            selects.forEach(selectEl => {
+                const selectedValue = selectEl.value;
+                selectEl.innerHTML = '';
+                allTypes.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type;
+                    selectEl.appendChild(option);
+                });
+                if (allTypes.includes(selectedValue)) {
+                    selectEl.value = selectedValue;
+                }
+            });
+        }
+
+        function renderCustomItemTypesSettingsList() {
+            itemTypeListContainer.innerHTML = '';
+            customItemTypes.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${escapeHtml(item.name)}</span><button data-id="${item.id}" class="btn btn-danger delete-item-type-btn">حذف</button>`;
+                itemTypeListContainer.appendChild(li);
+            });
+        }
+
+
         function renderImageLibrary(type) {
             const listEl = document.getElementById(`image-library-list-${type}`);
             const images = instructionalImages[type];
@@ -578,8 +719,26 @@
             tbody.innerHTML = '';
             recordsToDisplay.forEach(r => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.phone||'')}</td><td>${escapeHtml(r.itemType)}</td><td>${escapeHtml(r.counter||'')}</td><td>${escapeHtml(r.date||'')}</td>
-                                <td class="actions"><button data-id="${r.id}" class="btn btn-danger btn-del">حذف</button></td>`;
+                if (r.isDelivered) {
+                    tr.classList.add('delivered-row');
+                }
+                const statusText = r.isDelivered ? 'تم التسليم' : 'قيد الانتظار';
+                const toggleButtonText = r.isDelivered ? 'إلغاء' : 'تسليم';
+                const toggleButtonClass = r.isDelivered ? 'btn-ghost' : 'btn-success';
+
+                tr.innerHTML = `<td>${escapeHtml(r.name)}</td>
+                                <td>${escapeHtml(r.phone||'')}</td>
+                                <td>${escapeHtml(r.accountNumber || '')}</td>
+                                <td>${escapeHtml(r.itemType)}</td>
+                                <td>${escapeHtml(r.idCardNumber || '')}</td>
+                                <td>${escapeHtml(r.idCardIssueDate || '')}</td>
+                                <td>${escapeHtml(r.idCardIssuePlace || '')}</td>
+                                <td>${escapeHtml(r.counter||'')}</td>
+                                <td>${statusText}</td>
+                                <td class="actions">
+                                    <button data-id="${r.id}" class="btn ${toggleButtonClass} btn-toggle-status" style="min-width: 60px;">${toggleButtonText}</button>
+                                    <button data-id="${r.id}" class="btn btn-danger btn-del">حذف</button>
+                                </td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -605,22 +764,29 @@
             if (!SpeechRecognition) { return showToast("البحث الصوتي غير مدعوم في هذا المتصفح.", true); }
             if (recognition && kioskListeningView.style.display === 'block') { return; }
 
-            showKioskListening("جاري الاستماع... يرجى ذكر اسمك الكامل أو رقم هاتفك.");
-            speak("يرجى ذكر اسمك الكامل أو رقم هاتفك.");
+            const promptText = "يرجى ذكر اسمك الكامل، رقم هاتفك، أو رقم حسابك.";
+            showKioskListening(`جاري الاستماع... ${promptText}`);
+            speak(promptText);
             
             recognition = new SpeechRecognition();
             recognition.lang = 'ar-SA';
             recognition.continuous = false;
             
             recognition.onresult = (event) => {
-                const spokenText = event.results[0][0].transcript.trim().toLowerCase();
-                const foundRecord = records.find(r =>  
+                const spokenText = event.results[0][0].transcript.trim().toLowerCase().replace(/\s/g, ''); 
+                const pendingRecords = records.filter(r => !r.isDelivered);
+                
+                const foundRecord = pendingRecords.find(r =>  
                     r.itemType === itemType &&
-                    (r.name.toLowerCase().includes(spokenText) || (r.phone && r.phone.includes(spokenText)))
+                    (
+                        r.name.toLowerCase().includes(spokenText) || 
+                        (r.phone && r.phone.replace(/\s/g, '').includes(spokenText)) ||
+                        (r.accountNumber && r.accountNumber.replace(/\s/g, '').includes(spokenText))
+                    )
                 );
                 
                 let resultText = foundRecord ? `نعم يا ${foundRecord.name}، لديك ${itemType} جاهز للاستلام. يرجى التوجه إلى الشباك رقم ${foundRecord.counter || 'المخصص'}.`
-                                             : `عذرًا، لم نجد أي ${itemType} مسجل بالمعلومات التي قدمتها.`;
+                                             : `عذرًا، لم نجد أي ${itemType} مسجل باسمك وهو قيد الانتظار.`;
                 
                 showKioskResult(resultText);
                 speak(resultText);
@@ -643,11 +809,62 @@
                     if (customerKioskView.style.display === 'flex' && (kioskResultView.style.display === 'block' || kioskListeningView.style.display === 'block')) {
                         showKioskMain();
                     }
-                }, 4000);
+                }, 8000); 
             };
             
             recognition.start();
         }
+
+        function downloadAsExcel() {
+            if (records.length === 0) {
+                showToast('لا توجد بيانات لتنزيلها.', true);
+                return;
+            }
+
+            const headers = ["الاسم", "الهاتف", "رقم الحساب", "النوع", "رقم بطاقة التعريف", "تاريخ الإصدار", "مكان الإصدار", "الشباك", "الحالة"];
+            
+            const sanitizeCell = (cellData) => {
+                const data = String(cellData || '');
+                // Escape double quotes by doubling them and wrap the whole cell in double quotes if it contains a comma or a double quote.
+                if (data.includes(',') || data.includes('"')) {
+                    return `"${data.replace(/"/g, '""')}"`;
+                }
+                return data;
+            };
+
+            let csvContent = headers.join(',') + '\r\n';
+
+            records.forEach(record => {
+                const row = [
+                    record.name,
+                    record.phone,
+                    record.accountNumber,
+                    record.itemType,
+                    record.idCardNumber,
+                    record.idCardIssueDate,
+                    record.idCardIssuePlace,
+                    record.counter,
+                    record.isDelivered ? 'تم التسليم' : 'قيد الانتظار'
+                ].map(sanitizeCell).join(',');
+                csvContent += row + '\r\n';
+            });
+
+            const bom = new Uint8Array([0xEF, 0xBB, 0xBF]); // BOM for UTF-8
+            const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+
+            const link = document.createElement("a");
+            if (link.download !== undefined) { 
+                const url = URL.createObjectURL(blob);
+                const date = new Date().toISOString().slice(0, 10);
+                link.setAttribute("href", url);
+                link.setAttribute("download", `records-${date}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
 
         // --- Event Listeners Setup ---
         function setupEventListeners() {
@@ -662,6 +879,27 @@
             
             routeList.addEventListener('click', (e) => { if (e.target.classList.contains('delete-route-btn')) deleteDoc(doc(db, routesCol.path, e.target.dataset.id)); });
             
+            addItemTypeForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newItemTypeNameInput = document.getElementById('newItemTypeName');
+                const newName = newItemTypeNameInput.value.trim();
+                if (newName) {
+                    await addDoc(itemTypesCol, { name: newName });
+                    newItemTypeNameInput.value = '';
+                    showToast('تمت إضافة النوع بنجاح.');
+                }
+            });
+
+            itemTypeListContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-item-type-btn')) {
+                    const typeId = e.target.dataset.id;
+                    showConfirmation('هل أنت متأكد من حذف هذا النوع؟ سيتم حذفه نهائياً.', () => {
+                        deleteDoc(doc(db, itemTypesCol.path, typeId));
+                    });
+                }
+            });
+
+            downloadExcelBtn.addEventListener('click', downloadAsExcel);
             showCustomerViewBtn.addEventListener('click', () => { showCustomerKiosk(); showKioskMain(); renderKioskOptions(); });
             kioskExitBtn.addEventListener('click', showMainView);
             
@@ -692,21 +930,37 @@
             form.addEventListener('submit', async (e) => {
                  e.preventDefault();
                  await addDoc(deliveriesCol, {
-                     name: form.name.value, phone: form.phone.value, itemType: form.itemType.value,
-                     counter: form.counter.value, date: form.date.value || new Date().toISOString().slice(0, 10),
-                     createdAt: serverTimestamp()
+                    name: form.name.value, 
+                    phone: form.phone.value, 
+                    accountNumber: form.accountNumber.value,
+                    itemType: form.itemType.value,
+                    counter: form.counter.value, 
+                    idCardNumber: form.idCardNumber.value,
+                    idCardIssueDate: form.idCardIssueDate.value,
+                    idCardIssuePlace: form.idCardIssuePlace.value,
+                    createdAt: serverTimestamp(),
+                    isDelivered: false
                  });
                  form.reset();
-                 document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+                 document.getElementById('idCardIssueDate').value = new Date().toISOString().slice(0, 10);
                  showToast('تم حفظ السجل بنجاح.');
             });
             
-            tbody.addEventListener('click', (e) => { 
-                if (e.target.classList.contains('btn-del')) {
-                    const recordId = e.target.dataset.id;
+            tbody.addEventListener('click', async (e) => { 
+                const target = e.target;
+                if (target.classList.contains('btn-del')) {
+                    const recordId = target.dataset.id;
                     showConfirmation('هل أنت متأكد من حذف هذا السجل؟', () => {
                         deleteDoc(doc(db, deliveriesCol.path, recordId));
                     });
+                } else if (target.classList.contains('btn-toggle-status')) {
+                    const recordId = target.dataset.id;
+                    const record = records.find(r => r.id === recordId);
+                    if (record) {
+                        const newStatus = !record.isDelivered;
+                        await updateDoc(doc(db, deliveriesCol.path, recordId), { isDelivered: newStatus });
+                        showToast(newStatus ? 'تم تحديد السجل كمُسلّم.' : 'تمت إعادة السجل إلى قيد الانتظار.');
+                    }
                 }
              });
 
@@ -724,35 +978,18 @@
 
             document.getElementById('resetBtn').addEventListener('click', () => {
                 form.reset();
-                document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+                document.getElementById('idCardIssueDate').value = new Date().toISOString().slice(0, 10);
             });
 
-            // Keyboard navigation for kiosk view
             window.addEventListener('keydown', (e) => {
                 if (customerKioskView.style.display === 'flex' && kioskMainView.style.display === 'block') {
                     const key = e.key;
                     if (!isNaN(key) && key >= '0' && key <= '9') {
                         e.preventDefault(); 
-
-                        const deliveryOption = [...kioskOptionsList.querySelectorAll('li')].find(li => {
-                            const numberEl = li.querySelector('.kiosk-number');
-                            return numberEl && numberEl.textContent.trim() === key;
-                        });
-
-                        if (deliveryOption && deliveryOption.dataset.itemType) {
-                            startInquiry(deliveryOption.dataset.itemType);
-                            return;
-                        }
-
-                        const financialOption = [...kioskFinancialList.querySelectorAll('li')].find(li => {
-                             const numberEl = li.querySelector('.kiosk-number');
-                             return numberEl && numberEl.textContent.trim() === key;
-                        });
-
-                        if (financialOption && financialOption.dataset.formType) {
-                            showAmountConverter(financialOption.dataset.formType);
-                            return;
-                        }
+                        const deliveryOption = [...kioskOptionsList.querySelectorAll('li')].find(li => li.querySelector('.kiosk-number')?.textContent.trim() === key);
+                        if (deliveryOption) { startInquiry(deliveryOption.dataset.itemType); return; }
+                        const financialOption = [...kioskFinancialList.querySelectorAll('li')].find(li => li.querySelector('.kiosk-number')?.textContent.trim() === key);
+                        if (financialOption) { showAmountConverter(financialOption.dataset.formType); return; }
                     }
                 }
             });
@@ -768,25 +1005,30 @@
             clearListeners();
             const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
             
-            // Define collection paths based on the new structure
             const basePath = `artifacts/${appId}/users/${userId}`;
             deliveriesCol = collection(db, `${basePath}/deliveries`);
             routesCol = collection(db, `${basePath}/customer_options`);
+            itemTypesCol = collection(db, `${basePath}/custom_item_types`);
             kioskImagesMoneyOrderCol = collection(db, `${basePath}/kiosk_images_moneyOrder`);
             kioskImagesCheckCol = collection(db, `${basePath}/kiosk_images_check`);
             kioskSettingsDocRef = doc(db, `${basePath}/kiosk_settings/display`);
             document.getElementById('userInfo').textContent = `معرف المستخدم: ${userId}`;
 
-            // Setup real-time listeners
             unsubscribeListeners.push(onSnapshot(query(deliveriesCol, orderBy("createdAt", "desc")), snap => { records = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRecords(records); }));
             unsubscribeListeners.push(onSnapshot(query(routesCol), snap => { routes = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRoutesList(); renderKioskOptions(); }));
+            
+            unsubscribeListeners.push(onSnapshot(query(itemTypesCol, orderBy("name")), snap => { 
+                customItemTypes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                populateAllItemTypeDropdowns();
+                renderCustomItemTypesSettingsList();
+            }));
+
             unsubscribeListeners.push(onSnapshot(query(kioskImagesMoneyOrderCol, orderBy("createdAt")), snap => { instructionalImages.moneyOrder = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderImageLibrary('moneyOrder'); }));
             unsubscribeListeners.push(onSnapshot(query(kioskImagesCheckCol, orderBy("createdAt")), snap => { instructionalImages.check = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderImageLibrary('check'); }));
             unsubscribeListeners.push(onSnapshot(kioskSettingsDocRef, (docSnap) => { if (docSnap.exists() && docSnap.data().backgroundUrl) customerKioskView.style.backgroundImage = `url(${docSnap.data().backgroundUrl})`; }));
         }
         
         async function main() {
-            // --- These variables are expected to be injected by the environment ---
             const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{"projectId":"poste-b276e"}';
             const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
@@ -798,14 +1040,12 @@
                 
                 onAuthStateChanged(auth, user => {
                     if (user) {
-                        // User is signed in. Initialize their data.
                         initializeAppData(user.uid);
                     } else {
-                        // User is signed out. Attempt to sign them in.
                         if (initialAuthToken) {
                             signInWithCustomToken(auth, initialAuthToken).catch(error => {
                                 console.error("Custom token sign-in failed:", error);
-                                signInAnonymously(auth); // Fallback to anonymous
+                                signInAnonymously(auth);
                             });
                         } else {
                             signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
@@ -813,8 +1053,7 @@
                     }
                 });
 
-                // Set initial UI state
-                document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+                document.getElementById('idCardIssueDate').value = new Date().toISOString().slice(0, 10);
                 setupEventListeners();
                 
             } catch (e) {
