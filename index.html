@@ -1025,17 +1025,15 @@
         async function main() {
             const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-            // !! هام جداً: عند نشر التطبيق على خادم خارجي، يجب استبدال القيم أدناه بالقيم الحقيقية من مشروعك على Firebase
             const firebaseConfig = typeof __firebase_config !== 'undefined' 
                 ? JSON.parse(__firebase_config) 
                 : {
-                    // استبدل هذه القيم بالقيم الصحيحة من إعدادات مشروعك في Firebase
-                    apiKey: "YOUR_API_KEY",
-                    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-                    projectId: "YOUR_PROJECT_ID",
-                    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-                    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-                    appId: "YOUR_APP_ID"
+                    apiKey: "AIzaSyDIESGl6TXDRtzbP7NZtOHGJa9pRY83_oY",
+                    authDomain: "poste-b276e.firebaseapp.com",
+                    projectId: "poste-b276e",
+                    storageBucket: "poste-b276e.appspot.com",
+                    messagingSenderId: "855137728375",
+                    appId: "1:855137728375:web:YOUR_APP_ID" // يمكنك استبدال هذا بمعرف التطبيق الفعلي إذا لزم الأمر
                 };
 
             try {
