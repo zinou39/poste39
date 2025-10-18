@@ -751,15 +751,20 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
-        async function makeTwilioCall(phoneNumber, message) {
-            const serverUrl = 'https://twilio-server-7z5o.onrender.com'; // تم التحديث لرابط Render الخاص بك
+        async function makeTwilioCall(phoneNumber, message, event) {
+            const serverUrl = 'https://twilio-server-7z5o.onrender.com';
 
             if (!phoneNumber) {
                 showToast('لا يوجد رقم هاتف لهذا السجل.', true);
                 return;
             }
 
-            showToast(`جاري الاتصال بـ ${phoneNumber}...`);
+            const callButton = event.target;
+            const originalButtonText = callButton.textContent;
+            callButton.textContent = 'جاري...';
+            callButton.disabled = true;
+
+            showToast(`جاري تهيئة الاتصال بـ ${phoneNumber}... قد يستغرق الأمر لحظات.`);
 
             try {
                 const response = await fetch(`${serverUrl}/make-call`, {
@@ -772,14 +777,17 @@
 
                 const data = await response.json();
 
-                if (data.success) {
+                if (response.ok && data.success) {
                     showToast('تم بدء المكالمة بنجاح.');
                 } else {
-                    showToast(`فشل الاتصال: ${data.message}`, true);
+                    showToast(`فشل الاتصال: ${data.message || 'استجابة غير صالحة من الخادم'}`, true);
                 }
             } catch (error) {
                 console.error('Error making call:', error);
-                showToast('حدث خطأ عند محاولة الاتصال بالخادم.', true);
+                showToast('فشل الاتصال بالخادم. قد يكون الخادم نائماً. يرجى الانتظار 30 ثانية والمحاولة مرة أخرى.', true);
+            } finally {
+                callButton.textContent = originalButtonText;
+                callButton.disabled = false;
             }
         }
 
@@ -877,17 +885,13 @@
                 } else if (target.classList.contains('btn-toggle-status')) {
                     const record = records.find(r => r.id === target.dataset.id);
                     if (record) {
-                        const newStatus = record.status === 'delivered' ? (record.status = 'confirmed' ? 'pending' : 'pending') : 'delivered';
+                        const newStatus = record.status === 'delivered' ? 'pending' : 'delivered';
                         await updateDoc(doc(db, deliveriesCol.path, target.dataset.id), { status: newStatus });
                         showToast(newStatus === 'delivered' ? 'تم تحديد السجل كمُسلّم.' : 'تمت إعادة السجل إلى قيد الانتظار.');
                     }
                 } else if (target.classList.contains('btn-call')) {
                     e.preventDefault();
-                    if (!target.dataset.phone) {
-                        showToast('لا يوجد رقم هاتف لهذا السجل.', true);
-                        return;
-                    }
-                    makeTwilioCall(target.dataset.phone, target.dataset.message);
+                    makeTwilioCall(target.dataset.phone, target.dataset.message, e);
                 }
             };
             tbody.addEventListener('click', handleTableClick);
