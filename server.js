@@ -21,7 +21,10 @@ app.post('/make-call', (req, res) => {
     return res.status(400).json({ success: false, message: 'Phone number is required.' });
   }
   const twiml = new twilio.twiml.VoiceResponse();
-  twiml.say({ language: 'ar-SA', voice: 'woman' }, message || 'مرحباً، لديك إشعار من مكتب البريد.');
+  
+  // -- التعديل --
+  // تم تبسيط الأمر الصوتي لضمان التوافق
+  twiml.say({ language: 'ar-SA' }, message || 'مرحباً، لديك إشعار من مكتب البريد.');
 
   client.calls
     .create({
@@ -33,6 +36,7 @@ app.post('/make-call', (req, res) => {
       res.status(200).json({ success: true, message: `Calling ${to}`, callSid: call.sid });
     })
     .catch(error => {
+      console.error("Twilio Error:", error); // تسجيل الخطأ لمزيد من التفاصيل
       res.status(500).json({ success: false, message: 'Failed to make call.', error: error.message });
     });
 });
@@ -40,5 +44,6 @@ app.post('/make-call', (req, res) => {
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Server is listening on port ' + listener.address().port);
 });
+
 
 
