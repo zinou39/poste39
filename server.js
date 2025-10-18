@@ -23,8 +23,8 @@ app.post('/make-call', (req, res) => {
   const twiml = new twilio.twiml.VoiceResponse();
   
   // -- التعديل --
-  // تم تبسيط الأمر الصوتي لضمان التوافق
-  twiml.say({ language: 'ar-SA' }, message || 'مرحباً، لديك إشعار من مكتب البريد.');
+  // تم تحديد الصوت بشكل صريح لضمان التشغيل الصحيح
+  twiml.say({ language: 'ar-SA', voice: 'woman' }, message || 'مرحباً، لديك إشعار من مكتب البريد.');
 
   client.calls
     .create({
@@ -44,6 +44,4 @@ app.post('/make-call', (req, res) => {
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Server is listening on port ' + listener.address().port);
 });
-
-
 
