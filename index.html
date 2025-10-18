@@ -754,8 +754,17 @@
         async function makeTwilioCall(phoneNumber, message, event) {
             const serverUrl = 'https://twilio-server-7z5o.onrender.com';
 
-            if (!phoneNumber) {
+            let formattedPhoneNumber = (phoneNumber || '').trim();
+
+            if (!formattedPhoneNumber) {
                 showToast('لا يوجد رقم هاتف لهذا السجل.', true);
+                return;
+            }
+
+            if (formattedPhoneNumber.startsWith('0') && formattedPhoneNumber.length === 10) {
+                formattedPhoneNumber = '+213' + formattedPhoneNumber.substring(1);
+            } else if (!formattedPhoneNumber.startsWith('+')) {
+                showToast('صيغة الرقم غير صحيحة. يجب أن يكون بالصيغة الدولية (+213) أو المحلية (0xxxxxxxxx).', true);
                 return;
             }
 
@@ -764,15 +773,13 @@
             callButton.textContent = 'جاري...';
             callButton.disabled = true;
 
-            showToast(`جاري تهيئة الاتصال بـ ${phoneNumber}... قد يستغرق الأمر لحظات.`);
+            showToast(`جاري تهيئة الاتصال بـ ${formattedPhoneNumber}...`);
 
             try {
                 const response = await fetch(`${serverUrl}/make-call`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ to: phoneNumber, message: message }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to: formattedPhoneNumber, message: message }),
                 });
 
                 const data = await response.json();
