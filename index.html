@@ -96,9 +96,10 @@
             font-weight: 600;
             font-size: 0.95rem;
             transition: background-color 0.2s, transform 0.1s;
+            text-decoration: none; /* For <a> tags styled as buttons */
         }
         .btn:active { transform: scale(0.98); }
-        .btn:disabled { cursor: not-allowed; opacity: 0.7; }
+        .btn:disabled, .btn.disabled { cursor: not-allowed; opacity: 0.7; pointer-events: none; }
         .btn-primary { background: var(--primary-color); color: #fff; }
         .btn-success { background: var(--success-color); color: #fff; }
         .btn-ghost { background: var(--light-primary-color); color: var(--primary-color); border: 1px solid #dbe7ff; }
@@ -225,6 +226,10 @@
         
         .delivered-row { text-decoration: line-through; color: var(--muted-text-color); background-color: #fafafa; }
         .confirmed-row { background-color: #fffbe6; font-weight: 600; color: #b47409;}
+
+        .actions .btn {
+            margin-left: 4px;
+        }
     </style>
 </head>
 <body>
@@ -621,6 +626,7 @@
                                 <td>${escapeHtml(r.itemType)}</td>
                                 <td>${escapeHtml(r.counter||'')}</td>
                                 <td class="actions">
+                                    <button data-phone="${r.phone || ''}" data-message="مرحباً ${r.name}، لديك ${r.itemType} جاهز للاستلام." class="btn btn-primary btn-call" style="min-width: 60px;">اتصال</button>
                                     <button data-id="${r.id}" class="btn btn-success btn-toggle-status">تسليم</button>
                                 </td>`;
                 confirmedTbody.appendChild(tr);
@@ -646,6 +652,7 @@
                                 <td>${escapeHtml(r.counter||'')}</td>
                                 <td>${statusText}</td>
                                 <td class="actions">
+                                    <button data-phone="${r.phone || ''}" data-message="مرحباً ${r.name}، لديك ${r.itemType} جاهز للاستلام." class="btn btn-primary btn-call" style="min-width: 60px;">اتصال</button>
                                     <button data-id="${r.id}" class="btn ${toggleButtonClass} btn-toggle-status" style="min-width: 60px;">${toggleButtonText}</button>
                                     <button data-id="${r.id}" class="btn btn-danger btn-del">حذف</button>
                                 </td>`;
@@ -742,6 +749,38 @@
             link.setAttribute("download", `records-${new Date().toISOString().slice(0, 10)}.csv`);
             link.style.visibility = 'hidden';
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        async function makeTwilioCall(phoneNumber, message) {
+            const serverUrl = 'https://twilio-server-7z5o.onrender.com'; // تم التحديث لرابط Render الخاص بك
+
+            if (!phoneNumber) {
+                showToast('لا يوجد رقم هاتف لهذا السجل.', true);
+                return;
+            }
+
+            showToast(`جاري الاتصال بـ ${phoneNumber}...`);
+
+            try {
+                const response = await fetch(`${serverUrl}/make-call`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ to: phoneNumber, message: message }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('تم بدء المكالمة بنجاح.');
+                } else {
+                    showToast(`فشل الاتصال: ${data.message}`, true);
+                }
+            } catch (error) {
+                console.error('Error making call:', error);
+                showToast('حدث خطأ عند محاولة الاتصال بالخادم.', true);
+            }
         }
 
         let slideshowTimeout;
@@ -842,6 +881,13 @@
                         await updateDoc(doc(db, deliveriesCol.path, target.dataset.id), { status: newStatus });
                         showToast(newStatus === 'delivered' ? 'تم تحديد السجل كمُسلّم.' : 'تمت إعادة السجل إلى قيد الانتظار.');
                     }
+                } else if (target.classList.contains('btn-call')) {
+                    e.preventDefault();
+                    if (!target.dataset.phone) {
+                        showToast('لا يوجد رقم هاتف لهذا السجل.', true);
+                        return;
+                    }
+                    makeTwilioCall(target.dataset.phone, target.dataset.message);
                 }
             };
             tbody.addEventListener('click', handleTableClick);
