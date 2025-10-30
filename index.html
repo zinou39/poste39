@@ -210,7 +210,10 @@
                     extractedData.push(result);
                     appendResultToTable(result, result.isError);
                     
-                    // [تمت الإزالة] إزالة الزيادة التلقائية
+                    // [--- إصلاح خطأ 429 ---]
+                    // إضافة تأخير (1 ثانية) بين كل طلب لتجنب تجاوز الحد المسموح به
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
                 }
             } catch (error) {
                 // هذا للالتقاط أخطاء غير متوقعة في الحلقة نفسها
@@ -416,16 +419,19 @@
             }, 3000);
         }
 
-        async function fetchWithBackoff(url, options, retries = 3, delay = 1000) {
+        // [تعديل] تم زيادة التأخير المبدئي لنظام إعادة المحاولة ليكون أكثر أماناً
+        async function fetchWithBackoff(url, options, retries = 3, delay = 1500) {
             try {
                 const response = await fetch(url, options);
                 if ((response.status === 429 || response.status >= 500) && retries > 0) {
+                    console.warn(`[Backoff] API Error ${response.status}. Retrying in ${delay * 2}ms... (${retries} retries left)`);
                     await new Promise(resolve => setTimeout(resolve, delay * 2)); // زيادة مدة الانتظار
                     return fetchWithBackoff(url, options, retries - 1, delay * 2);
                 }
                 return response;
             } catch (error) {
                 if (retries > 0) {
+                    console.warn(`[Backoff] Network Error. Retrying in ${delay * 2}ms... (${retries} retries left)`);
                     await new Promise(resolve => setTimeout(resolve, delay * 2));
                     return fetchWithBackoff(url, options, retries - 1, delay * 2);
                 }
@@ -436,7 +442,4 @@
     </script>
 </body>
 </html>
-
-
-
 
