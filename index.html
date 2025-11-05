@@ -567,7 +567,7 @@
                 const view = this.state.currentView;
                 const isMainView = view === 'main';
                 const isHistoryView = view === 'history';
-                const isSettingsView = view ===E === 'settings';
+                const isSettingsView = view === 'settings';
 
                 document.getElementById('preparation-section').classList.toggle('hidden', !isMainView || this.state.appMode !== 'preparation');
                 document.getElementById('main-section').classList.toggle('hidden', !isMainView || this.state.appMode !== 'main');
