@@ -186,7 +186,7 @@
                             file:bg-blue-50 file:text-blue-700
                             hover:file:bg-blue-100
                         "/>
-                        <button onclick="app.clearSetting('background')" class="py-2 px-4 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">مسح</full-width>
+                        <button onclick="app.clearSetting('background')" class="py-2 px-4 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">مسح</button>
                     </div>
                 </div>
             </div>
@@ -324,9 +324,9 @@
                 reader.onload = (e) => {
                     const base64String = e.target.result;
                     this.state.settings[settingKey] = base64String;
-                    this.saveState();
+                    this.saveState(); // This will now save settings to their own keys
                     this.applySettings(); // Apply change immediately
-                    this.showNotification('تم حفظ الصورة بنجاح.');
+                    // The saveState function will handle errors
                 };
                 reader.readAsDataURL(file);
             },
@@ -349,7 +349,7 @@
                 }
 
                 if (background) {
-                    document.body.style.backgroundImage = url(${background});
+                    document.body.style.backgroundImage = `url(${background})`;
                 } else {
                     document.body.style.backgroundImage = 'none';
                 }
@@ -363,7 +363,7 @@
                 if (settingKey === 'logoLeft') document.getElementById('logo-left-upload').value = null;
                 if (settingKey === 'background') document.getElementById('bg-upload').value = null;
                 
-                this.saveState();
+                this.saveState(); // This will remove the item from localStorage
                 this.applySettings();
                 this.showNotification('تم مسح الإعداد.');
             },
@@ -399,7 +399,7 @@
 
             startDay() {
                 this.state.stamps.forEach(stamp => {
-                    const input = document.getElementById(prep-qty-${stamp.id});
+                    const input = document.getElementById(`prep-qty-${stamp.id}`);
                     if (input) {
                         const qty = parseInt(input.value, 10);
                         stamp.startQty = (!isNaN(qty) && qty >= 0) ? qty : stamp.startQty;
@@ -423,8 +423,8 @@
 
             addExpense(stampId) {
                 const stamp = this.state.stamps.find(s => s.id === stampId);
-                const descInput = document.getElementById(expense-desc-input-${stampId});
-                const amountInput = document.getElementById(expense-amount-input-${stampId});
+                const descInput = document.getElementById(`expense-desc-input-${stampId}`);
+                const amountInput = document.getElementById(`expense-amount-input-${stampId}`);
                 const desc = descInput.value.trim(); const amount = parseFloat(amountInput.value);
                 if (desc && amount > 0) {
                     if (!stamp.expenses) stamp.expenses = [];
@@ -480,7 +480,7 @@
 
             updatePrice(id) {
                 const stamp = this.state.stamps.find(s => s.id === id);
-                const newPrice = parseFloat(document.getElementById(price-input-${id}).value);
+                const newPrice = parseFloat(document.getElementById(`price-input-${stamp.id}`).value);
                 if (stamp && !isNaN(newPrice) && newPrice > 0) {
                     stamp.price = newPrice; stamp.isEditingPrice = false; this.saveState(); this.renderMain();
                 } else {
@@ -490,7 +490,7 @@
 
             addStock(id) {
                 const stamp = this.state.stamps.find(s => s.id === id);
-                const stockInput = document.getElementById(add-stock-input-${id});
+                const stockInput = document.getElementById(`add-stock-input-${stamp.id}`);
                 const quantityToAdd = parseInt(stockInput.value, 10);
                 if (stamp && !isNaN(quantityToAdd) && quantityToAdd > 0) {
                     stamp.startQty += quantityToAdd; stockInput.value = ''; this.saveState(); this.renderMain();
@@ -567,7 +567,7 @@
                 const view = this.state.currentView;
                 const isMainView = view === 'main';
                 const isHistoryView = view === 'history';
-                const isSettingsView = view === 'settings';
+                const isSettingsView = view ===E === 'settings';
 
                 document.getElementById('preparation-section').classList.toggle('hidden', !isMainView || this.state.appMode !== 'preparation');
                 document.getElementById('main-section').classList.toggle('hidden', !isMainView || this.state.appMode !== 'main');
@@ -591,7 +591,7 @@
             renderPreparation() {
                 const prepList = document.getElementById('preparation-list');
                  if (this.state.stamps.length === 0) {
-                     prepList.innerHTML = <p class="text-gray-500 text-center mt-4">ابدأ بإضافة نوع طابع وسعره.</p>;
+                     prepList.innerHTML = `<p class="text-gray-500 text-center mt-4">ابدأ بإضافة نوع طابع وسعره.</p>`;
                      return;
                  }
                 prepList.innerHTML = this.state.stamps.map(stamp => `
@@ -628,7 +628,7 @@
 
                 for (const type of Object.keys(groupedStamps).sort()) {
                     // --- 1. Populate Quick Sell Grid ---
-                    quickSellGrid.innerHTML += <h3 class="col-span-full text-lg font-bold text-blue-700 border-b-2 border-blue-200 mb-2 mt-4">${type}</h3>;
+                    quickSellGrid.innerHTML += `<h3 class="col-span-full text-lg font-bold text-blue-700 border-b-2 border-blue-200 mb-2 mt-4">${type}</h3>`;
                     const quickSellHtml = groupedStamps[type].map(stamp => {
                         const remaining = stamp.startQty - stamp.soldQty;
                         const isOutOfStock = remaining <= 0;
@@ -651,7 +651,7 @@
                     quickSellGrid.innerHTML += quickSellHtml;
 
                     // --- 2. Populate Detailed Sales List ---
-                    salesList.innerHTML += <h3 class="text-xl font-bold text-gray-800 mb-3 mt-5">${type}</h3>;
+                    salesList.innerHTML += `<h3 class="text-xl font-bold text-gray-800 mb-3 mt-5">${type}</h3>`;
                     const detailedListHtml = groupedStamps[type].map(stamp => {
                         const remaining = stamp.startQty - stamp.soldQty;
                         return `<div class="p-4 border rounded-lg bg-gray-50">
@@ -661,8 +661,8 @@
                                     <button onclick="app.deleteStamp(${stamp.id})" class="text-red-500 hover:text-red-700 font-bold text-2xl leading-none" title="حذف الطابع نهائياً">&times;</button>
                                 </div>
                                 ${stamp.isEditingPrice 
-                                    ? <div class="flex items-center gap-2"><input type="number" value="${stamp.price}" id="price-input-${stamp.id}" class="w-24 p-1 border rounded-md text-sm"><button onclick="app.updatePrice(${stamp.id})" class="bg-green-500 text-white px-2 py-1 text-xs rounded-md">حفظ</button><button onclick="app.togglePriceEdit(${stamp.id})" class="text-gray-500 text-xs">إلغاء</button></div> 
-                                    : <div class="flex items-center gap-2"><span class="text-sm font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded-full">${stamp.price} دج</span><button onclick="app.togglePriceEdit(${stamp.id})" class="text-gray-500 hover:text-blue-600 text-xl" title="تعديل السعر">✏</button></div>}
+                                    ? `<div class="flex items-center gap-2"><input type="number" value="${stamp.price}" id="price-input-${stamp.id}" class="w-24 p-1 border rounded-md text-sm"><button onclick="app.updatePrice(${stamp.id})" class="bg-green-500 text-white px-2 py-1 text-xs rounded-md">حفظ</button><button onclick="app.togglePriceEdit(${stamp.id})" class="text-gray-500 text-xs">إلغاء</button></div>` 
+                                    : `<div class="flex items-center gap-2"><span class="text-sm font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded-full">${stamp.price} دج</span><button onclick="app.togglePriceEdit(${stamp.id})" class="text-gray-500 hover:text-blue-600 text-xl" title="تعديل السعر">✏️</button></div>`}
                             </div>
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center my-3">
                                 <div><p class="text-xs text-gray-500">الكمية الأولية</p><p class="font-bold text-lg">${stamp.startQty}</p></div>
@@ -682,7 +682,7 @@
                                 <details><summary class="font-semibold cursor-pointer text-gray-700">إدارة مصاريف هذا الطابع</summary>
                                     <div class="mt-2 p-3 bg-white rounded-md border">
                                         <div class="space-y-2 mb-3"><input type="text" id="expense-desc-input-${stamp.id}" placeholder="وصف المصروف" class="w-full p-2 text-sm border rounded-md"><input type="number" id="expense-amount-input-${stamp.id}" placeholder="المبلغ" class="w-full p-2 text-sm border rounded-md no-spinner"><button onclick="app.addExpense(${stamp.id})" class="w-full bg-blue-500 text-white font-bold py-2 px-3 rounded-md text-sm">إضافة مصروف</button></div>
-                                        <div class="space-y-1">${(stamp.expenses && stamp.expenses.length > 0) ? stamp.expenses.map(exp => <div class="flex justify-between items-center bg-gray-100 p-2 rounded-md text-sm"><span>${exp.desc}</span><div class="flex items-center gap-2"><span class="font-bold">${exp.amount.toFixed(2)} دج</span><button onclick="app.deleteExpense(${stamp.id}, ${exp.id})" class="text-red-500 font-bold text-lg leading-none">&times;</button></div></div>).join('') : '<p class="text-xs text-center text-gray-500">لا توجد مصاريف.</p>'}</div>
+                                        <div class="space-y-1">${(stamp.expenses && stamp.expenses.length > 0) ? stamp.expenses.map(exp => `<div class="flex justify-between items-center bg-gray-100 p-2 rounded-md text-sm"><span>${exp.desc}</span><div class="flex items-center gap-2"><span class="font-bold">${exp.amount.toFixed(2)} دج</span><button onclick="app.deleteExpense(${stamp.id}, ${exp.id})" class="text-red-500 font-bold text-lg leading-none">&times;</button></div></div>`).join('') : '<p class="text-xs text-center text-gray-500">لا توجد مصاريف.</p>'}</div>
                                     </div>
                                 </details>
                             </div>
@@ -707,9 +707,9 @@
 
             renderSummary() {
                 const { totalRevenue, totalExpenses, netCash, totalStampsSold } = this.calculateSummary();
-                document.getElementById('total-revenue').textContent = ${totalRevenue.toFixed(2)} دج;
-                document.getElementById('total-expenses').textContent = ${totalExpenses.toFixed(2)} دج;
-                document.getElementById('net-cash').textContent = ${netCash.toFixed(2)} دج;
+                document.getElementById('total-revenue').textContent = `${totalRevenue.toFixed(2)} دج`;
+                document.getElementById('total-expenses').textContent = `${totalExpenses.toFixed(2)} دج`;
+                document.getElementById('net-cash').textContent = `${netCash.toFixed(2)} دج`;
                 document.getElementById('total-stamps-sold').textContent = totalStampsSold;
             },
 
@@ -728,13 +728,13 @@
                 const selectedDate = document.getElementById('history-date-picker').value;
                 const display = document.getElementById('history-display');
                 if (!selectedDate) {
-                    display.innerHTML = <p class="text-center text-gray-500">الرجاء اختيار تاريخ لعرض التقرير.</p>;
+                    display.innerHTML = `<p class="text-center text-gray-500">الرجاء اختيار تاريخ لعرض التقرير.</p>`;
                     return;
                 }
 
                 const report = this.state.history.find(h => h.date === selectedDate);
                 if (!report) {
-                    display.innerHTML = <p class="text-center text-red-500 font-semibold">لا يوجد تقرير مسجل لهذا التاريخ.</p>;
+                    display.innerHTML = `<p class="text-center text-red-500 font-semibold">لا يوجد تقرير مسجل لهذا التاريخ.</p>`;
                     return;
                 }
 
@@ -742,7 +742,7 @@
                 let stampsHtml = '';
 
                 for (const type of Object.keys(groupedStamps).sort()) {
-                    stampsHtml += <h4 class="text-lg font-bold text-blue-700 border-b-2 border-blue-200 mb-2 mt-4">${type}</h4>;
+                    stampsHtml += `<h4 class="text-lg font-bold text-blue-700 border-b-2 border-blue-200 mb-2 mt-4">${type}</h4>`;
                     stampsHtml += groupedStamps[type].map(stamp => `
                         <div class="p-3 border rounded-lg bg-gray-50">
                             <p class="font-bold text-gray-800">${stamp.name}</p>
@@ -755,7 +755,7 @@
                             ${stamp.expenses && stamp.expenses.length > 0 ? `
                             <div class="mt-2 pt-2 border-t">
                                 <p class="text-xs font-semibold">المصاريف الخاصة:</p>
-                                ${stamp.expenses.map(exp => <p class="text-xs text-red-600">${exp.desc}: ${exp.amount.toFixed(2)} دج</p>).join('')}
+                                ${stamp.expenses.map(exp => `<p class="text-xs text-red-600">${exp.desc}: ${exp.amount.toFixed(2)} دج</p>`).join('')}
                             </div>` : ''}
                         </div>
                     `).join('');
