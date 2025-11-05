@@ -3,443 +3,781 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مستخرج معلومات البطاقة الذهبية</title>
-    <!-- تحميل Tailwind CSS -->
+    <title>أداة إدارة مبيعات الطوابع</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- [جديد] تحميل مكتبة SheetJS (xlsx) لإنشاء ملفات Excel احترافية -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+            font-family: 'Cairo', sans-serif;
+            /* Style for background image */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
         }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+        .no-spinner::-webkit-outer-spin-button,
+        .no-spinner::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .no-spinner {
+            -moz-appearance: textfield;
         }
-        .message-box {
-            transition: opacity 0.3s ease-in-out;
+        .notification-fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
         }
-        .ltr {
-            direction: ltr;
-            text-align: left;
+        /* Hide logo placeholders if src is empty */
+        #logo-right-img[src=""], #logo-left-img[src=""] {
+            display: none;
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-gray-100">
 
-    <div class="max-w-6xl w-full bg-white p-8 rounded-xl shadow-lg m-4">
+    <!-- Area for success/error notifications -->
+    <div id="notification-area" class="fixed top-5 right-5 z-50 w-full max-w-sm"></div>
+
+    <!-- Modal Container -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-40 hidden" dir="rtl">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+            <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800">تأكيد الإجراء</h3>
+            <p id="modal-message" class="mb-6 text-gray-600">هل أنت متأكد من رغبتك في المتابعة؟</p>
+            <div class="flex justify-end gap-4">
+                <button id="modal-cancel-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">إلغاء</button>
+                <button id="modal-confirm-btn" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="container mx-auto p-4 max-w-4xl">
+        <header class="text-center my-6">
+            <!-- Updated header with logos -->
+            <div class="flex justify-between items-center max-w-3xl mx-auto">
+                <img id="logo-right-img" src="" class="h-16 w-16 object-contain" alt="الشعار الأيمن">
+                <h1 class="text-3xl font-bold text-gray-800">برنامج إدارة مبيعات الطوابع</h1>
+                <img id="logo-left-img" src="" class="h-16 w-16 object-contain" alt="الشعار الأيسر">
+            </div>
+            <p class="text-gray-600 mt-2">لتتبع مبيعاتك اليومية، المخزون، والمصاريف بسهولة ودقة.</p>
+        </header>
         
-        <!-- العنوان -->
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">مستخرج معلومات البطاقة الذهبية</h1>
-            <p class="text-gray-600 mt-2">ارفع صورة أو عدة صور واضحة (حتى 500+ صورة).</p>
+        <!-- Updated navigation with Settings -->
+        <div class="bg-white p-3 rounded-lg shadow-md mb-6 flex justify-center gap-4">
+            <button id="show-main-btn" onclick="app.showView('main')" class="px-6 py-2 font-semibold text-white bg-blue-600 rounded-md">اليوم الحالي</button>
+            <button id="show-history-btn" onclick="app.showView('history')" class="px-6 py-2 font-semibold text-gray-700 bg-gray-200 rounded-md">سجل الأيام السابقة</button>
+            <button id="show-settings-btn" onclick="app.showView('settings')" class="px-6 py-2 font-semibold text-gray-700 bg-gray-200 rounded-md">الإعدادات</button>
         </div>
 
-        <!-- منطقة الرفع -->
-        <div class="space-y-4">
-            <div>
-                <label for="imageUpload" class="block text-sm font-medium text-gray-700 mb-2">1. اختر صورة أو عدة صور:</label>
-                <!-- السمة "multiple" تسمح باختيار ملفات متعددة -->
-                <input type="file" id="imageUpload" accept="image/*" multiple
-                       class="block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-lg file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-blue-50 file:text-blue-700
-                    hover:file:bg-blue-100
-                "/>
-            </div>
-
-            <!-- معاينة الملفات -->
-            <div class="w-full bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <div id="filePreview" class="text-center text-gray-600">
-                    لم يتم اختيار أي ملفات
-                </div>
-            </div>
-
-            <!-- حقول الإدخال -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                <div>
-                    <label for="recipientType" class="block text-sm font-medium text-gray-700 mb-2">2. نوع المستلم:</label>
-                    <input type="text" id="recipientType" name="recipientType" value="بطاقة ذهبية"
-                           class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label for="counterNumber" class="block text-sm font-medium text-gray-700 mb-2">3. رقم الشباك:</label>
-                    <input type="text" id="counterNumber" name="counterNumber" value="4" 
-                           class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-            </div>
-
-            <!-- زر الاستخراج -->
-            <button id="extractButton" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                4. استخراج المعلومات
-            </button>
-        </div>
-
-        <!-- مؤشر التحميل -->
-        <div id="loader" class="loader hidden"></div>
-        <!-- رسالة التقدم -->
-        <p id="loaderMessage" class="text-center text-gray-600 mt-2 hidden"></p>
-
-        <!-- قسم النتائج (تم تحويله إلى جدول) -->
-        <div id="results" class="mt-6 border-t pt-6 hidden">
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4">النتائج المستخرجة:</h2>
+        <!-- Step 1: Preparation -->
+        <div id="preparation-section" class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-bold mb-4 border-b pb-2 text-gray-700">الخطوة 1: تجهيز الطوابع وبدء اليوم</h2>
             
-            <div class="overflow-x-auto rounded-lg border border-gray-200">
-                <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-right">نوع المستلم</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-right">رقم الشباك</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-right">الاسم واللقب</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-left">رقم الهاتف</th>
-                            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-left">رقم الحساب (RIB)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resultsTableBody" class="divide-y divide-gray-200">
-                        <!-- سيتم حقن الأسطر هنا بواسطة JavaScript -->
-                    </tbody>
-                </table>
+            <h3 class="text-lg font-semibold mb-2 text-gray-600">إضافة طابع جديد</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg border">
+                <input type="text" id="stamp-name-input" placeholder="اسم الطابع (مثال: طابع 20 دج)" class="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="stamp-type-input" placeholder="نوع الطابع (مثال: ضريبي)" class="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="number" id="stamp-price-input" placeholder="سعر الطابع" class="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 no-spinner">
+                <button onclick="app.addStamp()" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 transition-colors">إضافة طابع</button>
             </div>
 
-            <!-- زر التحميل -->
-            <!-- [تعديل] تم تغيير النص ليعكس الصيغة الجديدة .xlsx -->
-            <button id="downloadButton" class="w-full mt-4 bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-green-700 transition duration-300 hidden">
-                تحميل كملف Excel (.xlsx)
-            </button>
+            <h3 class="text-lg font-semibold mb-2 text-gray-600">تحديد كمية بداية اليوم</h3>
+            <div id="preparation-list" class="space-y-3 mb-4">
+                <!-- Stamp list for setting quantities -->
+            </div>
+
+            <button onclick="app.startDay()" class="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-md hover:bg-green-600 transition-colors text-lg">بدء اليوم وتفعيل البيع</button>
         </div>
 
-        <!-- صندوق الرسائل (بديل لـ alert) -->
-        <div id="messageBox" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 bg-red-600 text-white py-3 px-6 rounded-lg shadow-xl message-box z-50">
-            <span id="messageText"></span>
-        </div>
 
+        <!-- Step 2: Sales & Summary View -->
+        <div id="main-section" class="hidden">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center">
+                <div class="bg-green-100 p-4 rounded-lg shadow">
+                    <h3 class="font-bold text-gray-700">إجمالي المبيعات</h3>
+                    <p id="total-revenue" class="text-2xl font-bold text-green-700">0 دج</p>
+                </div>
+                <div class="bg-red-100 p-4 rounded-lg shadow">
+                    <h3 class="font-bold text-gray-700">إجمالي المصاريف</h3>
+                    <p id="total-expenses" class="text-2xl font-bold text-red-700">0 دج</p>
+                </div>
+                <div class="bg-blue-100 p-4 rounded-lg shadow">
+                    <h3 class="font-bold text-gray-700">صافي النقدية</h3>
+                    <p id="net-cash" class="text-2xl font-bold text-blue-700">0 دج</p>
+                </div>
+                <div class="bg-yellow-100 p-4 rounded-lg shadow">
+                    <h3 class="font-bold text-gray-700">طوابع مباعة</h3>
+                    <p id="total-stamps-sold" class="text-2xl font-bold text-yellow-800">0</p>
+                </div>
+            </div>
+            
+            <div id="quick-sell-wrapper" class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h2 class="text-xl font-bold mb-4 border-b pb-2 text-gray-700">شبكة البيع السريع</h2>
+                <p class="text-sm text-gray-500 mb-4">انقر على الطابع لتسجيل عملية بيع واحدة (+1).</p>
+                <div id="quick-sell-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+            </div>
+
+            <div id="detailed-management-wrapper" class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-bold mb-4 border-b pb-2 text-gray-700">الإدارة التفصيلية للطوابع</h2>
+                <div id="sales-list" class="space-y-4"></div>
+            </div>
+            
+            <div class="mt-6 text-center">
+                 <button onclick="app.endDayAndStartNew()" class="w-full md:w-auto bg-gray-700 text-white font-bold py-2 px-6 rounded-md hover:bg-gray-800 transition-colors">إنهاء اليوم وحفظ السجل</button>
+            </div>
+        </div>
+        
+        <!-- History View -->
+        <div id="history-section" class="hidden bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-bold mb-4 border-b pb-2 text-gray-700">سجل الأيام السابقة</h2>
+            <div class="mb-4">
+                <label for="history-date-picker" class="block font-semibold mb-2">اختر تاريخ لعرض تقريره:</label>
+                <input type="date" id="history-date-picker" onchange="app.renderHistoryReport()" class="p-2 border rounded-md w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div id="history-display" class="mt-4">
+                <p class="text-center text-gray-500">الرجاء اختيار تاريخ لعرض التقرير.</p>
+            </div>
+        </div>
+        
+        <!-- Settings View -->
+        <div id="settings-section" class="hidden bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-bold mb-4 border-b pb-2 text-gray-700">الإعدادات</h2>
+            <div class="space-y-6">
+                <!-- Logo Right Upload -->
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-2">الشعار الأيمن (للعنوان)</label>
+                    <div class="flex items-center gap-4">
+                        <input type="file" id="logo-right-upload" accept="image/*" class="block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-blue-50 file:text-blue-700
+                            hover:file:bg-blue-100
+                        "/>
+                        <button onclick="app.clearSetting('logoRight')" class="py-2 px-4 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">مسح</button>
+                    </div>
+                </div>
+
+                <!-- Logo Left Upload -->
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-2">الشعار الأيسر (للعنوان)</label>
+                    <div class="flex items-center gap-4">
+                        <input type="file" id="logo-left-upload" accept="image/*" class="block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-blue-50 file:text-blue-700
+                            hover:file:bg-blue-100
+                        "/>
+                        <button onclick="app.clearSetting('logoLeft')" class="py-2 px-4 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">مسح</button>
+                    </div>
+                </div>
+
+                <!-- Background Image Upload -->
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-2">صورة خلفية الموقع</label>
+                    <div class="flex items-center gap-4">
+                        <input type="file" id="bg-upload" accept="image/*" class="block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-blue-50 file:text-blue-700
+                            hover:file:bg-blue-100
+                        "/>
+                        <button onclick="app.clearSetting('background')" class="py-2 px-4 bg-red-500 text-white rounded-md text-sm hover:bg-red-600">مسح</full-width>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- متغيرات ---
-        const imageUpload = document.getElementById('imageUpload');
-        const filePreview = document.getElementById('filePreview');
-        const extractButton = document.getElementById('extractButton');
-        const loader = document.getElementById('loader');
-        const loaderMessage = document.getElementById('loaderMessage');
-        const results = document.getElementById('results');
-        const resultsTableBody = document.getElementById('resultsTableBody');
-        const downloadButton = document.getElementById('downloadButton');
-        const messageBox = document.getElementById('messageBox');
-        const messageText = document.getElementById('messageText');
-        const recipientType = document.getElementById('recipientType');
-        const counterNumber = document.getElementById('counterNumber');
+        const app = {
+            state: {
+                stamps: [], // { id, name, type, price, startQty, soldQty, isEditingPrice, expenses: [] }
+                appMode: 'preparation', // preparation, main
+                currentView: 'main', // main, history, settings
+                history: [], // [{date, totalRevenue, ..., stamps: [...]}]
+                settings: {
+                    logoRight: null,
+                    logoLeft: null,
+                    background: null
+                },
+                modalCallback: null,
+            },
 
-        let uploadedFiles = null; 
-        let extractedData = []; 
-        const apiKey = "AIzaSyDWXJB9QKDWxFqgqpNg-4MIfyLblj5qFNY"; // تم وضع المفتاح الذي قدمته
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            init() {
+                this.loadState();
+                this.applySettings(); // Apply loaded settings on init
+                this.render();
+                
+                // Add modal event listeners
+                document.getElementById('modal-cancel-btn').addEventListener('click', () => this.hideConfirmationModal());
+                document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+                    if (this.state.modalCallback) {
+                        this.state.modalCallback();
+                    }
+                    this.hideConfirmationModal();
+                });
 
-        // --- تهيئة ---
-        extractButton.disabled = true;
+                // Add settings listeners
+                document.getElementById('logo-right-upload').addEventListener('change', (e) => this.handleImageUpload(e, 'logoRight'));
+                document.getElementById('logo-left-upload').addEventListener('change', (e) => this.handleImageUpload(e, 'logoLeft'));
+                document.getElementById('bg-upload').addEventListener('change', (e) => this.handleImageUpload(e, 'background'));
+            },
 
-        // --- معالجات الأحداث ---
-
-        imageUpload.addEventListener('change', (e) => {
-            uploadedFiles = e.target.files; 
-            if (!uploadedFiles || uploadedFiles.length === 0) {
-                filePreview.textContent = 'لم يتم اختيار أي ملفات';
-                extractButton.disabled = true;
-                return;
-            }
-
-            filePreview.textContent = `${uploadedFiles.length} ملفات مختارة`;
-            
-            extractButton.disabled = false;
-            results.classList.add('hidden'); 
-            downloadButton.classList.add('hidden'); 
-            resultsTableBody.innerHTML = ''; 
-            extractedData = []; 
-        });
-
-        // [تعديل] تم تغيير منطق المعالجة إلى تسلسلي (واحد تلو الآخر) لضمان الموثوقية
-        extractButton.addEventListener('click', async () => {
-            if (!uploadedFiles || uploadedFiles.length === 0) {
-                showMessage('الرجاء اختيار ملف واحد على الأقل.');
-                return;
-            }
-
-            const recipientTypeValue = recipientType.value.trim();
-            
-            // [تعديل] الرجوع إلى قراءة القيمة الثابتة لرقم الشباك
-            const counterNumberValue = counterNumber.value.trim();
-            if (isNaN(parseInt(counterNumberValue, 10))) {
-                showMessage('الرجاء إدخال رقم شباك صالح (رقم فقط).');
-                return;
-            }
-
-            loader.classList.remove('hidden');
-            loaderMessage.classList.remove('hidden');
-            results.classList.remove('hidden'); // إظهار الجدول فوراً
-            downloadButton.classList.add('hidden');
-            extractButton.disabled = true;
-            resultsTableBody.innerHTML = ''; 
-            extractedData = []; 
-
-            const allFiles = Array.from(uploadedFiles);
-            let processedFileCount = 0;
-            const totalFiles = allFiles.length;
-
-            // [تعديل] حلقة لمعالجة الملفات واحد تلو الآخر
-            try {
-                for (const file of allFiles) {
-                    processedFileCount++;
-                    loaderMessage.textContent = `جاري معالجة الملف ${processedFileCount} من ${totalFiles} (${file.name})...`;
-
-                    // [تعديل] تمرير "رقم الشباك" الثابت
-                    const result = await processFile(file, recipientTypeValue, counterNumberValue);
-                    
-                    // الدالة processFile مصممة لإرجاع كائن دائماً (بيانات أو خطأ)
-                    extractedData.push(result);
-                    appendResultToTable(result, result.isError);
-                    
-                    // [--- إصلاح خطأ 429 ---]
-                    // إضافة تأخير (1 ثانية) بين كل طلب لتجنب تجاوز الحد المسموح به
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    
+            loadState() {
+                // 1. Load the main app state
+                const storedState = localStorage.getItem('stampSellerAppState');
+                if (storedState) {
+                    const parsedState = JSON.parse(storedState);
+                    this.state = {
+                        ...this.state, // Load defaults first
+                        ...parsedState, // Override with saved data
+                        modalCallback: null // Always reset modal callback
+                    };
                 }
-            } catch (error) {
-                // هذا للالتقاط أخطاء غير متوقعة في الحلقة نفسها
-                console.error("خطأ فادح أثناء حلقة المعالجة:", error);
-                loaderMessage.textContent = "حدث خطأ فادح. يرجى إعادة المحاولة.";
-                showMessage("حدث خطأ غير متوقع. قد تحتاج لإعادة تحميل الصفحة.");
-            }
-
-            loader.classList.add('hidden');
-            loaderMessage.textContent = `اكتملت المعالجة! (تم تحليل ${totalFiles} ملف)`;
-            extractButton.disabled = false;
-            // [تمت الإزالة] إزالة تحديث حقل رقم الشباك
-            
-            if (extractedData.length > 0) {
-                downloadButton.classList.remove('hidden');
-            }
-        });
-
-        // [تعديل] تم استبدال منطق تصدير CSV بالكامل بمنطق XLSX الاحترافي
-        downloadButton.addEventListener('click', () => {
-            if (!extractedData || extractedData.length === 0) {
-                showMessage('لا توجد بيانات للتحميل.');
-                return;
-            }
-
-            // --- [جديد] منطق تصدير Excel الاحترافي (XLSX) ---
-            
-            // 1. فلترة البيانات وتنسيقها للعرض (مطابقة للرؤوس)
-            const headers = [
-                "نوع المستلم", 
-                "رقم الشباك", 
-                "الاسم واللقب", 
-                "رقم الهاتف", 
-                "رقم الحساب (RIB)"
-            ];
-
-            const dataToExport = extractedData
-                .filter(row => !row.isError) // فلترة الأخطاء
-                .map(row => ({
-                    [headers[0]]: row.recipientType,
-                    [headers[1]]: row.counterNumber,
-                    [headers[2]]: row.fullName,
-                    [headers[3]]: row.phoneNumber,
-                    [headers[4]]: row.accountNumber
-                }));
-
-            // 2. إنشاء ورقة العمل (Worksheet)
-            // استخدام json_to_sheet سيجعل الرؤوس (Headers) عريضة (Bold) تلقائياً
-            const ws = XLSX.utils.json_to_sheet(dataToExport, { header: headers });
-
-            // 3. (احترافي) - تحديد عرض الأعمدة تلقائياً
-            const cols = headers.map(header => {
-                let maxW = header.length; // يبدأ بعرض الرأس
-                dataToExport.forEach(row => {
-                    const val = row[header];
-                    if (val) {
-                        const len = String(val).length;
-                        if (len > maxW) maxW = len;
-                    }
-                });
-                // إعطاء حد أدنى 15 و 5 هوامش
-                return { wch: Math.max(15, maxW + 5) };
-            });
-            ws['!cols'] = cols;
-
-            // 4. (احترافي) - جعل اتجاه الورقة من اليمين لليسار (RTL)
-            ws['!view'] = { rtl: true };
-
-            // 5. إنشاء المصنف (Workbook) وإضافة الورقة إليه
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "البيانات المستخرجة");
-
-            // 6. إنشاء وتنزيل الملف
-            const fileName = "Extracted_Card_Info.xlsx";
-            XLSX.writeFile(wb, fileName);
-            // --- نهاية المنطق الجديد ---
-        });
-
-        // --- دوال مساعدة ---
-
-        /**
-         * [معدل] دالة معالجة ملف واحد (تم فصلها)
-         * هذه الدالة تقوم بمعالجة ملف واحد وإرجاع البيانات أو كائن خطأ
-         */
-        async function processFile(file, recipientTypeValue, counterNumberValue) {
-            try {
-                const { base64Data, mimeType } = await readFileAsBase64(file);
-
-                const responseSchema = {
-                    type: "OBJECT", 
-                    properties: {
-                        "fullName": { "type": "STRING", "description": "الاسم الكامل لصاحب الحساب." },
-                        "accountNumber": { "type": "STRING", "description": "رقم الحساب (يبدأ بعد '00' وينتهي قبل '*')." },
-                        "phoneNumber": { 
-                            "type": "STRING", 
-                            "description": "ابحث عن رقم الهاتف في الأسفل بجانب 'numero de telephone'. يجب أن يبدأ بـ '06' أو '07' أو '05'. إذا لم تجده، أعد قيمة فارغة ('' أو null)." 
-                        }
-                    }, 
-                    required: ["fullName", "accountNumber"]
-                };
                 
-                const userPrompt = `
-أنت خبير في تحليل المستندات البنكية.
-من صورة هذا المستند، استخرج المعلومات التالية بدقة، متبعاً هذه القواعد:
-1.  **fullName**: الاسم الكامل لصاحب الحساب كما هو مكتوب.
-2.  **accountNumber**: هذا هو رقم الحساب. ابحث عن السلسلة الطويلة من الأرقام. يجب أن تبدأ *بعد* أول '00' (إن وجد) وتنتهي *قبل* علامة النجمة '*' (إن وجدت). لا تقم بتضمين '00' أو '*'.
-3.  **phoneNumber**: [مهم] ابحث عن رقم الهاتف المكتوب في الأسفل بجانب 'numero de telephone'. يجب أن يبدأ الرقم بـ '06'، '07'، أو '05'. إذا لم تجد رقماً مطابقاً، اترك القيمة فارغة ('' أو null).
-أعد البيانات بتنسيق JSON المحدد.`;
-
-                const payload = {
-                    contents: [{
-                        role: "user",
-                        parts: [
-                            { text: userPrompt },
-                            { inlineData: { mimeType: mimeType, data: base64Data } }
-                        ]
-                    }],
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: responseSchema
-                    }
+                // 2. Load settings from their individual keys
+                this.state.settings = {
+                    logoRight: localStorage.getItem('stampSellerLogoRight') || null,
+                    logoLeft: localStorage.getItem('stampSellerLogoLeft') || null,
+                    background: localStorage.getItem('stampSellerBackground') || null
                 };
 
-                const response = await fetchWithBackoff(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                // 3. Compatibility checks (keep these)
+                if (!this.state.history) this.state.history = [];
+                // Ensure settings object exists if it wasn't loaded
+                if (!this.state.settings) this.state.settings = { logoRight: null, logoLeft: null, background: null };
+                this.state.stamps.forEach(s => { if (!s.type) s.type = 'غير مصنف'; });
+            },
 
-                if (!response.ok) throw new Error(`API error! status: ${response.status}`);
+            saveState() {
+                // 1. Create a copy of the state for saving, excluding volatile parts
+                const stateToSave = { ...this.state, modalCallback: null };
                 
-                const result = await response.json();
-                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                // 2. Separate settings from the main state object
+                const settingsToSave = stateToSave.settings;
+                delete stateToSave.settings; // Remove settings from main object
 
-                if (jsonText) {
-                    const data = JSON.parse(jsonText);
-                    data.recipientType = recipientTypeValue;
-                    data.counterNumber = counterNumberValue;
-                    data.isError = false;
-                    return data; // إرجاع بيانات النجاح
+                try {
+                    // 3. Save the main app state (stamps, history, etc.) - This is critical
+                    localStorage.setItem('stampSellerAppState', JSON.stringify(stateToSave));
+                } catch (e) {
+                     this.showErrorNotification('خطأ فادح: لم نتمكن من حفظ بيانات الطوابع. ' + e.message);
+                     // Don't proceed if this fails
+                     return;
+                }
+
+                // 4. Save each setting individually, with its own error handling
+                try {
+                    if (settingsToSave.logoRight) {
+                        localStorage.setItem('stampSellerLogoRight', settingsToSave.logoRight);
+                    } else {
+                        localStorage.removeItem('stampSellerLogoRight');
+                    }
+                } catch (e) {
+                    if (e.name === 'QuotaExceededError') {
+                        this.showErrorNotification('لم نتمكن من حفظ الشعار الأيمن. (الصورة كبيرة جدًا؟)');
+                    } else {
+                        this.showErrorNotification('خطأ في حفظ الشعار الأيمن: ' + e.message);
+                    }
+                }
+                
+                try {
+                    if (settingsToSave.logoLeft) {
+                        localStorage.setItem('stampSellerLogoLeft', settingsToSave.logoLeft);
+                    } else {
+                        localStorage.removeItem('stampSellerLogoLeft');
+                    }
+                } catch (e) {
+                     if (e.name === 'QuotaExceededError') {
+                        this.showErrorNotification('لم نتمكن من حفظ الشعار الأيسر. (الصورة كبيرة جدًا؟)');
+                    } else {
+                        this.showErrorNotification('خطأ في حفظ الشعار الأيسر: ' + e.message);
+                    }
+                }
+
+                try {
+                    if (settingsToSave.background) {
+                        localStorage.setItem('stampSellerBackground', settingsToSave.background);
+                    } else {
+                        localStorage.removeItem('stampSellerBackground');
+                    }
+                } catch (e) {
+                     if (e.name === 'QuotaExceededError') {
+                        this.showErrorNotification('لم نتمكن من حفظ الخلفية. (الصورة كبيرة جدًا؟)');
+                    } else {
+                        this.showErrorNotification('خطأ في حفظ الخلفية: ' + e.message);
+                    }
+                }
+            },
+
+            // --- Settings Functions ---
+            handleImageUpload(event, settingKey) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const base64String = e.target.result;
+                    this.state.settings[settingKey] = base64String;
+                    this.saveState();
+                    this.applySettings(); // Apply change immediately
+                    this.showNotification('تم حفظ الصورة بنجاح.');
+                };
+                reader.readAsDataURL(file);
+            },
+
+            applySettings() {
+                const { logoRight, logoLeft, background } = this.state.settings;
+                const logoRightImg = document.getElementById('logo-right-img');
+                const logoLeftImg = document.getElementById('logo-left-img');
+
+                if (logoRight) {
+                    logoRightImg.src = logoRight;
                 } else {
-                    throw new Error('لم يتم العثور على محتوى قابل للتحليل.');
+                    logoRightImg.src = ''; // Clear src to hide it
                 }
 
-            } catch (error) {
-                console.error(`Error processing file ${file.name}:`, error);
-                // إرجاع كائن خطأ بدلاً من طرح الخطأ
-                return {
-                    fullName: `خطأ في معالجة (${file.name})`,
-                    accountNumber: '---',
-                    phoneNumber: '---', 
-                    recipientType: recipientTypeValue,
-                    counterNumber: counterNumberValue,
-                    isError: true
+                if (logoLeft) {
+                    logoLeftImg.src = logoLeft;
+                } else {
+                    logoLeftImg.src = ''; // Clear src to hide it
+                }
+
+                if (background) {
+                    document.body.style.backgroundImage = url(${background});
+                } else {
+                    document.body.style.backgroundImage = 'none';
+                }
+            },
+
+            clearSetting(settingKey) {
+                this.state.settings[settingKey] = null;
+                
+                // Clear the file input value
+                if (settingKey === 'logoRight') document.getElementById('logo-right-upload').value = null;
+                if (settingKey === 'logoLeft') document.getElementById('logo-left-upload').value = null;
+                if (settingKey === 'background') document.getElementById('bg-upload').value = null;
+                
+                this.saveState();
+                this.applySettings();
+                this.showNotification('تم مسح الإعداد.');
+            },
+
+            // --- Stamp Functions ---
+            addStamp() {
+                const nameInput = document.getElementById('stamp-name-input');
+                const typeInput = document.getElementById('stamp-type-input');
+                const priceInput = document.getElementById('stamp-price-input');
+                
+                const name = nameInput.value.trim();
+                const type = typeInput.value.trim() || 'غير مصنف';
+                const price = parseFloat(priceInput.value);
+
+                if (name && price > 0 && typeInput.value.trim()) {
+                    this.state.stamps.push({ id: Date.now(), name, type, price, startQty: 0, soldQty: 0, isEditingPrice: false, expenses: [] });
+                    nameInput.value = ''; priceInput.value = ''; typeInput.value = ''; 
+                    nameInput.focus();
+                    this.saveState(); this.render();
+                } else {
+                    this.showErrorNotification('الرجاء إدخال اسم ونوع وسعر صحيحين للطابع.');
+                }
+            },
+            
+            deleteStamp(id) {
+                this.showConfirmationModal('هل أنت متأكد من رغبتك في حذف هذا النوع من الطوابع بشكل دائم؟', () => {
+                    this.state.stamps = this.state.stamps.filter(s => s.id !== id);
+                    this.saveState(); 
+                    this.render();
+                    this.showNotification('تم حذف الطابع بنجاح.');
+                });
+            },
+
+            startDay() {
+                this.state.stamps.forEach(stamp => {
+                    const input = document.getElementById(prep-qty-${stamp.id});
+                    if (input) {
+                        const qty = parseInt(input.value, 10);
+                        stamp.startQty = (!isNaN(qty) && qty >= 0) ? qty : stamp.startQty;
+                    }
+                });
+                this.state.appMode = 'main'; this.saveState(); this.render();
+            },
+            
+            sellStamp(id, amount) {
+                const stamp = this.state.stamps.find(s => s.id === id);
+                if (stamp) {
+                    const newSoldQty = stamp.soldQty + amount;
+                    if (amount < 0 || (stamp.startQty - newSoldQty) >= 0) {
+                        stamp.soldQty = newSoldQty < 0 ? 0 : newSoldQty;
+                    } else {
+                        this.showErrorNotification('لا يمكن بيع كمية أكبر من المتبقي!');
+                    }
+                    this.saveState(); this.renderMain();
+                }
+            },
+
+            addExpense(stampId) {
+                const stamp = this.state.stamps.find(s => s.id === stampId);
+                const descInput = document.getElementById(expense-desc-input-${stampId});
+                const amountInput = document.getElementById(expense-amount-input-${stampId});
+                const desc = descInput.value.trim(); const amount = parseFloat(amountInput.value);
+                if (desc && amount > 0) {
+                    if (!stamp.expenses) stamp.expenses = [];
+                    stamp.expenses.push({ id: Date.now(), desc, amount });
+                    descInput.value = ''; amountInput.value = ''; descInput.focus();
+                    this.saveState(); this.renderMain();
+                } else {
+                    this.showErrorNotification('الرجاء إدخال وصف ومبلغ صحيحين للمصروف.');
+                }
+            },
+            
+            deleteExpense(stampId, expenseId) {
+                const stamp = this.state.stamps.find(s => s.id === stampId);
+                if (stamp && stamp.expenses) {
+                    stamp.expenses = stamp.expenses.filter(e => e.id !== expenseId);
+                    this.saveState(); this.renderMain();
+                }
+            },
+
+            endDayAndStartNew() {
+                this.showConfirmationModal('هل أنت متأكد؟ سيتم حفظ تقرير اليوم وترحيل المخزون المتبقي ليوم جديد.', () => {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const { totalRevenue, totalExpenses, netCash, totalStampsSold } = this.calculateSummary();
+                    
+                    const daySummary = {
+                        date: todayStr, totalRevenue, totalExpenses, netCash, totalStampsSold,
+                        stamps: this.state.stamps.map(s => ({
+                            name: s.name, type: s.type, price: s.price, startQty: s.startQty, soldQty: s.soldQty,
+                            revenue: s.soldQty * s.price, expenses: JSON.parse(JSON.stringify(s.expenses || []))
+                        }))
+                    };
+                    
+                    const historyIndex = this.state.history.findIndex(h => h.date === todayStr);
+                    if (historyIndex > -1) { this.state.history[historyIndex] = daySummary; } 
+                    else { this.state.history.push(daySummary); }
+
+                    this.state.stamps.forEach(s => {
+                        const remaining = s.startQty - s.soldQty;
+                        s.startQty = remaining > 0 ? remaining : 0;
+                        s.soldQty = 0; s.isEditingPrice = false; s.expenses = [];
+                    });
+                    this.state.appMode = 'preparation'; 
+                    this.saveState(); 
+                    this.render();
+                    this.showNotification('تم حفظ تقرير اليوم بنجاح وبدأ يوم جديد.');
+                });
+            },
+
+            togglePriceEdit(id) {
+                const stamp = this.state.stamps.find(s => s.id === id);
+                if (stamp) { stamp.isEditingPrice = !stamp.isEditingPrice; this.saveState(); this.renderMain(); }
+            },
+
+            updatePrice(id) {
+                const stamp = this.state.stamps.find(s => s.id === id);
+                const newPrice = parseFloat(document.getElementById(price-input-${id}).value);
+                if (stamp && !isNaN(newPrice) && newPrice > 0) {
+                    stamp.price = newPrice; stamp.isEditingPrice = false; this.saveState(); this.renderMain();
+                } else {
+                    this.showErrorNotification('الرجاء إدخال سعر صحيح.');
+                }
+            },
+
+            addStock(id) {
+                const stamp = this.state.stamps.find(s => s.id === id);
+                const stockInput = document.getElementById(add-stock-input-${id});
+                const quantityToAdd = parseInt(stockInput.value, 10);
+                if (stamp && !isNaN(quantityToAdd) && quantityToAdd > 0) {
+                    stamp.startQty += quantityToAdd; stockInput.value = ''; this.saveState(); this.renderMain();
+                } else {
+                    this.showErrorNotification('الرجاء إدخال كمية صحيحة لإضافتها.');
+                }
+            },
+
+            // --- Notification & Modal Functions ---
+
+            showNotification(message) {
+                const notificationArea = document.getElementById('notification-area');
+                const notification = document.createElement('div');
+                notification.className = 'bg-green-500 text-white font-bold py-3 px-5 rounded-lg shadow-lg mb-2';
+                notification.textContent = message;
+                notificationArea.appendChild(notification);
+                setTimeout(() => {
+                    notification.classList.add('notification-fade-out');
+                    notification.addEventListener('transitionend', () => notification.remove());
+                }, 3000);
+            },
+
+            showErrorNotification(message) {
+                const notificationArea = document.getElementById('notification-area');
+                const notification = document.createElement('div');
+                notification.className = 'bg-red-500 text-white font-bold py-3 px-5 rounded-lg shadow-lg mb-2';
+                notification.textContent = message;
+                notificationArea.appendChild(notification);
+                setTimeout(() => {
+                    notification.classList.add('notification-fade-out');
+                    notification.addEventListener('transitionend', () => notification.remove());
+                }, 3000);
+            },
+            
+            showConfirmationModal(message, onConfirm) {
+                const modal = document.getElementById('confirmation-modal');
+                document.getElementById('modal-message').textContent = message;
+                this.state.modalCallback = onConfirm;
+                modal.classList.remove('hidden');
+            },
+
+            hideConfirmationModal() {
+                const modal = document.getElementById('confirmation-modal');
+                modal.classList.add('hidden');
+                this.state.modalCallback = null;
+            },
+            
+            // --- Helper Function ---
+            groupStampsByType(stamps) {
+                return stamps.reduce((groups, stamp) => {
+                    const type = stamp.type || 'غير مصنف';
+                    if (!groups[type]) {
+                        groups[type] = [];
+                    }
+                    groups[type].push(stamp);
+                    return groups;
+                }, {});
+            },
+
+            // --- Rendering Functions ---
+            render() {
+                this.renderUI();
+                if (this.state.currentView === 'main') {
+                    if (this.state.appMode === 'preparation') { this.renderPreparation(); } 
+                    else { this.renderMain(); }
+                } else if (this.state.currentView === 'history') {
+                    this.renderHistoryView();
+                } else {
+                    // Render settings view (which is just HTML, no dynamic content)
+                }
+            },
+            
+            renderUI() {
+                const view = this.state.currentView;
+                const isMainView = view === 'main';
+                const isHistoryView = view === 'history';
+                const isSettingsView = view === 'settings';
+
+                document.getElementById('preparation-section').classList.toggle('hidden', !isMainView || this.state.appMode !== 'preparation');
+                document.getElementById('main-section').classList.toggle('hidden', !isMainView || this.state.appMode !== 'main');
+                document.getElementById('history-section').classList.toggle('hidden', !isHistoryView);
+                document.getElementById('settings-section').classList.toggle('hidden', !isSettingsView);
+
+                // Helper for button state
+                const setBtnActive = (btnId, isActive) => {
+                    const btn = document.getElementById(btnId);
+                    btn.classList.toggle('bg-blue-600', isActive);
+                    btn.classList.toggle('text-white', isActive);
+                    btn.classList.toggle('bg-gray-200', !isActive); 
+                    btn.classList.toggle('text-gray-700', !isActive); 
                 };
-            }
-        }
 
+                setBtnActive('show-main-btn', isMainView);
+                setBtnActive('show-history-btn', isHistoryView);
+                setBtnActive('show-settings-btn', isSettingsView);
+            },
+            
+            renderPreparation() {
+                const prepList = document.getElementById('preparation-list');
+                 if (this.state.stamps.length === 0) {
+                     prepList.innerHTML = <p class="text-gray-500 text-center mt-4">ابدأ بإضافة نوع طابع وسعره.</p>;
+                     return;
+                 }
+                prepList.innerHTML = this.state.stamps.map(stamp => `
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-center p-3 bg-gray-50 rounded-md border">
+                        <div class="sm:col-span-2">
+                            <span class="font-bold text-gray-800">${stamp.name}</span>
+                            <span class="text-sm text-gray-500 ml-2">(${stamp.type} - ${stamp.price} دج)</span>
+                        </div>
+                        <div class="flex items-center">
+                             <label for="prep-qty-${stamp.id}" class="font-semibold text-gray-700 ml-2">الكمية:</label>
+                             <input type="number" id="prep-qty-${stamp.id}" value="${stamp.startQty}" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-500 no-spinner">
+                        </div>
+                        <div class="text-left">
+                            <button onclick="app.deleteStamp(${stamp.id})" class="text-red-500 hover:text-red-700 font-bold text-xl px-3 py-1 rounded-md hover:bg-red-100">&times;</button>
+                        </div>
+                    </div>`).join('');
+            },
 
-        function readFileAsBase64(file) {
-            return new Promise((resolve, reject) => {
-                if (!file.type.startsWith('image/')) {
-                    reject(new Error('ملف غير صالح، يجب أن يكون صورة.'));
+            renderMain() {
+                const groupedStamps = this.groupStampsByType(this.state.stamps);
+                const quickSellGrid = document.getElementById('quick-sell-grid');
+                const salesList = document.getElementById('sales-list');
+
+                quickSellGrid.innerHTML = '';
+                salesList.innerHTML = '';
+
+                if (Object.keys(groupedStamps).length === 0) {
+                    const noStampsMsg = '<p class="text-gray-500 col-span-full text-center">لا توجد طوابع لعرضها. ابدأ بإضافة طابع من شاشة الإعداد.</p>';
+                    quickSellGrid.innerHTML = noStampsMsg;
+                    salesList.innerHTML = noStampsMsg.replace('col-span-full', '');
+                    this.renderSummary();
                     return;
                 }
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const imageUrl = event.target.result;
-                    const base64Data = imageUrl.split(',')[1];
-                    resolve({ base64Data, mimeType: file.type });
-                };
-                reader.onerror = (error) => reject(error);
-                reader.readAsDataURL(file);
-            });
-        }
 
-        function appendResultToTable(data, isError = false) {
-            const row = document.createElement('tr');
-            row.className = isError ? 'bg-red-50 text-red-800' : 'bg-white';
+                for (const type of Object.keys(groupedStamps).sort()) {
+                    // --- 1. Populate Quick Sell Grid ---
+                    quickSellGrid.innerHTML += <h3 class="col-span-full text-lg font-bold text-blue-700 border-b-2 border-blue-200 mb-2 mt-4">${type}</h3>;
+                    const quickSellHtml = groupedStamps[type].map(stamp => {
+                        const remaining = stamp.startQty - stamp.soldQty;
+                        const isOutOfStock = remaining <= 0;
+                        const remainingColor = remaining <= 5 ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white';
+                        return `<button 
+                                    onclick="app.sellStamp(${stamp.id}, 1)" 
+                                    class="border ${remainingColor} rounded-lg p-2 text-center transition-all duration-200 transform hover:shadow-lg hover:-translate-y-1 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                    ${isOutOfStock ? 'disabled' : ''}
+                                >
+                                <h5 class="font-bold text-gray-800 text-sm">${stamp.name}</h5>
+                                <div class="my-1">
+                                    <span class="text-base font-bold text-blue-600">${stamp.soldQty}</span>
+                                    <span class="text-xs text-gray-500"> مباع</span>
+                                </div>
+                                <div class="text-xs font-semibold ${remaining <= 5 ? 'text-red-700' : 'text-green-700'}">
+                                    المتبقي: ${remaining}
+                                </div>
+                            </button>`;
+                    }).join('');
+                    quickSellGrid.innerHTML += quickSellHtml;
+
+                    // --- 2. Populate Detailed Sales List ---
+                    salesList.innerHTML += <h3 class="text-xl font-bold text-gray-800 mb-3 mt-5">${type}</h3>;
+                    const detailedListHtml = groupedStamps[type].map(stamp => {
+                        const remaining = stamp.startQty - stamp.soldQty;
+                        return `<div class="p-4 border rounded-lg bg-gray-50">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex items-center gap-2">
+                                    <h4 class="text-lg font-bold text-gray-800">${stamp.name}</h4>
+                                    <button onclick="app.deleteStamp(${stamp.id})" class="text-red-500 hover:text-red-700 font-bold text-2xl leading-none" title="حذف الطابع نهائياً">&times;</button>
+                                </div>
+                                ${stamp.isEditingPrice 
+                                    ? <div class="flex items-center gap-2"><input type="number" value="${stamp.price}" id="price-input-${stamp.id}" class="w-24 p-1 border rounded-md text-sm"><button onclick="app.updatePrice(${stamp.id})" class="bg-green-500 text-white px-2 py-1 text-xs rounded-md">حفظ</button><button onclick="app.togglePriceEdit(${stamp.id})" class="text-gray-500 text-xs">إلغاء</button></div> 
+                                    : <div class="flex items-center gap-2"><span class="text-sm font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded-full">${stamp.price} دج</span><button onclick="app.togglePriceEdit(${stamp.id})" class="text-gray-500 hover:text-blue-600 text-xl" title="تعديل السعر">✏</button></div>}
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center my-3">
+                                <div><p class="text-xs text-gray-500">الكمية الأولية</p><p class="font-bold text-lg">${stamp.startQty}</p></div>
+                                <div><p class="text-xs text-gray-500">المباع</p><p class="font-bold text-lg">${stamp.soldQty}</p></div>
+                                <div><p class="text-xs text-gray-500">المتبقي</p><p class="font-bold text-lg ${remaining <= 5 ? 'text-red-600' : 'text-green-600'}">${remaining}</p></div>
+                                <div><p class="text-xs text-gray-500">قيمة المبيعات</p><p class="font-bold text-lg text-green-600">${(stamp.soldQty * stamp.price).toFixed(2)} دج</p></div>
+                            </div>
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="app.sellStamp(${stamp.id}, -1)" class="bg-yellow-500 text-white w-12 h-12 rounded-full text-2xl font-bold flex items-center justify-center hover:bg-yellow-600">-</button>
+                                <button onclick="app.sellStamp(${stamp.id}, 1)" class="bg-green-500 text-white w-24 h-12 rounded-md text-xl font-bold flex items-center justify-center hover:bg-green-600">بيع</button>
+                                <button onclick="app.sellStamp(${stamp.id}, 10)" class="bg-blue-500 text-white w-20 h-12 rounded-md text-lg font-bold flex items-center justify-center hover:bg-blue-600">+10</button>
+                            </div>
+                            <div class="mt-4 pt-3 border-t flex items-center gap-2">
+                                <input type="number" id="add-stock-input-${stamp.id}" placeholder="كمية" class="w-24 p-2 border rounded-md text-center no-spinner"><button onclick="app.addStock(${stamp.id})" class="flex-1 bg-gray-200 text-gray-800 font-bold py-2 px-3 rounded-md hover:bg-gray-300 text-sm">إضافة مخزون</button>
+                            </div>
+                            <div class="mt-4 pt-3 border-t">
+                                <details><summary class="font-semibold cursor-pointer text-gray-700">إدارة مصاريف هذا الطابع</summary>
+                                    <div class="mt-2 p-3 bg-white rounded-md border">
+                                        <div class="space-y-2 mb-3"><input type="text" id="expense-desc-input-${stamp.id}" placeholder="وصف المصروف" class="w-full p-2 text-sm border rounded-md"><input type="number" id="expense-amount-input-${stamp.id}" placeholder="المبلغ" class="w-full p-2 text-sm border rounded-md no-spinner"><button onclick="app.addExpense(${stamp.id})" class="w-full bg-blue-500 text-white font-bold py-2 px-3 rounded-md text-sm">إضافة مصروف</button></div>
+                                        <div class="space-y-1">${(stamp.expenses && stamp.expenses.length > 0) ? stamp.expenses.map(exp => <div class="flex justify-between items-center bg-gray-100 p-2 rounded-md text-sm"><span>${exp.desc}</span><div class="flex items-center gap-2"><span class="font-bold">${exp.amount.toFixed(2)} دج</span><button onclick="app.deleteExpense(${stamp.id}, ${exp.id})" class="text-red-500 font-bold text-lg leading-none">&times;</button></div></div>).join('') : '<p class="text-xs text-center text-gray-500">لا توجد مصاريف.</p>'}</div>
+                                    </div>
+                                </details>
+                            </div>
+                        </div>`;
+                    }).join('');
+                    salesList.innerHTML += detailedListHtml;
+                }
+                
+                this.renderSummary();
+            },
             
-            const cellStyle = "whitespace-nowrap px-4 py-2";
-            const textStyle = isError ? 'font-medium' : 'text-gray-700';
-            const errorTextStyle = isError ? 'text-red-900' : 'text-gray-900';
+            calculateSummary(stampsList = this.state.stamps) {
+                const totalRevenue = stampsList.reduce((total, s) => total + (s.soldQty * s.price), 0);
+                const totalExpenses = stampsList.reduce((stampTotal, stamp) => {
+                    const stampExpenses = stamp.expenses ? stamp.expenses.reduce((expenseTotal, exp) => expenseTotal + exp.amount, 0) : 0;
+                    return stampTotal + stampExpenses;
+                }, 0);
+                const netCash = totalRevenue - totalExpenses;
+                const totalStampsSold = stampsList.reduce((total, s) => total + s.soldQty, 0);
+                return { totalRevenue, totalExpenses, netCash, totalStampsSold };
+            },
 
-            row.innerHTML = `
-                <td class="${cellStyle} ${textStyle}">${data.recipientType || 'N/A'}</td>
-                <td class="${cellStyle} ${textStyle}">${data.counterNumber || 'N/A'}</td>
-                <td class="${cellStyle} ${isError ? errorTextStyle : textStyle}">${data.fullName || 'لم يُعثر عليه'}</td>
-                <td class="${cellStyle} ${textStyle} ltr">${data.phoneNumber || 'N/A'}</td> 
-                <td class="${cellStyle} ${textStyle} ltr">${data.accountNumber || 'لم يُعثر عليه'}</td>
-            `;
-            resultsTableBody.appendChild(row);
-        }
+            renderSummary() {
+                const { totalRevenue, totalExpenses, netCash, totalStampsSold } = this.calculateSummary();
+                document.getElementById('total-revenue').textContent = ${totalRevenue.toFixed(2)} دج;
+                document.getElementById('total-expenses').textContent = ${totalExpenses.toFixed(2)} دج;
+                document.getElementById('net-cash').textContent = ${netCash.toFixed(2)} دج;
+                document.getElementById('total-stamps-sold').textContent = totalStampsSold;
+            },
 
-        function showMessage(message) {
-            messageText.textContent = message;
-            messageBox.classList.remove('hidden', 'opacity-0');
-            messageBox.classList.add('opacity-100');
-            setTimeout(() => {
-                messageBox.classList.remove('opacity-100');
-                messageBox.classList.add('opacity-0');
-                setTimeout(() => messageBox.classList.add('hidden'), 300);
-            }, 3000);
-        }
+            showView(view) {
+                this.state.currentView = view;
+                this.render();
+            },
+            
+            renderHistoryView() {
+                const datePicker = document.getElementById('history-date-picker');
+                datePicker.max = new Date().toISOString().split("T")[0];
+                this.renderHistoryReport();
+            },
 
-        // [تعديل] تم زيادة التأخير المبدئي لنظام إعادة المحاولة ليكون أكثر أماناً
-        async function fetchWithBackoff(url, options, retries = 3, delay = 1500) {
-            try {
-                const response = await fetch(url, options);
-                if ((response.status === 429 || response.status >= 500) && retries > 0) {
-                    console.warn(`[Backoff] API Error ${response.status}. Retrying in ${delay * 2}ms... (${retries} retries left)`);
-                    await new Promise(resolve => setTimeout(resolve, delay * 2)); // زيادة مدة الانتظار
-                    return fetchWithBackoff(url, options, retries - 1, delay * 2);
+            renderHistoryReport() {
+                const selectedDate = document.getElementById('history-date-picker').value;
+                const display = document.getElementById('history-display');
+                if (!selectedDate) {
+                    display.innerHTML = <p class="text-center text-gray-500">الرجاء اختيار تاريخ لعرض التقرير.</p>;
+                    return;
                 }
-                return response;
-            } catch (error) {
-                if (retries > 0) {
-                    console.warn(`[Backoff] Network Error. Retrying in ${delay * 2}ms... (${retries} retries left)`);
-                    await new Promise(resolve => setTimeout(resolve, delay * 2));
-                    return fetchWithBackoff(url, options, retries - 1, delay * 2);
+
+                const report = this.state.history.find(h => h.date === selectedDate);
+                if (!report) {
+                    display.innerHTML = <p class="text-center text-red-500 font-semibold">لا يوجد تقرير مسجل لهذا التاريخ.</p>;
+                    return;
                 }
-                throw error;
+
+                const groupedStamps = this.groupStampsByType(report.stamps);
+                let stampsHtml = '';
+
+                for (const type of Object.keys(groupedStamps).sort()) {
+                    stampsHtml += <h4 class="text-lg font-bold text-blue-700 border-b-2 border-blue-200 mb-2 mt-4">${type}</h4>;
+                    stampsHtml += groupedStamps[type].map(stamp => `
+                        <div class="p-3 border rounded-lg bg-gray-50">
+                            <p class="font-bold text-gray-800">${stamp.name}</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm mt-2">
+                                <p><strong>السعر:</strong> ${stamp.price} دج</p>
+                                <p><strong>المباع:</strong> ${stamp.soldQty}</p>
+                                <p><strong>المتبقي:</strong> ${stamp.startQty - stamp.soldQty}</p>
+                                <p class="text-green-600"><strong>الإيرادات:</strong> ${stamp.revenue.toFixed(2)} دج</p>
+                            </div>
+                            ${stamp.expenses && stamp.expenses.length > 0 ? `
+                            <div class="mt-2 pt-2 border-t">
+                                <p class="text-xs font-semibold">المصاريف الخاصة:</p>
+                                ${stamp.expenses.map(exp => <p class="text-xs text-red-600">${exp.desc}: ${exp.amount.toFixed(2)} دج</p>).join('')}
+                            </div>` : ''}
+                        </div>
+                    `).join('');
+                }
+
+
+                display.innerHTML = `
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center border-b pb-4">
+                        <div class="bg-green-100 p-4 rounded-lg shadow"><h3 class="font-bold text-gray-700">إجمالي المبيعات</h3><p class="text-2xl font-bold text-green-700">${report.totalRevenue.toFixed(2)} دج</p></div>
+                        <div class="bg-red-100 p-4 rounded-lg shadow"><h3 class="font-bold text-gray-700">إجمالي المصاريف</h3><p class="text-2xl font-bold text-red-700">${report.totalExpenses.toFixed(2)} دج</p></div>
+                        <div class="bg-blue-100 p-4 rounded-lg shadow"><h3 class="font-bold text-gray-700">صافي النقدية</h3><p class="text-2xl font-bold text-blue-700">${report.netCash.toFixed(2)} دج</p></div>
+                        <div class="bg-yellow-100 p-4 rounded-lg shadow"><h3 class="font-bold text-gray-700">طوابع مباعة</h3><p class="text-2xl font-bold text-yellow-800">${report.totalStampsSold}</p></div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">تفاصيل الطوابع:</h3>
+                    <div class="space-y-3">
+                        ${stampsHtml}
+                    </div>
+                `;
             }
-        }
+        };
 
+        app.init();
     </script>
 </body>
 </html>
-
